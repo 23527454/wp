@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xk.netty.dao.PersonDao">
+
+	<select id="queryOne" parameterType="java.lang.String"
+		resultType="com.xk.netty.entity.PersonEntity">
+		select 
+		PersonSysStatus as operateType,
+		PersonID as personId,
+		Sex as sex,
+		FingerID as fingerId,
+		DownLoadID as
+		downLoadId,
+		Name as name,
+		WorkNum as workNum,
+		Password as password,
+		IdentifyNumber as cardId,
+		CardNum as cardNum,
+		CurrAddress as address,
+		PersonType as type,
+		PhoteImage as photo,
+		ValidDate as validate,
+		FingerTemplate as fingerTemplate,
+		coercePwd as coercePassword
+		from
+		viewNoDownloadPerson where EquipID=#{equipId} order by DownloadID limit 1
+	</select>
+
+	<update id="updateSynStatus" parameterType="java.util.Map">
+		update
+		guard_download_person set download_time=#{downTime}, is_download=1
+		where id=#{id}
+	</update>
+
+	<select id="queryPersonPhoto" parameterType="java.util.Map"
+		resultType="com.xk.netty.entity.PersonEntity">
+		select
+		img_data as photo
+		from guard_staff_image where staff_id = #{staffId} and image_type=#{imageType}
+		<choose>
+			<when test="orderBy!=null">
+				order by id desc
+			</when>
+			<otherwise>
+				order by id
+			</otherwise>
+		</choose>
+		limit 1
+	</select>
+
+	<select id="queryFingerMode" parameterType="java.lang.String"
+		resultType="com.xk.netty.entity.PersonEntity">
+		select
+		backup_fp as backUpf,
+		finger_template as fingerTemplate,
+		coerce_template as coerceTemplate
+		from guard_finger_info where staff_id= #{staffId}
+	</select>
+
+	<update id="updateZFingerMode" parameterType="java.util.Map">
+		update
+		guard_finger_info 
+		set	finger_template = #{fingerMode}
+		where staff_id=#{staffId}
+	</update>
+	
+	<update id="updateFFingerMode" parameterType="java.util.Map">
+		update
+		guard_finger_info 
+		set	backup_fp = #{fingerMode}
+		where staff_id=#{staffId}
+	</update>
+
+	<update id="updateCFingerMode" parameterType="java.util.Map">
+		update
+		guard_finger_info
+		set	coerce_template = #{fingerMode}
+		where staff_id=#{staffId}
+	</update>
+
+	<update id="uploadSuperGoEventImag"
+		parameterType="java.util.Map">
+		update guard_event_detail set
+		image_data=#{photo},image_size=#{photoSize}
+		where id = (select a.id from (select id
+		from guard_event_detail where equipment_id=#{equipId} AND
+		record_id=#{Id} AND finger_id=#{FingerID} order by id DESC limit 1)a)
+	</update>
+
+	<update id="uploadSafeGuardEventImag"
+		parameterType="java.util.Map">
+		update guard_event_detail set
+		image_data=#{photo},image_size=#{photoSize}
+		where id = (select a.id from (select  id
+		from guard_event_detail where equipment_id=#{equipId} AND
+		record_id=#{Id} AND finger_id=#{FingerID} and event_type=3 order
+		by id DESC limit 1)a)
+	</update>
+	<!-- ============押解员事件================ -->
+	<insert id="insertSuperGoEvent" parameterType="java.util.Map">
+		insert into
+		guard_super_go_event(
+		equipment_id,
+		person_id,
+		finger_id,
+		record_id,
+		equip_sn,
+		time) VALUES(
+		#{equipId},
+		#{PersonID},
+		#{FingerID},
+		#{EventID},
+		#{EquipSN},
+		#{EventDate}
+		)
+	</insert>
+
+	<insert id="insertinsertSuperGoImag"
+		parameterType="java.util.Map">
+		insert into guard_event_detail(
+		equipment_id,
+		person_id,
+		finger_id,
+		record_id,
+		time,
+		image_size,
+		event_type,
+		author_type) VALUES(
+		#{equipId},
+		#{PersonID},
+		#{FingerID},
+		#{EventID},
+		#{EventDate},
+		#{PhotoSize},
+		2,
+		#{AuthorType}
+		)
+	</insert>
+
+	<!-- =================专员事件====================== -->
+	<insert id="insertCommissionerEvent"
+		parameterType="java.util.Map">
+		insert into guard_commissioner_event(
+		equipment_id,
+		person_id,
+		finger_id,
+		record_id,
+		equip_sn,
+		time,
+		event_type,
+		author_type) VALUES(
+		#{equipId},
+		#{PersonID},
+		#{FingerID},
+		#{EventID},
+		#{EquipSN},
+		#{EventDate},
+		2,
+		#{AuthorType}
+		)
+	</insert>
+
+	<!-- ================维保员事件====================== -->
+	<insert id="insertSafeGuardEvent" parameterType="java.util.Map">
+		insert into
+		guard_Safeguard_Event(
+		equipment_id,
+		person_id,
+		finger_id,
+		record_id,
+		equip_sn,
+		time) VALUES(
+		#{equipId},
+		#{PersonID},
+		#{FingerID},
+		#{EventID},
+		#{EquipSN},
+		#{EventDate}
+		)
+	</insert>
+
+	<insert id="insertSafeGuardEventDetail"
+		parameterType="java.util.Map">
+		insert into guard_event_detail(
+		equipment_id,
+		person_id,
+		finger_id,
+		record_id,
+		time,
+		image_size,
+		event_type,
+		author_type) VALUES(
+		#{equipId},
+		#{PersonID},
+		#{FingerID},
+		#{EventID},
+		#{EventDate},
+		#{PhotoSize},
+		3,
+		#{AuthorType}
+		)
+	</insert>
+</mapper>

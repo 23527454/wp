@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+	<appender name="consoleLog"
+		class="ch.qos.logback.core.ConsoleAppender">
+		<encoder>
+            <pattern>%d{HH:mm:ss.SSS} %contextName [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+	</appender>
+
+	<appender name="fileErrorLog"
+		class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<!-- <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+			<level>INFO</level>
+		</filter> -->
+		<rollingPolicy
+			class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<!-- 活动文件的名字会根据fileNamePattern的值，每隔一段时间改变一次 -->
+			<!-- 文件名：log/sys.2017-12-05.0.log -->
+			<fileNamePattern>logs/CommServer.%d.log</fileNamePattern>
+			<!-- 每产生一个日志文件，该日志文件的保存期限为30天 -->
+			<maxHistory>5</maxHistory>
+			<!--  <timeBasedFileNamingAndTriggeringPolicy
+				class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+				maxFileSize:这是活动文件的大小，默认值是10MB,本篇设置为1KB，只是为了演示
+				<maxFileSize>1KB</maxFileSize>
+			</timeBasedFileNamingAndTriggeringPolicy>  -->
+		</rollingPolicy>
+		<encoder>
+			<!-- pattern节点，用来设置日志的输入格式 -->
+			<pattern> %d %p [%thread] (%file:%line\)- %m%n  </pattern>
+			<!-- 记录日志的编码 -->
+			<!-- 此处设置字符集 -->
+		</encoder>
+	</appender>
+
+	<root>
+        <level value="INFO"/>
+		<appender-ref ref="consoleLog" />
+		<appender-ref ref="fileErrorLog" />
+    </root>
+	
+</configuration>

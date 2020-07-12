@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xk.netty.dao.TaskClassDao">
+	
+	<!-- ================排班同步=========================== -->
+	<select id="queryOne"  parameterType="java.lang.String"  resultType="com.xk.netty.entity.TaskClassEntity">
+		select 
+		TaskSysStatus as operateType,
+		DownloadID as downLoadId,
+		TaskID as taskId,
+		TaskGroupID as groupId,
+		TaskClass as taskClass,
+		WorkPerson as workPersonComfirm,
+		CheckCarCard as checkCarCard,
+		VerifyLocker as cashBoxComfirm,
+		TaskValidate as taskValidate,
+		WaitTimeout as waitTimeout,
+		SuperNum as superNum,
+		InterNum as interNum,
+		StartDate as startDate,
+		StartTime as startTime
+		from viewNoDownloadTask where EquipID=#{equipId}  order by DownloadID limit 1
+	</select>
+	
+	<select id="queryTaskCar" parameterType="string" resultType="string">
+		select CardNum from viewNoDownloadTaskCar where TaskID=#{taskId} 
+	</select>
+	
+	<select id="queryTaskPerson" parameterType="string" resultType="string">
+		select FingerNum from viewNoDownloadTaskPerson where TaskID=#{taskId} 
+	</select>
+	
+	<update id="updateSynStatus" parameterType="java.util.Map">
+		update guard_download_task set download_time =#{downTime}, is_download=1 where id=#{id}
+	</update>
+	
+</mapper>
+	

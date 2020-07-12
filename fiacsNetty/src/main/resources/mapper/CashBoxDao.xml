@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xk.netty.dao.CashBoxDao">
+	<!--   ==============款箱信息===================== -->
+	<select id="queryOne" parameterType="java.lang.String" resultType="com.xk.netty.entity.CashBoxEntity">
+		select  
+		MoneyBoxSysStatus as operateType,
+		DownloadID as downLoadId,
+		MoneyBoxType as boxType,
+		MoneyBoxID as boxId,
+		MoneyBoxInnerNum as boxInnerNum,
+		MoneyBoxCode as boxCode,
+		MoneyBoxAddr as boxAddr
+		from viewNoDownloadMoneyBox where EquipID=#{equipId} order by DownloadID limit 1
+	</select>
+	
+	<update id="updateSynStatus" parameterType="java.util.Map">
+		update guard_download_money_box set download_time=#{downTime}, is_download=1 where id=#{id}
+	</update>
+	
+	<!-- ===============款箱调拨=========================== -->
+	<select id="queryCashBoxAllot" parameterType="java.lang.String" resultType="java.util.Map">
+		select 
+		CashTaskSysStatus as OperateType,
+		MissionGroupID as GroupID,
+		DispatchGroupID as CashboxAllotID,
+		nAllotType as AllotType,
+		szAllotDate as AllotDate,
+		DownloadID as downLoadId,
+		CashBoxCard as CashboxID
+		from viewNoDownloadMoneyBoxAllot
+		where ID = (select ID from viewNoDownloadMoneyBoxAllot order by ID limit 1)
+	</select>
+	
+	<update id="updateSynAllotStatus" parameterType="java.util.Map">
+		update guard_download_money_box_allot set download_time=#{downTime}, is_download=1 
+		where id in 
+		<foreach collection="ids" item="item" separator="," open="(" close=")">
+			#{item}
+		</foreach>
+	</update>
+	
+	<!-- =====================款箱事件上传======================= -->
+	<insert id="insertCashBoxEvent" parameterType="java.util.Map">
+		insert into guard_money_box_event(
+		equipment_id, 
+		record_id, 
+		equip_sn, 
+		time,
+		task_id,
+		class_task_id) VALUES(
+			#{equipId},
+			#{EventID},
+			#{EquipSN},
+			#{EventDate},
+			#{TaskID},
+			#{GroupID}
+		)
+	</insert>
+	
+	<insert id="inserCashBoxEventDetail" parameterType="java.util.Map">
+		insert into guard_money_box_event_detail(
+		equipment_id, 
+		record_id,
+		event_type, 
+		equip_sn, 
+		time, 
+		money_box_id, 
+		card_num) VALUES(
+			#{equipId},
+			#{EventID},
+			0,
+			#{EquipSN},
+			#{EventDate},
+			#{ID},
+			#{CardNum}
+		)
+	</insert>
+	
+	<!-- ==================款箱预约============================ -->
+	<insert id="insertCashBoxOrder" parameterType="java.util.Map">
+		insert into guard_money_box_order(
+		equipment_id, 
+		money_box_order_id, 
+		equipment_sn, 
+		order_time, 
+		money_box_id, 
+		card_num, 
+		order_type, 
+		upload_time,
+		allot_return_time) VALUES(
+			#{equipId},
+			#{OrderID},
+			#{EquipSN},
+			#{OrderDate},
+			#{CashboxID},
+			#{CardNum},
+			#{OrderType},
+			now(),
+			#{Returndate}
+		)
+	</insert>
+	
+	<!-- ====================款箱上缴========================= -->
+	<insert id="insertCashBoxReturn" parameterType="java.util.Map">
+		insert into guard_money_box_return(
+		equipment_id, 
+		money_box_return_id, 
+		equipment_sn, 
+		return_time, 
+		money_box_id, 
+		return_type, 
+		upload_time,
+		card_num) values(
+			#{equipId},
+			#{ReturnID},
+			#{EquipSN},
+			#{ReturnDate},
+			#{CashboxID},
+			#{ReturnType},
+			now(),
+			#{CardNum}
+		)
+	</insert>
+</mapper>

@@ -1,0 +1,261 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xk.netty.dao.UploadInfoDao">
+	
+	<!-- =====================更新照片============================ -->
+	<update id="uploadAlarmEventImag" parameterType="java.util.Map">
+		update guard_event_detail set image_data=#{photo},image_size=#{photoSize} 
+		where id = (select a.id from (select  id from guard_event_detail where equipment_id=#{equipId} AND record_id=#{Id} AND finger_id=#{FingerID} and event_type = 2 order by id DESC limit 1)a)
+	</update>
+	
+	<update id="uploadAccessEventImag" parameterType="java.util.Map">
+		update guard_event_detail set image_data=#{photo},image_size=#{photoSize} 
+		where id = (select a.id from (select  id from guard_event_detail where equipment_id=#{equipId} AND record_id=#{Id} AND finger_id=#{FingerID} and event_type = 4 order by id DESC limit 1)a)
+	</update>
+	
+	<update id="uploadAccessAlarmEventImag" parameterType="java.util.Map">
+		update guard_event_detail set image_data=#{photo},image_size=#{photoSize} 
+		where id = (select a.id from (select  id from guard_event_detail where equipment_id=#{equipId} AND record_id=#{Id} AND finger_id=#{FingerID} and event_type = 5 order by id DESC limit 1)a)
+	</update>
+	
+	<!-- ===============查询设备信息========================== -->
+	<select id="queryEquipBySn" parameterType="java.lang.String" resultType="java.util.Map">
+		select 
+		office_id as officeId,
+		id,
+		site_type as siteType,
+		control_pos as controlPos,
+		ip,
+		port
+		 from guard_equipment where serial_num=#{equipSn}		
+	</select>
+	
+	<update id="updateEquipStatusBySn" parameterType="java.util.Map">
+		update guard_equipment set status=#{status} where serial_num=#{equipSn}
+	</update>
+	<!-- =========================交接事件========================== -->
+	<select id="countConnectEvent" parameterType="java.util.Map" resultType="int">
+		select count(1)
+		from guard_connect_event where record_id=#{EventID} AND equipment_id=#{equipId}
+		AND time=#{EventDate} AND equip_sn=#{EquipSN}
+	</select>
+
+	<insert id="insertConnectEvent" parameterType="java.util.Map">
+		insert into
+		guard_connect_event(
+		record_id,
+		equipment_id,
+		task_id,
+		task_type,
+		equip_sn,
+		time,
+		car_id,
+		money_box_event_id,
+		card_num,
+		class_task_id) VALUES(
+			#{EventID},
+			#{equipId},
+			#{TaskID},
+			#{TaskClass},
+			#{EquipSN},
+			#{EventDate},
+			#{CarID},
+			#{CashboxEventID},
+			#{CardNum},
+			#{GroupID}
+		)
+	</insert>
+	
+	<insert id="insertConnectEventPhoto" parameterType="java.util.Map">
+		insert into guard_event_detail(
+		equipment_id, 
+		person_id,  
+		finger_id, 
+		record_id, 
+		image_size, 
+		time,
+		event_type,
+		author_type) VALUES(
+			#{equipId},
+			#{PersonID},
+			#{FingerID},
+			#{EventID},
+			#{PhotoSize},
+			#{EventDate},
+			0,
+			#{AuthorType}
+		)
+	</insert>
+	
+	<insert id="insertConnectWorPerson" parameterType="java.util.Map">
+		insert into guard_commissioner_event(
+		person_id,
+		finger_id, 
+		record_id, 
+		equipment_id, 
+		equip_sn, 
+		time,
+		event_type,
+		author_type) values(
+			#{PersonID},
+			#{FingerID},
+			#{EventID},
+			#{equipId},
+			#{EquipSN},
+			#{EventDate},
+			0,
+			#{AuthorType}
+		)
+	</insert>
+	<!-- =================门禁出入事件==================== -->
+	<insert id="insertAccessEvent" parameterType="java.util.Map">
+		insert into tbAccessControlEvent(
+		equipment_id, 
+		person_id,
+		finger_id,
+		record_id,
+		equip_sn,
+		time,
+		event_type,
+		DoorPos,
+		AccessStatus) VALUES(
+			#{equipId},
+			#{PersonID},
+			#{FingerID},
+			#{EventID},
+			#{EquipSN},
+			#{EventDate},
+			#{EventType},
+			#{DoorPos},
+			#{AccessStatus}
+		)
+	</insert>
+	
+	<insert id="insertAccessEventDetail" parameterType="java.util.Map">
+		insert into guard_event_detail(
+		equipment_id, 
+		person_id,
+		finger_id, 
+		record_id, 
+		time, 
+		image_size,
+		event_type,
+		author_type) VALUES(
+			#{equipId},
+			#{PersonID},
+			#{FingerID},
+			#{EventID},
+			#{EventDate},
+			#{PhotoSize},
+			4,
+			#{AuthorType}
+		)
+	</insert>
+	
+	<!-- =============门禁报警事件========================== -->
+	<insert id="insertAccessAlarmEvent" parameterType="java.util.Map">
+		insert into tbAccessAlarmEvent(
+		equipment_id,
+		record_id,
+		equip_sn,
+		time,
+		event_type,
+		DoorPos,
+		Alarmstatus) VALUES(
+			#{equipId},
+			#{EventID},
+			#{EquipSN},
+			#{EventDate},
+			#{EventType},
+			#{DoorPos},
+			#{AlarmStatus}
+		)
+	</insert>
+	
+	<insert id="insertAccessAlarmEventDetail" parameterType="java.util.Map">
+		insert into guard_event_detail(
+		equipment_id, 
+		person_id,
+		finger_id, 
+		record_id, 
+		time, 
+		image_size,
+		event_type) VALUES(
+			#{equipId},
+			0,
+			0,
+			#{EventID},
+			#{EventDate},
+			#{PhotoSize},
+			5
+		)
+	</insert>	
+	
+	<!--====================== 异常报警事件 =================-->
+	<select id="countAlarmEvent" parameterType="java.util.Map" resultType="int">
+		select count(1)
+		from guard_alarm_event where record_id=#{EventID} AND equipment_id=#{equipId}
+		AND time=#{EventDate} AND equip_sn=#{EquipSN}
+	</select>
+	
+	<insert id="insertAlarmEvent"  parameterType="java.util.Map">
+		insert into guard_alarm_event(
+		record_id, 
+		equipment_id, 
+		class_task_id,
+		task_id, 
+		event_type,
+	    equip_sn, 
+	    time) VALUES(
+	    	#{EventID},
+	    	#{equipId},
+	    	#{GroupID},
+	    	#{TaskID},
+	    	#{EventClass},
+	    	#{EquipSN},
+	    	#{EventDate}
+	    )
+	</insert>
+	
+	<insert id="insertAlarmEventDetail"  parameterType="java.util.Map">
+		insert into guard_event_detail(
+		equipment_id, 
+		person_id,  
+		finger_id, 
+		record_id, 
+		image_size, 
+		time,
+		event_type) VALUES(
+			#{equipId},
+			0,
+			0,
+			#{EventID},
+			0,
+			#{EventDate},
+			1
+		)
+	</insert>
+	
+	<insert id="insertAlarmEventOfCashBox" parameterType="java.util.Map">
+		insert into guard_money_box_event_detail(
+		equipment_id,
+		record_id, 
+		equip_sn, 
+		event_type, 
+		time, 
+		money_box_id, 
+		card_num) VALUES(
+			#{equipId},
+			#{EventID},
+			#{EquipSN},
+			1,
+			#{EventDate},
+			#{ID},
+			#{CardNum}
+		)
+	</insert>
+	
+	<select id="queryIsAllowSuperDogCode" resultType="int">
+		select value from guard_sys_config where attribute='bIsAllowSuperDogCode'
+	</select>
+</mapper>

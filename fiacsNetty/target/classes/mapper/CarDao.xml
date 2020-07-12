@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xk.netty.dao.CarDao">
+	
+	<select id="queryCarPhoto" parameterType="java.lang.String" resultType="com.xk.netty.entity.CarEntity">
+		select img_data as photo from guard_car_image where car_id=#{carId}
+	</select>
+	
+	<!-- ================车辆同步=========================== -->
+	<select id="queryOne"  parameterType="java.lang.String"  resultType="com.xk.netty.entity.CarEntity">
+		select 
+		CarSysStatus as operateType,
+		DownloadID as downLoadId,
+		CarID as carId,
+		CarColor as color,
+		Carplate as carNum,
+		cardNum as carCard,
+		PhotoData as photo
+		from viewNoDownloadCar where EquipID=#{equipId}  order by downloadID limit 1
+	</select>
+	
+	<update id="updateSynStatus" parameterType="java.util.Map">
+		update guard_download_car set download_time =#{downTime}, is_download=1 where id=#{id}
+	</update>
+	
+	<!-- ==========================车辆达到事件================ -->
+	<insert id="insertCarArriveEvent" parameterType="java.util.Map">
+		insert into guard_car_event(
+		  equipment_id,
+		  car_id,
+		  record_id, 
+		  task_id, 
+		  time, 
+		  equip_sn,
+		  card_num,
+		  class_task_id) VALUES(
+		  	#{equipId},
+		  	#{CarID},
+		  	#{EventID},
+		  	#{TaskID},
+		  	#{EventDate},
+		  	#{EquipSN},
+		  	#{CardNum},
+		  	#{GroupID}
+		  )
+	</insert>
+</mapper>

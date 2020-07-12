@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xk.netty.dao.DoorDao">
+	
+	<select id="queryDoorParam" parameterType="java.lang.String" resultType="com.xk.netty.entity.DoorParamEntity">
+		select
+		DownloadID as downLoadId,
+		EquipID as equipId,
+		AccessParametersSysStatus as accessParmetersSysStatus,
+		nDoor_pos as doorPos,
+		nRelayactiontime as relayActionTime,
+		nDelayclosetime as delayCloseTime,
+		nAlarmTime as alarmTime,
+		nTimezonenumber as timeZoneNum,
+		nCombinationnumber as conmbinationNum,
+		nCenterpermit as centerPermit,
+		OpenType as openType
+		 from viewNoDownloadAccessParameters where EquipID=#{equipId} order by DownloadID limit 1
+	</select>
+	
+	<update id="updateParamSynsStatus" parameterType="java.util.Map">
+		update tbDownloadAccessParameters set download_time=#{downTime}, is_download=1 where id=#{id}
+	</update>
+	
+	<select id="queryDoorTimeZone" parameterType="java.lang.String" resultType="java.util.Map">
+		select  * from viewNoDownloadDoorTimeZone where EquipID=#{equipId} order by DownloadID limit 1
+	</select>
+	
+	<update id="updateTimeZoneSynsStatus" parameterType="java.util.Map">
+		update tbDownloadDoorTimeZone set download_time=#{downTime}, is_download=1 where id=#{id}
+	</update>
+</mapper>

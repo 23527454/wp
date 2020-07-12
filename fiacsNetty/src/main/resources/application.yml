@@ -1,0 +1,65 @@
+# Tomcat
+server:
+    tomcat:
+        uri-encoding: UTF-8
+        max-threads: 1000
+        min-spare-threads: 30
+    port: 8181
+
+# mysql
+spring:
+    datasource:
+        type: com.alibaba.druid.pool.DruidDataSource
+        druid:
+                  # driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
+                  # url: jdbc:sqlserver://localhost:1433;DatabaseName=FIACS
+                  # username: sa
+                  # password: zxyw8690
+                  driver-class-name: com.mysql.cj.jdbc.Driver
+                  url: jdbc:mysql://127.0.0.1:3306/fiacs?characterEncoding=utf8&useSSL=false&serverTimezone=UTC&zeroDateTimeBehavior=CONVERT_TO_NULL
+                  username: root
+                  password: 111111
+                  initial-size: 10 #指定启动连接池时，初始建立的连接数量
+                  max-active: 100 #指定连接池中最大的活跃连接数
+                  min-idle: 10 #指定连接池最小的空闲连接数量
+                  max-wait: 60000 #指定连接池等待连接返回的最大等待时间，毫秒单位
+                  pool-prepared-statements: false #指定是否池化statements
+            #max-pool-prepared-statement-per-connection-size: 20
+                  time-between-eviction-runs-millis: 60000 #指定空闲连接检查、废弃连接清理、空闲连接池大小调整之间的操作时间间隔
+                  min-evictable-idle-time-millis: 300000  #指定一个空闲连接最少空闲多久后可被清除
+            
+                  test-while-idle: false #当连接空闲时，是否执行连接测试
+                  test-on-borrow: false  #当从连接池借用连接时，是否测试该连接
+                  test-on-return: false #在连接归还到连接池时是否测试该连接
+                  stat-view-servlet:
+                      enabled: true
+                      url-pattern: /druid/*
+                      login-username: admin
+                      login-password: admin
+                  filter:
+                      stat:
+                          log-slow-sql: true
+                          slow-sql-millis: 1000
+                          merge-sql: true
+                      wall:
+                          config:
+                              multi-statement-allow: true
+    
+    jackson:
+        time-zone: GMT+8
+        date-format: yyyy-MM-dd HH:mm:ss
+ 
+netty: 
+   timeout: 20  #单位秒  多久没接受到客户端的消息 就主动断开
+   maxBossThread: 1
+   maxWorkThread: 4
+   shortLinksServer: 
+      port: 10002
+   longLinkServer: 
+      port: 10001
+   check:
+      timeCorn: 0 */10 * * * ?  #10分钟检测一次加密狗
+
+mybatis: 
+   mapper-locations: classpath*:mapper/*Dao.xml
+   

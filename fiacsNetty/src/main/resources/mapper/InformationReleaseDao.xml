@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xk.netty.dao.InformationReleaseDao">
+	
+	<!-- ================信息发布同步=========================== -->
+	<select id="queryOne"  parameterType="java.lang.String"  resultType="com.xk.netty.entity.InformationRelease">
+		select 
+		r.id,
+		d.id as DownloadID,
+		r.content as text,
+		r.begin_time as beginTime,
+		r.end_time as endTime
+		from guard_information_release_download d
+		left join guard_information_release r
+		on d.record_id = r.id
+		where d.equip_id=#{equipId}  and d.is_download=0 order by d.id limit 1
+	</select>
+	
+	<insert id="update" parameterType="java.util.Map">
+		update guard_information_release_download set download_time=#{downTime}, is_download=1 where id=#{id}
+	</insert>
+	
+</mapper>
+	
