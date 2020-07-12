@@ -124,7 +124,7 @@
     </div>
 
     <div class="form-group">
-        <label class="control-label col-xs-2"><font class="red">*未完成</font>人员分组:</label>
+        <label class="control-label col-xs-2"><font class="red">*</font>人员分组:</label>
         <div class="col-xs-2">
             <form:select path="staffGroup" cssClass="form-control input-sm">
                 <form:options items="${fns:getDictList('staff_group')}"

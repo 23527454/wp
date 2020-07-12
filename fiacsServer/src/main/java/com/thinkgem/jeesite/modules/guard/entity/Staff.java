@@ -53,8 +53,7 @@ public class Staff extends DataEntity<Staff> {
 	private List<Company> companyIds;
  
 	private List<String> compIds;
-	
-	
+
 	public List<String> getCompIds() {
 		return compIds;
 	}
