@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.guard.dao.FileEntityDao">
+
+	<select id="get" resultType="FileEntity">
+		SELECT
+		id,
+		remarks,
+		file_name as fileName,
+		file_path as filePath,
+		create_by
+		AS "createBy.id",
+		create_date AS "createDate"
+		FROM guard_file_info
+		WHERE id = #{id} and del_flag = '0'
+	</select>
+
+	<select id="findList" resultType="FileEntity">
+		SELECT
+		id,
+		remarks,
+		file_name as fileName,
+		file_path as filePath,
+		create_by
+		AS "createBy.id",
+		create_date AS "createDate"
+		FROM guard_file_info
+		<where>
+			del_flag = #{DEL_FLAG_NORMAL}
+			<if test="id != null and id != ''">
+				AND id = #{id}
+			</if>
+			<if test="fileName != null and fileName != ''">
+				AND file_name LIKE
+				<if test="dbName == 'oracle'">'%'||#{fileName}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{fileName}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{fileName},'%')</if>
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY create_date DESC
+			</otherwise>
+		</choose>
+	</select>
+
+	<insert id="insert" useGeneratedKeys="true" keyProperty="id">
+		INSERT
+		INTO guard_file_info(
+		file_name,
+		file_path,
+		remarks,
+		create_by,
+		create_date,
+		del_flag
+		) VALUES (
+		#{fileName},
+		#{filePath},
+		#{remarks},
+		#{createBy.id},
+		#{createDate},
+		0
+		)
+	</insert>
+
+	<update id="update">
+		UPDATE guard_file_info SET
+		remarks =
+		#{remarks}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		UPDATE guard_file_info SET
+		del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	<select id="findByName" resultType="FileEntity">
+		select * from guard_file_info where file_name=#{fileName} and del_flag=0
+	</select>
+</mapper>

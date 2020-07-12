@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.guard.dao.InformationReleaseDao">
+
+    <select id="get" resultType="InformationRelease">
+         select * from guard_information_release where id=#{id}
+    </select>
+
+    <select id="findList" resultType="InformationRelease">
+        select * from guard_information_release
+        <where>
+            <if test="title!=null and title!=''">
+                title like concat('%',#{title},'%')
+            </if>
+        </where>
+        order by id desc
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        insert into guard_information_release(
+            title,
+            content,
+            begin_time,
+            end_time,
+            create_time,
+            create_user,
+            scope
+        )values(
+            #{title},
+            #{content},
+            #{beginTime},
+            #{endTime},
+            #{createDate},
+            #{createBy.id},
+            #{scope}
+        )
+    </insert>
+
+    <update id="update">
+        update guard_information_release
+        <set>
+            title=#{title},
+            content=#{content},
+            begin_time=#{beginTime},
+            end_time=#{endTime},
+            scope=#{scope}
+        </set>
+        <where>
+            id=#{id}
+        </where>
+
+    </update>
+
+    <delete id="delete">
+        delete from guard_information_release where id=#{id}
+    </delete>
+
+    <delete id="deleteDownload">
+        delete from guard_information_release_download where record_id=#{id} and is_download=0
+    </delete>
+
+    <insert id="insertDownload">
+        insert into guard_information_release_download(
+            record_id,
+            equip_id
+        )values(
+            #{id},
+            #{equipId}
+        )
+    </insert>
+</mapper>

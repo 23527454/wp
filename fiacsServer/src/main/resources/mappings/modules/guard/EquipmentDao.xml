@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.guard.dao.EquipmentDao">
+
+	<sql id="equipmentColumns">
+		a.id AS "id",
+		a.office_id AS "office.id",
+		a.equip_type AS "equipType",
+		a.control_pos AS "controlPos",
+		a.ip AS "ip",
+		a.port AS "port",
+		a.serial_num AS "serialNum",
+		a.upload_event_srv_ip AS "uploadEventSrvIp",
+		a.upload_event_srv_port AS "uploadEventSrvPort",
+		a.net_gate AS "netGate",
+		a.net_mask AS "netMask",
+		a.status AS "status",
+		a.site_type AS "siteType",
+		a.print_server_ip AS "printServerIp",
+		a.print_server_port AS "printServerPort",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		o2.name AS "office.name",
+		o3.id AS "area.id",
+		o3.name AS "area.name",
+		a.access_type as "accessType"
+	</sql>
+
+	<sql id="equipmentJoins">
+		LEFT JOIN sys_office o2 ON o2.id = a.office_id
+		LEFT JOIN sys_area o3 ON o3.id = o2.area_id
+		LEFT JOIN sys_user u ON u.id = a.create_by
+	</sql>
+
+	<select id="get" resultType="Equipment">
+		SELECT
+		<include refid="equipmentColumns" />
+		FROM guard_equipment a
+		<include refid="equipmentJoins" />
+		WHERE a.id = #{id} and a.del_flag = '0'
+	</select>
+	
+	<select id="findOne" resultType="Equipment">
+		SELECT
+		<include refid="equipmentColumns" />
+		FROM guard_equipment a
+		<include refid="equipmentJoins" />
+		<where>
+			<if test="office.id != null">
+			and a.office_id = #{office.id}
+			</if>
+		</where>
+	</select>
+	
+
+	<select id="findList" resultType="Equipment">
+		SELECT
+		<include refid="equipmentColumns" />
+		FROM guard_equipment a
+		<include refid="equipmentJoins" />
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="id != null and id != ''">
+				AND a.id LIKE
+				concat('%',#{id},'%')
+			</if>
+			<if test="office != null and office.id != null and office.id != ''">
+				AND (o2.parent_ids LIKE
+				CONCAT('%,', #{office.id}, ',%')
+				OR a.office_id = #{office.id})
+			</if>
+			<if test="siteType != null and siteType != ''">
+				AND a.site_type = #{siteType}
+			</if>
+			<if test="ip != null and ip != ''">
+				AND a.ip = #{ip}
+			</if>
+			<if test="area != null and area.id != null and area.id != ''">
+				AND (o3.parent_ids LIKE
+				CONCAT('%,', #{area.id}, ',%')
+				OR o2.area_id = #{area.id})
+			</if>
+			${sqlMap.dsf}
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY o2.code
+			</otherwise>
+		</choose>
+	</select>
+
+	<select id="findAllList" resultType="Equipment">
+		SELECT
+		<include refid="equipmentColumns" />
+		FROM guard_equipment a
+		<include refid="equipmentJoins" />
+		<where>
+			${sqlMap.dsf}
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY o2.code 
+			</otherwise>
+		</choose>
+	</select>
+
+	<insert id="insert" useGeneratedKeys="true" keyProperty="id">
+		INSERT
+		INTO guard_equipment(
+		office_id,
+		equip_type,
+		control_pos,
+		ip,
+		port,
+		serial_num,
+		upload_event_srv_ip,
+		upload_event_srv_port,
+		net_gate,
+		net_mask,
+		status,
+		site_type,
+		print_server_ip,
+		print_server_port,
+		create_by,
+		create_date,
+		update_by,
+		update_date,
+		remarks,
+		del_flag,
+		access_type
+		) VALUES (
+		#{office.id},
+		#{equipType},
+		#{controlPos},
+		#{ip},
+		#{port},
+		#{serialNum},
+		#{uploadEventSrvIp},
+		#{uploadEventSrvPort},
+		#{netGate},
+		#{netMask},
+		#{status},
+		#{siteType},
+		#{printServerIp},
+		#{printServerPort},
+		#{createBy.id},
+		#{createDate},
+		#{updateBy.id},
+		#{updateDate},
+		#{remarks},
+		#{delFlag},
+		#{accessType}
+		)
+	</insert>
+
+	<update id="update">
+		UPDATE guard_equipment SET
+		office_id = #{office.id},
+		equip_type = #{equipType},
+		control_pos = #{controlPos},
+		ip = #{ip},
+		port
+		= #{port},
+		serial_num = #{serialNum},
+		upload_event_srv_ip =
+		#{uploadEventSrvIp},
+		upload_event_srv_port = #{uploadEventSrvPort},
+		net_gate = #{netGate},
+		net_mask = #{netMask},
+		status = #{status},
+		site_type = #{siteType},
+		print_server_ip = #{printServerIp},
+		print_server_port = #{printServerPort},
+		remarks = #{remarks},
+		access_type=#{accessType}
+		WHERE id =
+		#{id}
+	</update>
+
+	<update id="delete">
+		DELETE FROM guard_equipment WHERE id = #{id}
+	</update>
+
+	<select id="countByColumnExceptSelf" resultType="int">
+		SELECT
+			count(1)
+		FROM guard_equipment a
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="serialNum != null and serialNum != ''">
+				AND a.serial_num=#{serialNum}
+			</if>
+			<if test="ip != null and ip != ''">
+				AND a.ip=#{ip}
+			</if>
+			<if test="id != null and id != ''">
+				and a.id != #{id}
+			</if>
+		</where>
+	</select>
+	
+</mapper>

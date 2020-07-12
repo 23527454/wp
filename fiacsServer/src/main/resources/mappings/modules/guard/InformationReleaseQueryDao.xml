@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper
+	namespace="com.thinkgem.jeesite.modules.guard.dao.InformationReleaseQueryDao">
+
+	<sql id="informationReleaseQueryColumn">
+		a.id AS "id",
+		a.register_time AS "registerTime",
+		a.download_time AS "downloadTime",
+		a.is_download AS "isDownload",
+		o2.name as "office.name",
+		tb.title as "informationName"
+	</sql>
+
+	<sql id="informationReleaseQueryJoins">
+		LEFT JOIN guard_information_release tb on a.record_id = tb.id
+		LEFT JOIN guard_equipment eq ON eq.id = a.equip_id
+		LEFT JOIN
+		sys_office o2 ON o2.id = eq.office_id
+	</sql>
+
+	<select id="get" resultType="InformationReleaseQuery">
+		SELECT
+		<include refid="informationReleaseQueryColumn" />
+		FROM guard_information_release_download a
+		<include refid="informationReleaseQueryJoins" />
+		WHERE a.id = #{id}
+	</select>
+
+	<select id="findList" resultType="InformationReleaseQuery">
+		SELECT
+		<include refid="informationReleaseQueryColumn" />
+		FROM guard_information_release_download a
+		<include refid="informationReleaseQueryJoins" />
+		<where>
+			1=1
+			<if
+				test="office != null and  office.id !=null and office.name !=''">
+				AND o2.id =#{office.id}
+			</if>
+			<if test="downloadTime != null and downloadTime != ''">
+				AND (a.download_time >= #{downloadTime} or
+				a.download_time is NULL )
+			</if>
+			<if test="downloadTimeTwo != null and downloadTimeTwo != ''">
+				AND (#{downloadTimeTwo} >= a.download_time or
+				a.download_time is NULL )
+			</if>
+		</where>
+		<choose>
+			<when
+				test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				order by a.register_time desc
+			</otherwise>
+		</choose>
+	</select>
+
+	<update id="delete">
+		DELETE FROM guard_information_release_download
+		where id=#{id}
+	</update>
+
+</mapper>

@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.guard.dao.CarEventQueryDao">
+
+	<sql id="carEventQueryColumns">
+		a.id AS "id",
+		a.car_id AS "carId",
+		a.equipment_id AS "equipmentId",
+		a.record_id AS "recordId",
+		a.equip_sn AS "equipSn",
+		a.time AS "time",
+		a.task_id AS "taskId",
+		o1.id AS "office.id",
+		o1.name AS "office.name",
+		o2.id AS "area.id",
+		o2.name AS
+		"area.name",
+		a9.name AS "car.name",
+		a9.card_num AS "car.cardNum",
+		a9.carplate AS
+		"car.carplate",
+		a9.admin AS "car.admin"
+	</sql>
+
+	<sql id="carEventQueryJoins">
+		LEFT JOIN guard_equipment teq on teq.id = a.equipment_id
+		LEFT JOIN sys_office o1 ON o1.id = teq.office_id
+		LEFT JOIN guard_task_schedule_info a1 ON a1.id = a.task_id
+		LEFT JOIN guard_car a9 ON a9.id = a.car_id
+		LEFT JOIN sys_area o2 ON o2.id = o1.area_id
+	</sql>
+
+	<select id="get" resultType="CarEventQuery">
+		SELECT
+		<include refid="carEventQueryColumns" />
+		FROM guard_car_event a
+		<include refid="carEventQueryJoins" />
+		WHERE a.id = #{id}
+	</select>
+
+	<select id="findList" resultType="CarEventQuery">
+		SELECT
+		<include refid="carEventQueryColumns" />
+		FROM guard_car_event a
+		<include refid="carEventQueryJoins" />
+		<where>
+			<if test="id != null and id != ''">
+				AND a.id LIKE
+				<if test="dbName == 'oracle'">'%'||#{id}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{id}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{id},'%')</if>
+			</if>
+			<if test="car != null  and car.id != null and car.id != ''">
+				AND a.car_id LIKE
+				<if test="dbName == 'oracle'">'%'||#{car.id}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{car.id}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{car.id},'%')</if>
+			</if>
+			<if test="equipmentId != null and equipmentId != ''">
+				AND a.equipment_id LIKE
+				<if test="dbName == 'oracle'">'%'||#{equipmentId}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{equipmentId}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{equipmentId},'%')</if>
+			</if>
+			<if
+				test="area != null and area.id != '' and area.id != null">
+				AND a9.area_id = #{area.id}
+			</if>
+			<if
+				test="office != null and office.id != '' and office.id != null">
+				AND o1.id = #{office.id}
+			</if>
+			<if test="time != null and time != ''">
+				AND a.time >= #{time}
+			</if>
+			<if test="timeTwo != null and timeTwo != ''">
+				AND #{timeTwo} >= a.time
+			</if>
+			<if
+				test="car !=null and car.carplate != null and car.carplate != ''">
+				AND a9.carplate=#{car.carplate}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			ORDER BY a.time desc
+			</otherwise>
+		</choose>
+	</select>
+
+	<select id="findAllList" resultType="CarEventQuery">
+		SELECT
+		<include refid="carEventQueryColumns" />
+		FROM guard_car_event a
+		<include refid="carEventQueryJoins" />
+		<where>
+
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			ORDER BY a.time desc
+			</otherwise>
+		</choose>
+	</select>
+
+	<insert id="insert" useGeneratedKeys="true" keyProperty="id">
+		INSERT
+		INTO guard_car_event(
+		car_id,
+		equipment_id,
+		record_id,
+		equip_sn,
+		time,
+		task_id
+		) VALUES (
+		#{car.id},
+		#{equipmentId},
+		#{recordId},
+		#{equipSn},
+		#{time},
+		#{taskId}
+		)
+	</insert>
+
+	<update id="update">
+		UPDATE guard_car_event SET
+		car_id = #{car.id},
+		equipment_id = #{equipmentId},
+		record_id = #{recordId},
+		equip_sn =
+		#{equipSn},
+		time = #{time},
+		task_id = #{taskId}
+		WHERE id = #{id}
+	</update>
+
+	<update id="delete">
+		DELETE FROM guard_car_event
+		WHERE id = #{id}
+	</update>
+
+</mapper>

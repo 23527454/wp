@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.guard.dao.MoneyBoxAllotDao">
+
+	<sql id="moneyBoxAllotColumns">
+		a.id AS "id",
+		a.money_box_id AS "moneyBoxId",
+		a.equipment_id AS "equipmentId",
+		a.card_num as cardNum,
+		a.task_schedule_id AS "taskScheduleId",
+		a.schedule_time AS "scheduleTime",
+		a.allot_type AS "allotType",
+		a.del_flag AS "delFlag",
+		a.class_task_id as "classTaskInfo.id",
+		o.id AS "office.id",
+		o.name AS "office.name",
+		m.id AS "moneyBox.id",
+		m.box_code AS "moneyBox.boxCode",
+		m.card_num AS "moneyBox.cardNum",
+		m.box_type AS "moneyBox.boxType",
+		a.create_date as "createDate"
+	</sql>
+
+	<sql id="moneyBoxAllotJoins">
+		LEFT JOIN guard_equipment teq on teq.id = a.equipment_id
+		LEFT JOIN sys_office o ON o.id = teq.office_id
+		LEFT JOIN sys_area ar ON ar.id = o.area_id
+		LEFT JOIN guard_money_box m ON m.id = a.money_box_id
+	</sql>
+
+	<select id="get" resultType="MoneyBoxAllot">
+		SELECT
+		<include refid="moneyBoxAllotColumns" />
+		FROM guard_money_box_allot a
+		<include refid="moneyBoxAllotJoins" />
+		WHERE a.id = #{id}
+	</select>
+
+	<select id="findList" resultType="MoneyBoxAllot">
+		SELECT
+		<include refid="moneyBoxAllotColumns" />
+		FROM guard_money_box_allot a
+		<include refid="moneyBoxAllotJoins" />
+		<where>
+			<if
+				test="moneyBox != null and  moneyBox.boxCode != null and moneyBox.boxCode != ''">
+				AND m.box_code LIKE
+				<if test="dbName == 'oracle'">'%'||#{moneyBox.boxCode}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{moneyBox.boxCode}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{moneyBox.boxCode},'%')</if>
+			</if>
+			<if
+				test="moneyBox != null and  moneyBox.cardNum != null and moneyBox.cardNum != ''">
+				AND m.card_num LIKE
+				<if test="dbName == 'oracle'">'%'||#{moneyBox.cardNum}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{moneyBox.cardNum}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{moneyBox.cardNum},'%')</if>
+			</if>
+			<if test="office != null and  office.id !=null and office.name !=''">
+				AND o.id =#{office.id}
+			</if>
+			${sqlMap.dsf}
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+
+	<select id="findListByArea" resultType="MoneyBoxAllot">
+		SELECT
+		<include refid="moneyBoxAllotColumns" />
+		FROM guard_money_box_allot a
+		LEFT JOIN guard_money_box m ON m.id = a.money_box_id 
+		LEFT JOIN guard_equipment teq on teq.id = a.equipment_id
+		join sys_office o on teq.office_id = o.id
+		<where>
+			<if test="moneyBoxId != null and moneyBoxId != ''">
+				AND a.money_box_id LIKE
+				<if test="dbName == 'oracle'">'%'||#{moneyBoxId}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{moneyBoxId}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{moneyBoxId},'%')</if>
+			</if>
+			<if test="equipmentId != null and equipmentId != ''">
+				AND a.equipment_id = #{equipmentId}
+			</if>
+			<if test="taskId != null and taskId != ''">
+				AND a.task_id = #{taskId}
+			</if>
+			<if test="areaId != null and areaId != ''">
+				AND o.area_id = #{areaId}
+			</if>
+			<if test="scheduleTime != null and scheduleTime != ''">
+				
+				<if test="dbName == 'mssql'">AND (DateDiff(dd,a.schedule_time,#{scheduleTime}) = 0 or
+				allot_type =
+				0)</if>
+				<if test="dbName == 'mysql'">AND (DateDiff(date_format(a.schedule_time,'%Y-%m-%d'),#{scheduleTime}) = 0 or
+				allot_type =
+				0)</if>
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+
+	<select id="findAllList" resultType="MoneyBoxAllot">
+		SELECT
+		<include refid="moneyBoxAllotColumns" />
+		FROM guard_money_box_allot a
+		<include refid="moneyBoxAllotJoins" />
+		<where>
+			${sqlMap.dsf}
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+
+	<insert id="insert" useGeneratedKeys="true" keyProperty="id">
+		INSERT
+		INTO guard_money_box_allot(
+		money_box_id,
+		equipment_id,
+		task_schedule_id,
+		schedule_time,
+		allot_type,
+		del_flag,
+		class_task_id,
+		create_date,
+		create_by,
+		update_date,
+		update_by,
+		card_Num
+		) VALUES (
+		#{moneyBoxId},
+		#{equipmentId},
+		#{taskScheduleId},
+		#{scheduleTime},
+		#{allotType},
+		'0',
+		#{classTaskInfo.id},
+		#{createDate},
+		#{createBy.id},
+		#{updateDate},
+		#{updateBy.id},
+		#{cardNum}
+		)
+	</insert>
+
+	<update id="update">
+		UPDATE guard_money_box_allot SET
+		money_box_id = #{moneyBoxId},
+		equipment_id = #{equipmentId},
+		task_schedule_id = #{taskScheduleId},
+		schedule_time = #{scheduleTime},
+		allot_type = #{allotType},
+		update_date = #{updateDate}, 
+		update_by=#{updateBy.id},
+		WHERE id = #{id}
+	</update>
+
+	<update id="delete">
+		update guard_money_box_allot del_flag=1
+		WHERE id = #{id}
+	</update>
+
+	<select id="countByEntityCodition" resultType="int">
+		select count(1) from guard_money_box_allot
+		<where>
+			money_box_id=#{moneyBoxId}
+			and equipment_id = #{equipmentId}
+			and class_task_id=0
+			and task_schedule_id=0
+			and schedule_time = #{scheduleTime}
+			and allot_type=0
+			and del_flag=0
+		</where>
+	</select>
+</mapper>

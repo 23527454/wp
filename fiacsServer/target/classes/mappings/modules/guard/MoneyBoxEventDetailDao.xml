@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.guard.dao.MoneyBoxEventDetailDao">
+    
+	<sql id="moneyBoxEventDetailColumns">
+		a.id AS "id",
+		a.money_box_id AS "moneyBoxId",
+		a.record_id AS "recordId",
+		a.equipment_id AS "equipmentId",
+		a.equip_sn as equipSN,
+		a.time AS "time",
+		a.card_num AS "cardNum",
+		a.event_Type as eventType,
+		b.box_code as boxCode
+	</sql>
+	
+	<sql id="moneyBoxEventDetailJoins">
+		left join guard_money_box b on a.money_box_id = b.id
+	</sql>
+    
+	<select id="get" resultType="MoneyBoxEventDetail">
+		SELECT 
+			<include refid="moneyBoxEventDetailColumns"/>
+		FROM guard_money_box_event_detail a
+		<include refid="moneyBoxEventDetailJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="MoneyBoxEventDetail">
+		SELECT 
+			<include refid="moneyBoxEventDetailColumns"/>
+		FROM guard_money_box_event_detail a
+		<include refid="moneyBoxEventDetailJoins"/>
+		<where>
+			1=1 AND a.del_flag=0
+			<if test="recordId != null and recordId != ''">
+				AND a.record_id = #{recordId}
+			</if>
+			<!-- <if test="equipmentId != null and equipmentId != ''">
+				AND a.equipment_id =  #{equipmentId}
+			</if> -->
+			 <if test="equId != null and equId != ''">
+				AND a.equipment_id =  #{equId}
+			</if>
+			<if test="eventType != null and eventType != ''">
+				and a.event_type = #{eventType}
+			</if>
+			<if test="time != null and time!= ''" >
+				and a.time = #{time}
+			</if>
+			<if test="date != null and date != ''" >
+				and SUBSTRING(a.time, 1, 10) = #{date}
+			</if>
+			<if test="afterEqDate != null and afterEqDate != ''" >
+				<![CDATA[and a.time >= #{afterEqDate}]]>
+			</if>
+			<if test="beforeEqDate != null and beforeEqDate!= ''" >
+				<![CDATA[and a.time <= #{beforeEqDate}]]>
+			</if>
+			<if test="connectFlag != null and connectFlag != ''" >
+				and a.connect_flag = #{connectFlag}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.time desc
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="MoneyBoxEventDetail">
+		SELECT 
+			<include refid="moneyBoxEventDetailColumns"/>
+		FROM guard_money_box_event_detail a
+		<include refid="moneyBoxEventDetailJoins"/>
+		<where>
+			
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			order by a.time desc
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO guard_money_box_event_detail(
+			money_box_id,
+			record_id,
+			equipment_id,
+			time,
+			card_num,
+			event_type,
+			equip_sn,
+			del_flag,
+			connect_flag
+		) VALUES (
+			#{moneyBoxId},
+			#{recordId},
+			#{equipmentId},
+			#{time},
+			#{cardNum},
+			#{eventType},
+			#{equipSN},
+			#{flag},
+			#{connectFlag}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE guard_money_box_event_detail SET 	
+			record_id = #{recordId}
+		WHERE id = #{id}
+	</update>
+	<update id="delflag">
+		UPDATE guard_money_box_event_detail SET 	
+			del_flag = 1
+		WHERE 1=1
+		<if test="moneyBoxId != null and moneyBoxId != ''">
+				and money_box_id = #{moneyBoxId}
+			</if>
+			<if test="id != null and id!= ''" >
+				and id = #{id}
+			</if>
+	</update>
+	
+	<update id="delete">
+		DELETE FROM guard_money_box_event_detail
+		WHERE id = #{id}
+	</update>
+	<select id="moneyId" resultType="MoneyBoxEventDetail">
+		SELECT top 1  
+			<include refid="moneyBoxEventDetailColumns"/>
+		FROM guard_money_box_event_detail a
+		<include refid="moneyBoxEventDetailJoins"/>
+		WHERE a.money_box_id = #{moneyBoxId} 
+		 order by a.time desc 
+	</select>
+	
+</mapper>

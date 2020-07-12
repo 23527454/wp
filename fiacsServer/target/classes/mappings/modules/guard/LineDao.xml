@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.guard.dao.LineDao">
+
+	<sql id="lineColumns">
+	a.id AS "id",
+	a.line_name AS "lineName",
+	a.area_id AS "area.id",
+	a.allow_wrong_time_be_fore AS "allowWrongTimeBeFore",
+	a.allow_wrong_time_after AS "allowWrongTimeAfter",
+	a.line_order AS "lineOrder",
+	a.node_iunterval AS "nodeIunterval",
+	a.create_by AS "createBy.id",
+	a.create_date AS "createDate",
+	a.update_by AS "updateBy.id",
+	a.update_date AS "updateDate",
+	a.remarks AS "remarks",
+	a.del_flag AS "delFlag",
+	a4.name AS "area.name",
+	a4.parent_ids AS "area.parentIds"
+	</sql>
+
+	<sql id="lineJoins">
+		LEFT JOIN sys_area a4 ON a4.id = a.area_id
+		JOIN sys_user u
+		ON u.id = a.create_by
+	</sql>
+
+	<select id="get" resultType="Line">
+		SELECT
+		<include refid="lineColumns" />
+		FROM guard_line a
+		<include refid="lineJoins" />
+		WHERE a.id = #{id} and a.del_flag='0'
+	</select>
+
+	<select id="findList" resultType="Line">
+		SELECT
+		<include refid="lineColumns" />
+		FROM guard_line a
+		<include refid="lineJoins" />
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="id != null and id != ''">
+				AND a.id LIKE
+				<if test="dbName == 'oracle'">'%'||#{id}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{id}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{id},'%')</if>
+			</if>
+			<if test="area != null and area.id != null and area.id != ''">
+				AND (a4.parent_ids LIKE
+				<if test="dbName == 'oracle'">'%'||#{area.id}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{area.id}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{area.id},'%')</if>
+				OR a.area_id = #{area.id})
+			</if>
+			<if test="lineName != null and lineName != ''">
+				AND a.line_name LIKE
+				<if test="dbName == 'oracle'">'%'||#{lineName}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{lineName}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{lineName},'%')</if>
+			</if>
+			<if test="updateDate != null and updateDate != ''">
+				AND a.update_date = #{updateDate}
+			</if>
+			${sqlMap.dsf}
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+
+	<select id="findAllList" resultType="Line">
+		SELECT
+		<include refid="lineColumns" />
+		FROM guard_line a
+		<include refid="lineJoins" />
+		<where>
+			${sqlMap.dsf}
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+
+	<insert id="insert" useGeneratedKeys="true" keyProperty="id">
+		INSERT
+		INTO guard_line(
+		line_name,
+		area_id,
+		allow_wrong_time_be_fore,
+		allow_wrong_time_after,
+		line_order,
+		node_iunterval,
+		create_by,
+		create_date,
+		update_by,
+		update_date,
+		remarks,
+		del_flag
+		) VALUES (
+		#{lineName},
+		#{area.id},
+		#{allowWrongTimeBeFore},
+		#{allowWrongTimeAfter},
+		#{lineOrder},
+		#{nodeIunterval},
+		#{createBy.id},
+		#{createDate},
+		#{updateBy.id},
+		#{updateDate},
+		#{remarks},
+		#{delFlag}
+		)
+	</insert>
+
+	<update id="update">
+		UPDATE guard_line SET
+		line_name = #{lineName},
+		area_id
+		= #{area.id},
+		allow_wrong_time_be_fore = #{allowWrongTimeBeFore},
+		allow_wrong_time_after = #{allowWrongTimeAfter},
+		line_order =
+		#{lineOrder},
+		node_iunterval = #{nodeIunterval},
+		update_by =
+		#{updateBy.id},
+		update_date =
+		#{updateDate},
+		remarks = #{remarks}
+		WHERE id
+		= #{id}
+	</update>
+
+	<update id="delete">
+		UPDATE guard_line SET
+		del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+
+	<select id="countByColumnExceptSelf" resultType="int">
+		SELECT
+			count(1)
+		FROM guard_line a
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="lineName != null and lineName != ''">
+				AND a.line_name=#{lineName}
+			</if>
+			<if test="id != null and id != ''">
+				and a.id != #{id}
+			</if>
+		</where>
+	</select>
+	
+</mapper>

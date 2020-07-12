@@ -1,0 +1,49 @@
+# 服务配置 登录地址：http://localhost:8182/web
+server:
+  port: 8182
+  context-path: /web
+  jsp-servlet:
+    init-parameters:
+        development: true
+#mybatis:
+#  configuration:
+#    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
+# 关闭spring-security默认权限校验
+security:
+  basic:
+    enabled: false
+management:
+  security:
+    enabled: false
+
+# jsp视力解析配置
+spring:
+  mvc:
+    view:
+      prefix: /WEB-INF/views/
+      suffix: .jsp
+  http: 
+    multipart: 
+       max-file-size: 100Mb
+
+jdbc: 
+   url: jdbc:mysql://127.0.0.1:3306/fiacs?characterEncoding=UTF-8&amp;zeroDateTimeBehavior=convertToNull&amp;useSSL=false
+   driver: com.mysql.jdbc.Driver
+   username: root
+   password: root
+   type: mysql
+   testSql: SELECT 'x'
+   pool:
+      init: 1
+      minIdle: 3
+      maxActive: 20
+      
+logging:
+  level:
+     com.thinkgem.jeesite.modules.guard.dao.StaffDao: debug
+
+
+projectPath: 
+   images: /fiacsServer/images/
+   filePath: /fiacsServer/upload/

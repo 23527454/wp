@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.guard.dao.AlarmEventQueryDao">
+
+	<sql id="alarmEventQueryColumns">
+		a.id AS "id",
+		o1.id AS "office.id",
+		a.record_id AS "recordId",
+		a.event_type AS "eventType",
+		a.equip_sn AS "equipSn",
+		a.equipment_id as "equipmentId",
+		a.time AS "time",
+		a.task_id AS "taskScheduleInfo.id",
+		a1.allot_date AS "taskScheduleInfo.allotDate",
+		a1.allot_time AS "taskScheduleInfo.allotTime",
+		a1.task_date AS "taskScheduleInfo.taskDate",
+		a1.task_time AS "taskScheduleInfo.taskTime",
+		a1.task_type AS "taskScheduleInfo.taskType",
+		o1.name AS "office.name",
+		a2.id AS
+		"classTaskfo.id",
+		a2.name AS "classTaskfo.name",
+		o2.id AS "area.id",
+		o2.name AS "area.name"
+	</sql>
+
+	<sql id="alarmEventQueryJoins">
+		LEFT JOIN guard_equipment teq on teq.id = a.equipment_id
+		LEFT JOIN sys_office o1 ON o1.id = teq.office_id
+		LEFT JOIN guard_task_schedule_info a1 ON a1.id = a.task_id
+		LEFT JOIN guard_class_task_info a2 ON a2.id = a1.class_task_id
+		LEFT JOIN sys_area
+		o2 ON o2.id = o1.area_id
+	</sql>
+
+	<select id="get" resultType="AlarmEventQuery">
+		SELECT
+		<include refid="alarmEventQueryColumns" />
+		FROM guard_alarm_event a
+		<include refid="alarmEventQueryJoins" />
+		WHERE a.id = #{id}
+	</select>
+
+	<select id="findList" resultType="AlarmEventQuery">
+		SELECT
+		<include refid="alarmEventQueryColumns" />
+		FROM guard_alarm_event a
+		<include refid="alarmEventQueryJoins" />
+		<where>
+
+			<if test="id != null and id != ''">
+				AND a.id LIKE
+				<if test="dbName == 'oracle'">'%'||#{id}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{id}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{id},'%')</if>
+			</if>
+			<if test="recordId != null and recordId != ''">
+				AND a.record_id LIKE
+				<if test="dbName == 'oracle'">'%'||#{recordId}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{recordId}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{recordId},'%')</if>
+			</if>
+			<if test="eventType != null and eventType != ''">
+				AND a.event_type = #{eventType}
+			</if>
+			<if
+				test="area != null and area.id != '' and area.id != null">
+				AND o1.area_id = #{area.id}
+			</if>
+			<if
+				test="office != null and office.id != '' and office.id != null">
+				AND o1.id = #{office.id}
+			</if>
+			<if test="time != null and time != ''">
+				AND a.time >= #{time}
+			</if>
+			<if test="timeTwo != null and timeTwo != ''">
+				AND #{timeTwo} >= a.time
+			</if>
+			${sqlMap.dsf}
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			order by a.time desc
+			</otherwise>
+		</choose>
+	</select>
+
+	<select id="findAllList" resultType="AlarmEventQuery">
+		SELECT
+		<include refid="alarmEventQueryColumns" />
+		FROM guard_alarm_event a
+		<include refid="alarmEventQueryJoins" />
+		<where>
+			${sqlMap.dsf}
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			order by a.time desc
+			</otherwise>
+		</choose>
+	</select>
+
+	<insert id="insert" useGeneratedKeys="true" keyProperty="id">
+		INSERT
+		INTO guard_alarm_event(
+		equipment_id,
+		record_id,
+		event_type,
+		equip_sn,
+		time,
+		task_id
+		) 
+		select 
+			equ.id,
+			#{recordId},
+			#{eventType},
+			#{equipSn},
+			#{time},
+			#{taskScheduleInfo.id}
+		from guard_equipment equ where office_id=#{office.id}
+	</insert>
+
+	<update id="update">
+		UPDATE guard_alarm_event SET
+		equipment_id =(
+			select 
+				equ.id
+			from guard_equipment equ where office_id=#{office.id}
+		),
+		record_id = #{recordId},
+		event_type = #{eventType},
+		equip_sn = #{equipSn},
+		time = #{time},
+		task_id = #{taskScheduleInfo.id}
+		WHERE id = #{id}
+	</update>
+
+	<update id="delete">
+		DELETE FROM guard_alarm_event
+		WHERE id = #{id}
+	</update>
+
+</mapper>

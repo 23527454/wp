@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.guard.dao.TbequipmentDao">
+    
+	<sql id="tbequipmentColumns">
+		a.id AS "id",
+		a.nattrareaid AS "nattrareaid",
+		a.nequiptype AS "nequiptype",
+		a.szip AS "szip",
+		a.nport AS "nport",
+		a.area_id AS "area.id",
+		a.szserialnum AS "szserialnum",
+		a.szuploadeventsrvip AS "szuploadeventsrvip",
+		a.nuploadeventsrvport AS "nuploadeventsrvport",
+		a.ninitstate AS "ninitstate",
+		a.sznetgate AS "sznetgate",
+		a.sznetmask AS "sznetmask",
+		a.ndevicestatus AS "ndevicestatus",
+		a.szprintserverip AS "szprintserverip",
+		a.nprintserverport AS "nprintserverport",
+		a.nsitetype AS "nsitetype",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a6.name AS "area.name"
+	</sql>
+	
+	<sql id="tbequipmentJoins">
+		LEFT JOIN sys_area a6 ON a6.id = a.area_id
+	</sql>
+    
+	<select id="get" resultType="Tbequipment">
+		SELECT 
+			<include refid="tbequipmentColumns"/>
+		FROM tbequipment a
+		<include refid="tbequipmentJoins"/>
+		WHERE a.id = #{id} and a.del_flag = '0'
+	</select>
+	
+	<select id="findList" resultType="Tbequipment">
+		SELECT 
+			<include refid="tbequipmentColumns"/>
+		FROM tbequipment a
+		<include refid="tbequipmentJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="id != null and id != ''">
+				AND a.id LIKE 
+					<if test="dbName == 'oracle'">'%'||#{id}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{id}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{id},'%')</if>
+			</if>
+			<if test="area != null and area.id != null and area.id != ''">
+				AND a.area_id = #{area.id}
+			</if>
+			<if test="szserialnum != null and szserialnum != ''">
+				AND a.szserialnum LIKE 
+					<if test="dbName == 'oracle'">'%'||#{szserialnum}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{szserialnum}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{szserialnum},'%')</if>
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="Tbequipment">
+		SELECT 
+			<include refid="tbequipmentColumns"/>
+		FROM tbequipment a
+		<include refid="tbequipmentJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO tbequipment(
+			nattrareaid,
+			nequiptype,
+			szip,
+			nport,
+			area_id,
+			szserialnum,
+			szuploadeventsrvip,
+			nuploadeventsrvport,
+			ninitstate,
+			sznetgate,
+			sznetmask,
+			szprintserverip,
+			nprintserverport,
+			nsitetype,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag
+		) VALUES (
+			#{nattrareaid},
+			#{nequiptype},
+			#{szip},
+			#{nport},
+			#{area.id},
+			#{szserialnum},
+			#{szuploadeventsrvip},
+			#{nuploadeventsrvport},
+			#{ninitstate},
+			#{sznetgate},
+			#{sznetmask},
+			#{szprintserverip},
+			#{nprintserverport},
+			#{nsitetype},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE tbequipment SET 	
+			nequiptype = #{nequiptype},
+			szip = #{szip},
+			nport = #{nport},
+			area_id = #{area.id},
+			szserialnum = #{szserialnum},
+			szuploadeventsrvip = #{szuploadeventsrvip},
+			nuploadeventsrvport = #{nuploadeventsrvport},
+			sznetgate = #{sznetgate},
+			sznetmask = #{sznetmask},
+			szprintserverip = #{szprintserverip},
+			nprintserverport = #{nprintserverport},
+			nsitetype = #{nsitetype},
+			create_by = #{createBy.id},
+			create_date = #{createDate},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		UPDATE tbequipment SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+</mapper>

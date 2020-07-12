@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.guard.dao.DownloadMoneyBoxDao">
+
+	<sql id="downloadMoneyBoxColumns">
+		a.id AS "id",
+		a.money_box_id AS "moneyBoxId",
+		eq.id AS "equipmentId",
+		a.register_time AS "registerTime",
+		a.download_time AS "downloadTime",
+		a.is_download AS "isDownload",
+		a.download_type AS "downloadType",
+		a3.box_code AS "moneyBox.boxCode",
+		a3.card_num AS "moneyBox.cardNum",
+		a3.box_type AS "moneyBox.boxType",
+		o3.name AS "office.name",
+		o3.id AS "office.id"
+	</sql>
+
+	<sql id="downloadMoneyBoxJoins">
+		inner JOIN guard_money_box a3 ON a3.id = a.money_box_id
+		inner JOIN guard_equipment eq on eq.id = a.equipment_id
+		inner JOIN sys_office o3 ON o3.id = eq.office_id
+	</sql>
+
+	<select id="get" resultType="DownloadMoneyBox">
+		SELECT
+		<include refid="downloadMoneyBoxColumns" />
+		FROM guard_download_money_box a
+		<include refid="downloadMoneyBoxJoins" />
+		WHERE a.id = #{id}
+	</select>
+
+	<select id="findList" resultType="DownloadMoneyBox">
+		SELECT
+		<include refid="downloadMoneyBoxColumns" />
+		FROM guard_download_money_box a
+		
+		<include refid="downloadMoneyBoxJoins" />
+		<where>1=1 AND o3.id IN  
+				    <foreach collection="officeIds" index="index" item="item" open="(" separator="," close=")">  
+				        ${item}  
+				    </foreach>  
+			<if
+				test="moneyBox != null and  moneyBox.boxCode != null and moneyBox.boxCode != ''">
+				AND a3.box_code =#{moneyBox.boxCode}
+			</if>
+			<if
+				test="office != null and  office.id !=null and office.name !=''">
+				AND o3.id =#{office.id}
+			</if>
+			<if test="downloadTime != null and downloadTime != ''">
+				AND (a.download_time >= #{downloadTime} or a.download_time is NULL )
+			</if>
+			<if test="downloadTimeTwo != null and downloadTimeTwo != ''">
+				AND (#{downloadTimeTwo} >= a.download_time or a.download_time is NULL )
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			order by a.register_time desc
+			</otherwise>
+		</choose>
+	</select>
+
+	<select id="findAllList" resultType="DownloadMoneyBox">
+		SELECT
+		<include refid="downloadMoneyBoxColumns" />
+		FROM guard_download_money_box a
+		<include refid="downloadMoneyBoxJoins" />
+		<where>
+
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			order by a.register_time desc
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="countByEntity" resultType="int">
+	select count(1) from guard_download_money_box where
+		money_box_id=#{moneyBoxId} AND equipment_id= #{equipmentId} AND
+		is_download=#{isDownload} AND download_type=#{downloadType}
+	</select>
+	<insert id="insert" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO
+		guard_download_money_box(
+		money_box_id,
+		equipment_id,
+		register_time,
+		download_time,
+		is_download,
+		download_type
+		) VALUES (
+		#{moneyBoxId},
+		#{equipmentId},
+		#{registerTime},
+		#{downloadTime},
+		#{isDownload},
+		#{downloadType}
+		)
+	</insert>
+
+	<update id="update">
+		UPDATE guard_download_money_box SET
+		money_box_id =
+		#{moneyBoxId}
+		WHERE id = #{id}
+	</update>
+
+	<update id="delete">
+	<!-- UPDATE guard_download_money_box SET 	
+			download_type = '2'	
+		WHERE id = #{id} and is_download='0' -->
+		
+		DELETE FROM guard_download_money_box
+		WHERE id = #{id}
+	</update>
+	<update id="delete1">
+	<!-- UPDATE guard_download_person SET
+		download_type ='2'
+		WHERE id = #{id} -->
+	
+		DELETE FROM guard_download_money_box
+		WHERE money_box_id = #{moneyBoxId} and is_download=#{isDownload}
+	</update>
+
+</mapper>

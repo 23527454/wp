@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.guard.dao.ConnectEventQueryDao">
+
+	<sql id="connectEventQueryColumns">
+		a.id AS "id",
+		a.equipment_id AS "office.id",
+		a.event_id AS "eventId",
+		a.task_type AS "taskType",
+		a.equip_sn AS "equipSn",
+		a.time AS "time",
+		a.task_id AS "taskScheduleInfo.id",
+		a.car_id AS "car.id",
+		o1.name AS "office.name",
+		a1.task_type AS "taskScheduleInfo.taskType",
+		a1.allot_date AS "taskScheduleInfo.allotDate",
+		a1.allot_time AS "taskScheduleInfo.allotTime",
+		a1.task_date AS "taskScheduleInfo.taskDate",
+		a1.task_time AS "taskScheduleInfo.taskTime",
+		a2.id AS "taskScheduleInfo.classTaskfo.id",
+		a2.name AS "taskScheduleInfo.classTaskfo.name",
+		a3.id AS "taskScheduleInfo.classTaskfo.staffOne.id",
+		a3.name AS "taskScheduleInfo.classTaskfo.staffOne.name",
+		a4.id AS "taskScheduleInfo.classTaskfo.staffTwo.id",
+		a4.name AS "taskScheduleInfo.classTaskfo.staffTwo.name",
+		a5.finger_num AS "fingerNumOne",
+		a6.finger_num AS "fingerNumTwo",
+		a7.image_path AS "imagePathOne",
+		a8.image_path AS "imagePathTwo",
+		o2.name AS "office.area.name",
+		o2.id AS "office.area.id",
+		a9.name AS "car.name",
+		a9.card_num AS "car.cardNum",
+		a9.carplate AS "car.carplate",
+		a9.image_path AS "car.imagePath"
+	</sql>
+
+	<sql id="connectEventQueryJoins">
+		LEFT JOIN guard_task_schedule_info a1 ON a1.id = a.task_id
+		LEFT JOIN guard_class_task_info a2 ON a2.id = a1.class_task_id
+		LEFT JOIN guard_staff a3 ON a3.id = a2.person_one_id
+		LEFT JOIN guard_staff a4 ON a4.id = a2.person_two_id
+		LEFT JOIN guard_finger_info a5 ON a5.staff_id = a3.id
+		LEFT JOIN guard_finger_info a6 ON a6.staff_id = a4.id
+		LEFT JOIN guard_staff_image a7 ON (a7.staff_id = a3.id AND a7.image_type=0)
+		LEFT JOIN guard_staff_image a8 ON (a8.staff_id = a4.id AND a8.image_type=0)
+		LEFT JOIN guard_car a9 ON a9.id = a.car_id
+		LEFT JOIN guard_equipment teq on teq.id = a.equipment_id
+		LEFT JOIN sys_office o1 ON o1.id = teq.office_id
+		LEFT JOIN sys_area o2 ON o2.id = o1.area_id
+	</sql>
+
+	<select id="get" resultType="ConnectEventQuery">
+		SELECT
+		<include refid="connectEventQueryColumns" />
+		FROM guard_connect_event a
+		<include refid="connectEventQueryJoins" />
+		WHERE a.id = #{id}
+	</select>
+
+	<select id="findList" resultType="ConnectEventQuery">
+		SELECT
+		<include refid="connectEventQueryColumns" />
+		FROM guard_connect_event a
+		<include refid="connectEventQueryJoins" />
+		<where>
+
+			<if test="id != null and id != ''">
+				AND a.id LIKE
+				<if test="dbName == 'oracle'">'%'||#{id}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{id}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{id},'%')</if>
+			</if>
+			<if test="eventId != null and eventId != ''">
+				AND a.event_id LIKE
+				<if test="dbName == 'oracle'">'%'||#{eventId}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{eventId}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{eventId},'%')</if>
+			</if>
+			<if test="taskType != null and taskType != ''">
+				AND a.task_type = #{taskType}
+			</if>
+			<if
+				test="office != null and office.area != '' and office.area != null and office.area.id != '' and office.area.id != null">
+				AND o2.id = #{office.area.id}
+			</if>
+			<if test="office != null  and office.id != '' and office.id != null">
+				AND o1.id = #{office.id}
+			</if>
+			<if test="time != null and time != ''">
+				AND a.time >= #{time}
+			</if>
+			<if test="taskDateTwo != null and taskDateTwo != ''">
+				AND #{taskDateTwo} >= a.time
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			ORDER BY a.time desc
+			</otherwise>
+		</choose>
+	</select>
+
+	<select id="findAllList" resultType="ConnectEventQuery">
+		SELECT
+		<include refid="connectEventQueryColumns" />
+		FROM guard_connect_event a
+		<include refid="connectEventQueryJoins" />
+		<where>
+
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			ORDER BY a.time desc
+			</otherwise>
+		</choose>
+	</select>
+
+	<insert id="insert" useGeneratedKeys="true" keyProperty="id">
+		INSERT
+		INTO guard_connect_event(
+		equipment_id,
+		event_id,
+		task_type,
+		equip_sn,
+		time,
+		task_id,
+		car_id
+		) 
+		select 
+			equ.id,
+			#{eventId},
+			#{taskType},
+			#{equipSn},
+			#{time},
+			#{taskScheduleInfo.id},
+			#{car.id}
+		from guard_equipment equ where office_id=#{office.id}
+	</insert>
+
+	<update id="update">
+		UPDATE guard_connect_event SET
+		equipment_id =(
+			select 
+				equ.id
+			from guard_equipment equ where office_id=#{office.id}
+		),
+		event_id = #{eventId},
+		task_type = #{taskType},
+		equip_sn
+		= #{equipSn},
+		time = #{time},
+		task_id = #{taskScheduleInfo.id},
+		car_id =
+		#{car.id}
+		WHERE id = #{id}
+	</update>
+
+	<update id="delete">
+		DELETE FROM guard_connect_event
+		WHERE id = #{id}
+	</update>
+
+</mapper>

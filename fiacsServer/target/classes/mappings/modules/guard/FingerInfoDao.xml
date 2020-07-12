@@ -1,0 +1,252 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.guard.dao.FingerInfoDao">
+
+	<resultMap id="BaseResultMap"
+		type="com.thinkgem.jeesite.modules.guard.entity.FingerInfo">
+		<id column="id" property="id" jdbcType="INTEGER" />
+		<result column="staffId" property="staffId" jdbcType="VARCHAR" />
+		<result column="fingerNum" property="fingerNum" jdbcType="VARCHAR" />
+		<result column="cardNum" property="cardNum" jdbcType="VARCHAR" />
+		<result column="pwd" property="pwd" jdbcType="VARCHAR" />
+		<result column="coercePwd" property="coerce_pwd" jdbcType="VARCHAR" />
+		<result column="startDate" property="startDate" jdbcType="TIMESTAMP" />
+		<result column="endDate" property="endDate" jdbcType="TIMESTAMP" />
+		<result column="areaId" property="areaId" jdbcType="VARCHAR" />
+		<result column="fingerTemplate" property="fingerTemplate"
+			javaType="_byte[]" jdbcType="VARBINARY" />
+		<result column="backupFp" property="backupFp" javaType="_byte[]"
+			jdbcType="VARBINARY" />
+		<result column="coerceTemplate" property="coerce_template" javaType="_byte[]"
+			jdbcType="VARBINARY" />
+		<result column="host" property="host" jdbcType="VARCHAR" />
+		<result column="createBy.id" property="createBy.id" jdbcType="VARCHAR" />
+		<result column="createDate" property="createDate" jdbcType="TIMESTAMP" />
+		<result column="updateBy.id" property="updateBy.id" jdbcType="VARCHAR" />
+		<result column="updateDate" property="updateDate" jdbcType="TIMESTAMP" />
+		<result column="remarks" property="remarks" jdbcType="VARCHAR" />
+		<result column="delFlag" property="delFlag" jdbcType="VARCHAR" />
+
+	</resultMap>
+
+	<sql id="fingerInfoColumns">
+		a.id AS "id",
+		a.staff_id AS "staffId",
+		a.finger_num AS
+		"fingerNum",
+		a.card_num AS "cardNum",
+		a.pwd AS "pwd",
+		a.coerce_pwd AS "coercePwd",
+		a.start_date AS
+		"startDate",
+		a.end_date AS "endDate",
+		a.area_id AS "areaId",
+		a.finger_template AS "fingerTemplate",
+		a.coerce_template AS "coerceTemplate",
+		a.backup_fp AS "backupFp",
+		a.host AS "host",
+		a.create_by AS "createBy.id",
+		a.create_date AS
+		"createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS
+		"updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag"
+	</sql>
+
+	<sql id="fingerInfoJoins">
+		LEFT JOIN guard_staff b ON b.id = a.staff_id
+	</sql>
+
+	<select id="get" resultType="FingerInfo">
+		SELECT
+		<include refid="fingerInfoColumns" />
+		FROM guard_finger_info a
+		<include refid="fingerInfoJoins" />
+		WHERE a.id = #{id} and a.del_flag = '0'
+	</select>
+
+	<select id="findList" resultType="FingerInfo">
+		SELECT
+		<include refid="fingerInfoColumns" />
+		FROM guard_finger_info a
+		<include refid="fingerInfoJoins" />
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="id != null and id != ''">
+				AND a.id LIKE
+				<if test="dbName == 'oracle'">'%'||#{id}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{id}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{id},'%')</if>
+			</if>
+			<if test="staffId != null and staffId != ''">
+				AND a.staff_id = #{staffId}
+			</if>
+			<if
+				test="beginFingerNum != null and endFingerNum != null and beginFingerNum != '' and endFingerNum != ''">
+				AND a.finger_num BETWEEN #{beginFingerNum} AND #{endFingerNum}
+			</if>
+			<if test="areaId != null and areaId != ''">
+				AND a.area_id = #{areaId}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.create_date ASC
+			</otherwise>
+		</choose>
+	</select>
+
+	<select id="findAllFingerNumList" resultType="java.lang.Integer">
+		select distinct 
+				<if test="dbName == 'mssql'">cast(right(v.finger_num,4) as int)</if>
+				<if test="dbName == 'mysql'">cast(right(v.finger_num,4) AS SIGNED)</if>
+		from view_finger_staff_area v
+		<where>
+			<if test="areaId != null and areaId != ''">
+				and v.area_id = #{areaId}
+			</if>
+			<if test="fingerNum!=null and fingerNum!=''">
+			and
+				<if test="dbName == 'mssql'">len(v.finger_num)=9</if>
+				<if test="dbName == 'mysql'">length(v.finger_num)=9</if> 
+				and v.finger_num like 
+				<if test="dbName == 'mssql'">#{fingerNum}+'%'</if>
+				<if test="dbName == 'mysql'">concat(#{fingerNum},'%')</if>
+			</if>
+		</where> 
+	</select>
+	
+	<select id="findAllList" resultType="FingerInfo">
+		SELECT
+		<include refid="fingerInfoColumns" />
+		FROM guard_finger_info a
+		<include refid="fingerInfoJoins" />
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<when test="areaId !=null and areaId != ''">
+				and exists(
+					select 1 from view_finger_staff_area v on a.staff_id = v.staff_id 
+					where v.area_id = #{areaId}
+					limit 1
+				)
+			</when>
+			<otherwise>
+				ORDER BY a.create_date ASC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="countByColumnExceptSelf" resultType="int">
+		SELECT
+			count(1)
+		FROM guard_finger_info a
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="fingerNum != null and fingerNum != ''">
+				AND a.finger_num=#{fingerNum}
+			</if>
+			<if test="cardNum != null and cardNum != ''">
+				AND a.card_num=#{cardNum}
+			</if>
+			<if test="staffId != null and staffId != ''">
+				and a.staff_id != #{staffId}
+			</if>
+			<if test="areaId != null and areaId != ''">
+				and a.area_id = #{areaId}
+			</if>
+		</where>
+	</select>
+	
+	
+
+	<insert id="insert" useGeneratedKeys="true" keyProperty="id">
+		INSERT
+		INTO guard_finger_info(
+		staff_id,
+		finger_num,
+		card_num,
+		pwd,
+		coerce_pwd,
+		start_date,
+		end_date,
+		area_id,
+		finger_template,
+		coerce_Template,
+		backup_fp,
+		host,
+		create_by,
+		create_date,
+		update_by,
+		update_date,
+		remarks,
+		del_flag
+		) VALUES (
+		#{staffId},
+		#{fingerNum},
+		#{cardNum},
+		#{pwd},
+		#{coercePwd},
+		#{startDate},
+		#{endDate},
+		#{areaId},
+		#{fingerTemplate},
+		#{coerceTemplate},
+		#{backupFp},
+		#{host},
+		#{createBy.id},
+		#{createDate},
+		#{updateBy.id},
+		#{updateDate},
+		#{remarks},
+		#{delFlag}
+		)
+	</insert>
+
+	<update id="update">
+		UPDATE guard_finger_info SET
+		staff_id = #{staffId},
+		finger_num = #{fingerNum},
+		card_num = #{cardNum},
+		pwd = #{pwd},
+		coerce_pwd=#{coercePwd},
+		start_date = #{startDate},
+		end_date = #{endDate},
+		area_id = #{areaId},
+		finger_template =#{fingerTemplate},
+		coerce_template =#{coerceTemplate},
+		backup_fp = #{backupFp},
+		host = #{host},
+		update_by = #{updateBy.id},
+		update_date = #{updateDate},
+		remarks = #{remarks}
+		WHERE id = #{id}
+	</update>
+
+	<update id="delete">
+		UPDATE guard_finger_info SET
+		del_flag = #{DEL_FLAG_DELETE}
+		<choose>
+			<when test="id !=null and id != ''">
+				WHERE id = #{id}
+			</when>
+			<otherwise>
+				WHERE staff_id = #{staffId}
+			</otherwise>
+		</choose>
+	</update>
+	
+	<select id="findByFingerNum" parameterType="string" resultType="string">
+		select staff_id as staffId from guard_finger_info where finger_num=#{fingerNum} and del_flag=0
+	</select>
+
+</mapper>

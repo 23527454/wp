@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.mj.dao.SecurityParaInfoDao">
+	
+	<!-- 查询数据
+	<select id="findList" resultType="SecurityParaInfo">
+		SELECT ${sqlMap.column.toSql()}
+		FROM ${sqlMap.table.toSql()}
+		<where>
+			${sqlMap.where.toSql()}
+		</where>
+		ORDER BY ${sqlMap.order.toSql()}
+	</select> -->
+
+	<select id="get" resultType="SecurityParaInfo">
+		SELECT *
+		FROM mj_security_para_info
+		WHERE id = #{id} and del_flag = '0'
+	</select>
+
+	<select id="getByEId" resultType="SecurityParaInfo">
+		SELECT *
+		FROM mj_security_para_info
+		WHERE equipment_id = #{equipment.id} and del_flag = '0'
+	</select>
+
+	<insert id="insert" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO mj_security_para_info
+		VALUES (DEFAULT ,
+		#{equipment.id},
+		#{leaveRelayTime},
+		#{doorSensorTime},
+		#{localTipsTime},
+		#{tipsAlarmTime},
+		#{alarmIntervalTime},
+		#{allowDoorSensorOpen},
+		#{allowDoorButtonOpen},
+		#{allowButtonOpen},
+		#{allowRemoteOpen},
+		#{allowAuthClose},
+		#{allowButtonClose},
+		#{allowRemoteClose},
+		#{allowAuthRelieve},
+		#{allowButtonRelieve},
+		#{allowPowerAlarm},
+		#{allowBatteryAlarm},
+		#{createBy.id},
+		#{createDate},
+		#{updateBy.id},
+		#{updateDate},
+		#{remarks},
+		DEFAULT )
+	</insert>
+
+	<update id="deleteByEId">
+		DELETE FROM mj_security_para_info WHERE equipment_id = #{id}
+	</update>
+
+	<update id="update">
+		UPDATE mj_security_para_info SET
+		leave_relay_time=#{leaveRelayTime},
+		door_sensor_time=#{doorSensorTime},
+		local_tips_time=#{localTipsTime},
+		tips_alarm_time=#{tipsAlarmTime},
+		alarm_interval_time=#{alarmIntervalTime},
+		allow_door_sensor_open=#{allowDoorSensorOpen},
+		allow_door_button_open=#{allowDoorButtonOpen},
+		allow_button_open=#{allowButtonOpen},
+		allow_remote_open=#{allowRemoteOpen},
+		allow_auth_close=#{allowAuthClose},
+		allow_button_close=#{allowButtonClose},
+		allow_remote_close=#{allowRemoteClose},
+		allow_auth_relieve=#{allowAuthRelieve},
+		allow_button_relieve=#{allowButtonRelieve},
+		allow_power_alarm=#{allowPowerAlarm},
+		allow_battery_alarm=#{allowBatteryAlarm},
+		remarks=#{remarks}
+		WHERE id=#{id}
+	</update>
+</mapper>

@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.guard.dao.DoorInOutEventDao">
+    
+	<sql id="doorInOutEventColumns">
+		a.id AS "id",
+		a.record_id AS "recordId",
+		a.DoorPos AS "doorPos",
+		a.event_type as eventType,
+		a.equipment_id AS "equipmentId",
+		a.equip_sn AS "equipSn",
+		a.time AS "time",
+		a.AccessStatus AS "accessStatus",
+		a.HandleStatus as handleStatus,
+		b.name as "officeName",
+		a.HandleTime as "handleTime",
+		a.HandleUserNameId as "handleUserNameId",
+		a.HandleMode as "handleMode",
+		a.Remark as "remark",
+		staff.name as "personName",
+		a.finger_id as "fingerNumLabel",
+		suser.name as "handleUserName",
+		ed.id as "eventDetailId",
+		ed.author_type as "authorType"
+	</sql>
+	
+	<sql id="doorInOutEventJoins">
+	    LEFT JOIN guard_equipment teq on teq.id = a.equipment_id
+		LEFT JOIN sys_office b ON b.id = teq.office_id
+		LEFT JOIN sys_area c ON c.id=b.area_id
+		LEFT JOIN guard_staff staff on staff.id=a.person_id
+		LEFT JOIN sys_user suser on suser.id = a.handleUserNameId
+		LEFT JOIN guard_event_detail ed on ed.record_id=a.record_id and ed.equipment_id=a.equipment_id and ed.person_id=a.person_id and ed.event_type=4 and  ed.time=a.time
+	</sql>
+    
+	<select id="get" resultType="DoorInOutEvent">
+		SELECT 
+			<include refid="doorInOutEventColumns"/>
+		FROM tbAccessControlEvent a
+		<include refid="doorInOutEventJoins"/>
+		WHERE a.id = #{id}
+	</select>
+
+	<select id="findOne" resultType="DoorInOutEvent">
+		SELECT
+		<include refid="doorInOutEventColumns"/>
+		FROM tbAccessControlEvent a
+		<include refid="doorInOutEventJoins"/>
+		WHERE 1=1
+		<if test="recordId!=null and recordId!=''">
+			and a.record_id = #{recordId}
+		</if>
+		<if test="equipmentId!=null and equipmentId!=''">
+			and a.equipment_Id = #{equipmentId}
+		</if>
+		<if test="personId!=null and personId!=''">
+			and a.person_id = #{personId}
+		</if>
+		<if test="time!=null and time!=''">
+			and a.time = #{time}
+		</if>
+		order by a.id desc limit 1
+	</select>
+	
+	<select id="getFeeds" resultType="DoorInOutEvent">
+		SELECT
+		a.id AS "id",
+		a.record_id AS "recordId",
+		a.DoorPos AS "doorPos",
+		a.event_type as eventType,
+		a.equipment_id AS "equipmentId",
+		a.equip_sn AS "equipSn",
+		a.time AS "time",
+		a.AccessStatus AS "accessStatus",
+		a.HandleStatus as handleStatus,
+		b.name as "officeName",
+		a.HandleTime as "handleTime",
+		a.HandleUserNameId as "handleUserNameId",
+		a.HandleMode as "handleMode",
+		a.Remark as "remark",
+		staff.name as "personName",
+		a.finger_id as "fingerNumLabel",
+		suser.name as "handleUserName",
+		ed.id as "eventDetailId",
+		sd.label as "authorType"
+		FROM tbAccessControlEvent a
+		 LEFT JOIN guard_equipment teq on teq.id = a.equipment_id
+		LEFT JOIN sys_office b ON b.id = teq.office_id
+		LEFT JOIN sys_area c ON c.id=b.area_id
+		LEFT JOIN guard_staff staff on staff.id=a.person_id
+		LEFT JOIN sys_user suser on suser.id = a.handleUserNameId
+		LEFT JOIN guard_event_detail ed on ed.record_id=a.record_id and ed.equipment_id=a.equipment_id and ed.person_id=a.person_id and ed.event_type=4 and  ed.time=a.time
+		LEFT JOIN sys_dict sd on ed.author_type = sd.value and sd.type='door_open_type'
+		<where>
+			<choose>
+				<when test="nodes != null and nodes != ''">
+					and b.id in(${nodes})<!-- office.id -->
+				</when>
+<!-- 				<otherwise> -->
+<!-- 					and 1=0 -->
+<!-- 				</otherwise> -->
+			</choose>
+			<if test="id != null and id != ''">
+			AND a.id > #{id}
+			</if>
+			<if test="time != null and time != ''">
+			AND a.time > #{time}
+			</if>
+		</where>
+		ORDER BY a.time desc,a.id desc 
+	</select>
+	
+	<select id="findList" resultType="DoorInOutEvent">
+		SELECT 
+			<include refid="doorInOutEventColumns"/>
+		FROM tbAccessControlEvent a
+		<include refid="doorInOutEventJoins"/>
+		<where>
+			1=1 
+			<if test="id != null and id != ''">
+				AND a.id LIKE 
+					<if test="dbName == 'oracle'">'%'||#{id}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{id}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{id},'%')</if>
+			</if>
+			<if test="time != null and time!= ''" >
+				and a.time = #{time}
+			</if>
+			<if test="date != null and date!=''" >
+				and SUBSTRING(a.time, 1, 10) = #{date}
+			</if>
+			<if test="afterEqDate != null and afterEqDate != ''" >
+				<![CDATA[and a.time >= #{afterEqDate}]]>
+			</if>
+			<if test="beforeEqDate != null and beforeEqDate!= ''" >
+				<![CDATA[and a.time <= #{beforeEqDate}]]>
+			</if>
+			<choose>
+				<when test="nodes != null and nodes != ''">
+					and b.id in(${nodes})<!-- office.id -->
+				</when>
+<!-- 				<otherwise> -->
+<!-- 					and 1=0 -->
+<!-- 				</otherwise> -->
+			</choose>
+			<if test="equipmentId != null and equipmentId != ''">
+				AND a.equipment_id =  #{equipmentId}
+			</if>
+			${sqlMap.dsf}
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			ORDER BY a.time desc, a.id desc
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="DoorInOutEvent">
+		SELECT 
+			<include refid="doorInOutEventColumns"/>
+		FROM tbAccessControlEvent a
+		<include refid="doorInOutEventJoins"/>
+		<where>
+			${sqlMap.dsf}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			ORDER BY a.time desc
+			</otherwise>
+		</choose>
+	</select>
+	
+	<!-- <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO tbAccessControlEvent(
+			record_id,
+			car_id,
+			card_num,
+			equipment_id,
+			equip_sn,
+			time,
+			class_task_id,
+			task_id,
+			del_flag
+		) VALUES (
+			#{recordId},
+			#{carId},
+			#{cardNum},
+			#{equipmentId},
+			#{equipSn},
+			#{time},
+			#{classTaskId},
+			#{taskId},
+			#{flag}
+		)
+	</insert> -->
+	
+	<!-- <update id="update">
+		UPDATE tbAccessControlEvent SET 	
+			record_id = #{recordId}
+		WHERE id = #{id}
+	</update>
+	<update id="delflag">
+		UPDATE tbAccessControlEvent SET 	
+			del_flag=1
+		WHERE 1=1
+			<if test="id != null and id!= ''" >
+				and id = #{id}
+			</if>
+	</update>
+	<update id="delete">
+		DELETE FROM tbAccessControlEvent
+		WHERE id = #{id}
+	</update> -->
+	
+</mapper>

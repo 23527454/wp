@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.guard.dao.CommissionerEventDao">
+    
+	<sql id="commissionerEventColumns">
+		a.id AS "id",
+		a.record_id AS "recordId",
+		a.person_id AS "personId",
+		a.finger_id AS "fingerId",
+		a.equipment_id AS "equipmentId",
+		a.equip_sn AS "equipSn",
+		a.time AS "time",
+		c.area_id as areaId,
+		a.event_type as eventType,
+		a.author_type as authorType
+	</sql>
+	
+	<sql id="commissionerEventJoins">
+		left join guard_equipment b on a.equipment_id = b.id 
+		left join sys_office c on c.id = b.office_id
+	</sql>
+    
+	<select id="get" resultType="CommissionerEvent">
+		SELECT 
+			<include refid="commissionerEventColumns"/>
+		FROM guard_commissioner_event a
+		<include refid="commissionerEventJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="CommissionerEvent">
+		SELECT 
+			<include refid="commissionerEventColumns"/>
+		FROM guard_commissioner_event a
+		<include refid="commissionerEventJoins"/>
+		<where>
+			1=1 AND a.del_flag=0
+			<if test="recordId != null and recordId != ''">
+				AND a.record_id = #{recordId}
+			</if>
+			<if test="equipmentId != null and equipmentId != ''">
+				AND a.equipment_id =  #{equipmentId}
+			</if>
+			<if test="eventType != null and eventType != ''">
+				AND a.event_type =  #{eventType}
+			</if>
+			<if test="time != null and time!= ''" >
+				and a.time = #{time}
+			</if>
+			<if test="date != null and date !=''" >
+				and SUBSTRING(a.time, 1, 10) = #{date}
+			</if>
+			<if test="afterEqDate != null and afterEqDate != ''" >
+				<![CDATA[and a.time >= #{afterEqDate}]]>
+			</if>
+			<if test="beforeEqDate != null and beforeEqDate!= ''" >
+				<![CDATA[and a.time <= #{beforeEqDate}]]>
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			ORDER BY a.time desc
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="CommissionerEvent">
+		SELECT 
+			<include refid="commissionerEventColumns"/>
+		FROM guard_commissioner_event a
+		<include refid="commissionerEventJoins"/>
+		<where>
+			
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			ORDER BY a.time desc
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO guard_commissioner_event(
+			record_id,
+			person_id,
+			finger_id,
+			equipment_id,
+			equip_sn,
+			time,
+			event_type,
+			del_flag
+		) VALUES (
+			#{recordId},
+			#{personId},
+			#{fingerId},
+			#{equipmentId},
+			#{equipSn},
+			#{time},
+			#{eventType},
+			#{flag}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE guard_commissioner_event SET 	
+			record_id = #{recordId}
+		WHERE id = #{id}
+	</update>
+	<update id="delflag">
+		UPDATE guard_commissioner_event SET 	
+			del_flag=1
+		WHERE 1=1
+			<if test="id != null and id!= ''" >
+				and id = #{id}
+			</if>
+	</update>
+	
+	<update id="delete">
+		DELETE FROM guard_commissioner_event
+		WHERE id = #{id}
+	</update>
+	
+</mapper>

@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.guard.dao.CommissionerQueryDao">
+    
+	<sql id="commissionerQueryColumns">
+		a.id AS "id",
+		a.record_id AS "connectEvent.id",
+		a.finger_id AS "fingerId",
+		a.time AS "time",
+		a.task_id AS "taskScheduleInfo.id",
+		a1.task_type AS "taskScheduleInfo.taskType",
+		a3.name AS "classTaskfo.name",
+		a4.id AS "office.id",
+		a2.task_type AS "connectEvent.taskType",
+		a4.name AS "office.name",
+		a5.id AS "area.id",
+		a5.name AS "area.name"
+	</sql>
+	
+	<sql id="commissionerQueryJoins">
+	    LEFT JOIN guard_equipment teq on teq.id = a2.equipment_id
+		LEFT JOIN sys_office a4 ON a4.id = teq.office_id
+		LEFT JOIN guard_task_schedule_info a1 ON a1.id = a.task_id
+		LEFT JOIN guard_connect_event a2 ON a2.id = a.record_id
+		LEFT JOIN guard_class_task_info a3 ON a3.id = a1.class_task_id
+		LEFT JOIN sys_area a5 ON a5.id = a4.area_id
+	</sql>
+    
+	<select id="get" resultType="CommissionerQuery">
+		SELECT 
+			<include refid="commissionerQueryColumns"/>
+		FROM guard_connect_commissioner a
+		<include refid="commissionerQueryJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="CommissionerQuery">
+		SELECT 
+			<include refid="commissionerQueryColumns"/>
+		FROM guard_connect_commissioner a
+		<include refid="commissionerQueryJoins"/>
+		<where>
+			
+			<if test="connectEvent !=null and connectEvent.id != null and connectEvent.id != ''">
+				AND a.record_id = #{connectEvent.id}
+			</if>
+			<if test="connectEvent !=null and connectEvent.taskType != null and connectEvent.taskType != ''">
+				AND a2.task_type = #{connectEvent.taskType}
+			</if>
+			<if
+				test="area != null and area.id != '' and area.id != null">
+				AND a4.area_id = #{area.id}
+			</if>
+			<if
+				test="office != null and office.id != '' and office.id != null">
+				AND a4.id = #{office.id}
+			</if>
+			<if test="time != null and time != ''">
+				AND a.time >= #{time}
+			</if>
+			<if test="timeTwo != null and timeTwo != ''">
+				AND #{timeTwo} >= a.time
+			</if>
+			<if
+				test="text != null and text != '' and text=1 and textS !=null and textS!=''">
+				AND a3.name =#{textS}
+			</if>
+			<if
+				test="text != null and text != '' and text=2 and textS !=null and textS!=''">
+				AND a3.work_num =#{textS}
+			</if>
+			<if
+				test="text != null and text != '' and text=3 and textS !=null and textS!=''">
+				AND a4.finger_num =#{textS}
+			</if>
+			
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			ORDER BY a.time desc
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="CommissionerQuery">
+		SELECT 
+			<include refid="commissionerQueryColumns"/>
+		FROM guard_connect_commissioner a
+		<include refid="commissionerQueryJoins"/>
+		<where>
+			
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			ORDER BY a.time desc
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO guard_connect_commissioner(
+			record_id,
+			finger_id,
+			time,
+			task_id
+		) VALUES (
+			#{connectEvent.id},
+			#{fingerId},
+			#{time},
+			#{taskScheduleInfo.id}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE guard_connect_commissioner SET 	
+			record_id = #{connectEvent.id},
+			finger_id = #{fingerId},
+			time = #{time},
+			task_id = #{taskScheduleInfo.id}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		DELETE FROM guard_connect_commissioner
+		WHERE id = #{id}
+	</update>
+	
+</mapper>

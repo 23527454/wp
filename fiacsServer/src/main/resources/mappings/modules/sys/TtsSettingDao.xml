@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.sys.dao.TtsSettingDao">
+    
+	<sql id="ttsSettingColumns">
+		a.id AS "id",
+		a.voice_type AS "voiceType",
+		a.voice_config AS "voiceConfig",
+		a.scope AS "scope"
+	</sql>
+	
+	<sql id="ttsSettingJoins">
+	</sql>
+    
+	<select id="get" resultType="TtsSetting">
+		SELECT 
+			<include refid="ttsSettingColumns"/>
+		FROM guard_tts_setting a
+		<include refid="ttsSettingJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="getByType" resultType="TtsSetting">
+		SELECT 
+			<include refid="ttsSettingColumns"/>
+		FROM guard_tts_setting a
+		<include refid="ttsSettingJoins"/>
+		WHERE a.voice_type = #{voiceType}
+	</select>
+	
+	<select id="findList" resultType="TtsSetting">
+		SELECT 
+			<include refid="ttsSettingColumns"/>
+		FROM guard_tts_setting a
+		<include refid="ttsSettingJoins"/>
+		<where>
+			
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="TtsSetting">
+		SELECT 
+			<include refid="ttsSettingColumns"/>
+		FROM guard_tts_setting a
+		<include refid="ttsSettingJoins"/>
+		<where>
+			
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO guard_tts_setting(
+			id,
+			voice_type,
+			voice_config,
+			scope
+		) VALUES (
+			#{id},
+			#{voiceType},
+			#{voiceConfig},
+			#{scope}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE guard_tts_setting SET 	
+			voice_type = #{voiceType},
+			voice_config = #{voiceConfig},
+			scope = #{scope}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		DELETE FROM guard_tts_setting
+		WHERE id = #{id}
+	</update>
+	
+</mapper>

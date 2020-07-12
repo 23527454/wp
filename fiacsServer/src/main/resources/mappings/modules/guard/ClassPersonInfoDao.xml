@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.guard.dao.ClassPersonInfoDao">
+    
+	<sql id="classPersonInfoColumns">
+		a.id AS "id",
+		a.class_task_id AS "classTaskId",
+		a.person_id AS "personId",
+		a.finger_num AS "fingerNum",
+		c.name AS "name",
+		c.identify_number AS "identifyNumber",
+		c.area_id as areaId,
+		c.work_status as workStatus,
+		i.end_date as endDate
+	</sql>
+	
+	<sql id="classPersonInfoJoins">
+		LEFT JOIN guard_class_task_info b ON b.id = a.class_task_id
+		LEFT JOIN guard_staff c ON c.id = a.person_id
+		LEFT JOIN guard_finger_info i on i.staff_id=c.id
+	</sql>
+    
+	<select id="get" resultType="ClassPersonInfo">
+		SELECT 
+			<include refid="classPersonInfoColumns"/>
+		FROM guard_class_person_info a
+		<include refid="classPersonInfoJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="ClassPersonInfo">
+		SELECT 
+			<include refid="classPersonInfoColumns"/>
+		FROM guard_class_person_info a
+		<include refid="classPersonInfoJoins"/>
+		<where>
+			
+			<if test="classTaskId != null and classTaskId != ''">
+				AND a.class_task_id = #{classTaskId}
+			</if>
+			<if test="name != null and name != ''">
+				AND c.name like '%'+#{name}+'%'
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="ClassPersonInfo">
+		SELECT 
+			<include refid="classPersonInfoColumns"/>
+		FROM guard_class_person_info a
+		<include refid="classPersonInfoJoins"/>
+		<where>
+			
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO guard_class_person_info(
+			class_task_id,
+			person_id,
+			finger_num
+		) VALUES (
+			#{classTaskId},
+			#{personId},
+			#{fingerNum}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE guard_class_person_info SET 	
+			class_task_id = #{classTaskId},
+			person_id = #{personId},
+			finger_num = #{fingerNum}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="deletePerson">
+		DELETE FROM guard_class_person_info
+		WHERE person_id = #{personId}
+	</update>
+	<update id="deleteClass">
+		DELETE FROM guard_class_person_info
+			WHERE class_task_id = #{classTaskId}
+	</update>
+</mapper>

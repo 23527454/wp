@@ -1,0 +1,299 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper
+	namespace="com.thinkgem.jeesite.modules.guard.dao.TaskScheduleInfoDetailDao">
+
+<!-- <sql id="taskScheduleInfoDetailColumns4">
+		g.id AS "id",
+		a.equipment_id AS "equipmentId",
+		a.record_id AS "recordId",
+		a.money_box_event_id AS "moneyBoxEventId",
+		i.label AS
+</sql> -->
+	<sql id="taskScheduleInfoDetailColumns3">
+		g.id AS "id",
+		a.equipment_id AS "equipmentId",
+		a.record_id AS "recordId",
+		a.money_box_event_id AS "moneyBoxEventId",
+		i.label AS
+		"taskType",
+		a.equip_sn AS "equipSn",
+		a.time AS "time",
+		a.task_id AS
+		"taskId",
+		a.car_id AS "carId",
+		b.name as "officeName",
+		b.type as
+		"officeType",
+		d.carplate as "carplate",
+		d.card_num as "cardNum",
+		f.name as "taskName",
+		f.id AS "classId",
+		h.name as "areaName",
+		h.id as "areaId",
+		g.allot_date AS "allotDate",
+		g.allot_time AS "allotTime",
+g.task_date AS "taskDate",
+		g.task_time AS "taskTime",
+		g.task_time_class AS "taskTimeClass",
+		
+		l.line_name AS "lineName",
+		l.id AS "lineId"
+	</sql>
+	<sql id="taskScheduleInfoDetailJoins3">
+				LEFT JOIN guard_connect_event a ON a.task_id = g.id
+	LEFT JOIN guard_equipment teq on teq.id = a.equipment_id
+	LEFT JOIN sys_office b ON b.id = teq.office_id
+		LEFT JOIN guard_class_task_info f ON g.class_task_id = f.id
+		LEFT JOIN guard_line l ON l.id =f.line_id
+		LEFT JOIN guard_car d ON d.id = a.car_id
+		LEFT JOIN sys_area h ON h.id = b.area_id
+		LEFT JOIN sys_dict i ON a.task_type = i.value and i.type='task_type' 
+
+		
+	</sql>
+<!-- 	<sql id="taskScheduleInfoDetailColumns2">
+		g.id AS "id",
+		a.equipment_id AS "equipmentId",
+		a.record_id AS "recordId",
+		a.money_box_event_id AS "moneyBoxEventId",
+		i.label AS
+		"taskType",
+		a.equip_sn AS "equipSn",
+		a.time AS "time",
+		a.task_id AS
+		"taskId",
+		a.car_id AS "carId",
+		b.name as "officeName",
+		b.type as
+		"officeType",
+		d.carplate as "carplate",
+		d.card_num as "cardNum",
+		f.name as "taskName",
+		f.id AS "classId",
+		h.name as "areaName",
+		h.id as "areaId",
+		g.allot_date AS "allotDate",
+		g.allot_time AS "allotTime",
+g.task_date AS "taskDate",
+		g.task_time AS "taskTime",
+		g.task_time_class AS "taskTimeClass",
+		
+		l.line_name AS "lineName",
+		l.id AS "lineId"
+	</sql>
+	<sql id="taskScheduleInfoDetailJoins2">
+				LEFT JOIN guard_connect_event a ON a.task_id = g.id
+	LEFT JOIN guard_equipment teq on teq.id = a.equipment_id
+	LEFT JOIN sys_office b ON b.id = teq.office_id
+		LEFT JOIN guard_class_task_info f ON g.class_task_id = f.id
+		LEFT JOIN guard_line l ON l.id =f.line_id
+		LEFT JOIN guard_car d ON d.id = a.car_id
+		LEFT JOIN sys_area h ON h.id = b.area_id
+		LEFT JOIN sys_dict i ON a.task_type = i.value and i.type='task_type' 
+
+		
+	</sql> -->
+	<sql id="taskScheduleInfoDetailColumns">
+		a.id AS "id",
+		a.equipment_id AS "equipmentId",
+		a.record_id AS "recordId",
+		a.money_box_event_id AS "moneyBoxEventId",
+		i.label AS
+		"taskType",
+		a.equip_sn AS "equipSn",
+		a.time AS "time",
+		a.task_id AS
+		"taskId",
+		a.car_id AS "carId",
+		b.name as "officeName",
+		b.type as
+		"officeType",
+		d.carplate as "carplate",
+		d.card_num as "cardNum",
+<!-- 		d.image_path AS "imagePath", -->
+		f.name as "taskName",
+		f.id AS "class Id",
+		h.name as "areaName",
+		h.id as "areaId",
+		g.allot_date AS "allotDate",
+		g.allot_time AS "allotTime",
+		g.task_date AS "taskDate",
+		g.task_time AS "taskTime",
+		g.task_time_class AS "taskTimeClass",
+		
+		l.line_name AS "lineName",
+		l.id AS "lineId"
+	</sql>
+	
+	<sql id="taskScheduleInfoDetailJoins">
+	LEFT JOIN guard_equipment teq on teq.id = a.equipment_id
+		LEFT JOIN sys_office b ON b.id = teq.office_id
+		LEFT JOIN guard_task_schedule_info g ON a.task_id = g.id
+		LEFT JOIN guard_class_task_info f ON g.class_task_id = f.id
+		LEFT JOIN guard_line l ON l.id =f.line_id
+		LEFT JOIN guard_car d ON d.id = a.car_id
+		LEFT JOIN sys_area h ON h.id = b.area_id
+		LEFT JOIN sys_dict i ON a.task_type = i.value and i.type='task_type'
+		
+	</sql>
+<!-- 	<sql id="taskScheduleInfoDetailColumns">
+		a.id AS "id",
+		a.equipment_id AS "equipmentId",
+		a.record_id AS "recordId",
+		a.money_box_event_id AS "moneyBoxEventId",
+		i.label AS
+		"taskType",
+		a.equip_sn AS "equipSn",
+		a.time AS "time",
+		a.task_id AS
+		"taskId",
+		a.car_id AS "carId",
+		b.name as "officeName",
+		b.type as
+		"officeType",
+		d.carplate as "carplate",
+		d.card_num as "cardNum",
+		d.image_path AS "imagePath",
+		f.name as "taskName",
+		f.id AS "classId",
+		h.name as "areaName",
+		h.id as "areaId",
+		g.allot_date AS "allotDate",
+		g.allot_time AS "allotTime",
+		g.task_date AS "taskDate",
+		g.task_time AS "taskTime",
+		g.task_time_class AS "taskTimeClass",
+		
+		l.line_name AS "lineName",
+		l.id AS "lineId"
+	</sql>
+
+	<sql id="taskScheduleInfoDetailJoins">
+		LEFT JOIN guard_equipment teq on teq.id = a.equipment_id
+		LEFT JOIN sys_office b ON b.id = teq.office_id
+		LEFT JOIN guard_task_schedule_info g ON a.task_id = g.id
+		LEFT JOIN guard_class_task_info f ON g.class_task_id = f.id
+		LEFT JOIN guard_line l ON l.id =f.line_id
+		LEFT JOIN guard_car d ON d.id = a.car_id
+		LEFT JOIN sys_area h ON h.id = b.area_id
+		LEFT JOIN sys_dict i ON a.task_type = i.value and i.type='task_type'
+		
+	</sql> -->
+
+	<!-- <select id="get" resultType="TaskScheduleInfoDetail">
+
+	</select> -->
+	<select id="get" resultType="TaskScheduleInfoDetail">
+		SELECT
+		<include refid="taskScheduleInfoDetailColumns3" />
+		FROM guard_task_schedule_info g
+		<include refid="taskScheduleInfoDetailJoins3" />
+		WHERE g.id = #{id}
+	</select>
+
+	<select id="get3" resultType="TaskLineInfo">
+		select DISTINCT eq.id as equipmentId,eq.control_pos as name from guard_equipment eq
+			inner JOIN (
+
+			SELECT gln.equipment_id,gtsi.* from guard_line_nodes gln 
+
+			left JOIN guard_line gl on gl.id=gln.line_id
+			left JOIN guard_class_task_info gcln on gcln.line_id=gl.id
+			left JOIN guard_task_schedule_info gtsi on gtsi.class_task_id=gcln.id
+ where gtsi.id=#{id}
+
+) dd
+			on eq.id=dd.equipment_id
+	</select>
+	<select id="findList" resultType="TaskScheduleInfoDetail">
+		SELECT
+		<include refid="taskScheduleInfoDetailColumns3" />
+		FROM guard_task_schedule_info g
+		<include refid="taskScheduleInfoDetailJoins3" />
+		<where>
+			1=1 <!-- AND a.task_id>0 -->
+			<!-- <if test="classId != null and classId != ''">
+				AND f.id = #{classId}
+			</if>
+			<if test="lineId != null and lineId != ''">
+				AND l.id = #{lineId}
+			</if>
+			<if test="taskType != null and taskType != ''">
+				AND a.task_type = #{taskType}
+			</if>
+			<if test="taskDate != null and taskDate != ''">
+				AND a.time >= #{taskDate}
+			</if>
+			<if test="taskDateTwo != null and taskDateTwo != ''">
+				AND #{taskDateTwo} >= a.time
+			</if>
+			${sqlMap.dsf} -->
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+		</choose>
+	</select>
+
+	<select id="findAllList" resultType="TaskScheduleInfoDetail">
+		SELECT
+		<include refid="taskScheduleInfoDetailColumns" />
+		FROM guard_connect_event a
+		<include refid="taskScheduleInfoDetailJoins" />
+		<where>
+			${sqlMap.dsf}
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+
+	<insert id="insert" useGeneratedKeys="true" keyProperty="id">
+		INSERT
+		INTO guard_connect_event(
+		equipment_id,
+		record_id,
+		task_type,
+		equip_sn,
+		time,
+		task_id,
+		car_id,
+		money_box_event_id
+		) VALUES (
+		#{equipmentId},
+		#{recordId},
+		#{taskType},
+		#{equipSn},
+		#{time},
+		#{taskId},
+		#{carId},
+		#{moneyBoxEventId}
+		)
+	</insert>
+
+	<update id="update">
+		UPDATE guard_connect_event SET
+		equipment_id =
+		#{equipmentId},
+		record_id = #{recordId},
+		task_type = #{taskType},
+		equip_sn = #{equipSn},
+		time = #{time},
+		task_id = #{taskId},
+		car_id =
+		#{carId}
+		WHERE id = #{id}
+	</update>
+
+	<update id="delete">
+		DELETE FROM guard_connect_event
+		WHERE id = #{id}
+	</update>
+
+</mapper>

@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.mj.dao.TimezoneInfoDao">
+	
+	<!-- 查询数据
+	<select id="findList" resultType="TimezoneInfo">
+		SELECT ${sqlMap.column.toSql()}
+		FROM ${sqlMap.table.toSql()}
+		<where>
+			${sqlMap.where.toSql()}
+		</where>
+		ORDER BY ${sqlMap.order.toSql()}
+	</select> -->
+
+	<select id="get" resultType="TimezoneInfo">
+		SELECT *
+		FROM mj_timezone_info
+		WHERE id = #{id} and del_flag = '0'
+	</select>
+
+	<select id="findAIdById" resultType="String">
+		SELECT access_para_info_id
+		FROM mj_timezone_info
+		WHERE id = #{id} and del_flag = '0'
+	</select>
+
+	<select id="getByWdAndAid" resultType="TimezoneInfo">
+		SELECT *
+		FROM mj_timezone_info
+		WHERE week_number = #{weekNumber} and access_para_info_id=#{id} and del_flag = '0'
+	</select>
+
+	<select id="findList" resultType="TimezoneInfo">
+		SELECT *
+		FROM mj_timezone_info
+		<where>
+			<if test="accessParaInfo!=null and accessParaInfo.id != null and accessParaInfo.id != ''">
+				AND access_para_info_id =#{accessParaInfo.id}
+			</if>
+
+			<if test="timeZoneType != null and timeZoneType != ''">
+				AND time_zone_type = #{timeZoneType}
+			</if>
+			<if test="timeZoneNum != null and timeZoneNum != ''">
+				AND time_zone_num = #{timeZoneNum}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY week_number
+			</otherwise>
+		</choose>
+	</select>
+
+	<insert id="insert" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO mj_timezone_info
+		VALUES (DEFAULT ,
+		#{equipment.id},
+		#{accessParaInfo.id},
+		#{doorPos},
+		#{timeZoneType},
+		#{timeZoneNum},
+		#{weekNumber},
+		#{timeStart1},
+		#{timeEnd1},
+		#{timeStart2},
+		#{timeEnd2},
+		#{timeStart3},
+		#{timeEnd3},
+		#{timeStart4},
+		#{timeEnd4},
+		#{remarks},
+		DEFAULT )
+	</insert>
+
+	<update id="deleteByEId">
+		DELETE FROM mj_timezone_info WHERE equipment_id = #{id}
+	</update>
+
+	<update id="update">
+		UPDATE mj_timezone_info SET
+		time_start1=#{timeStart1},
+		time_end1=#{timeEnd1},
+		time_start2=#{timeStart2},
+		time_end2=#{timeEnd2},
+		time_start3=#{timeStart3},
+		time_end3=#{timeEnd3},
+		time_start4=#{timeStart4},
+		time_end4=#{timeEnd4},
+		remarks=#{remarks}
+		WHERE id=#{id}
+	</update>
+</mapper>

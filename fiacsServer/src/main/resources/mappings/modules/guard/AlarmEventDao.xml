@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.guard.dao.AlarmEventDao">
+    
+	<sql id="alarmEventColumns">
+		a.id AS "id",
+		a.equipment_id AS "equipmentId",
+		a.record_id AS "recordId",
+		a.equip_sn AS "equipSn",
+		a.time AS "time",
+		a.task_id AS "taskId",
+		a.HandleTime as "handleTime",
+		a.HandleUserNameId as "handleUserNameId",
+		suser.name as "handleUserName",
+		b.name as "officeName",
+		f.name as "taskName",
+		h.name as "areaName",
+		i.label AS "eventType"
+	</sql>
+	
+	<sql id="alarmEventJoins">
+	    LEFT JOIN guard_equipment teq on teq.id = a.equipment_id
+		LEFT JOIN sys_office b ON b.id = teq.office_id
+		LEFT JOIN guard_task_schedule_info g ON a.task_id = g.id
+		LEFT JOIN guard_class_task_info f ON g.class_task_id = f.id
+		LEFT JOIN sys_area h ON h.id = b.area_id
+		LEFT JOIN sys_dict i ON a.event_type = i.value and i.type='event_type'
+		LEFT JOIN sys_user suser ON suser.id = a.HandleUserNameId
+	</sql>
+    
+	<select id="get" resultType="AlarmEvent">
+		SELECT 
+			<include refid="alarmEventColumns"/>
+		FROM guard_alarm_event a
+		<include refid="alarmEventJoins"/>
+		WHERE a.id = #{id}
+	</select>
+
+	<select id="findOne" resultType="AlarmEvent">
+		SELECT
+		<include refid="alarmEventColumns"/>
+		FROM guard_alarm_event a
+		<include refid="alarmEventJoins"/>
+		WHERE 1=1
+		<if test="recordId!=null and recordId!=''">
+			and a.record_id = #{recordId}
+		</if>
+		<if test="equipmentId!=null and equipmentId!=''">
+			and a.equipment_Id = #{equipmentId}
+		</if>
+		<if test="time!=null and time!=''">
+			and a.time = #{time}
+		</if>
+		order by a.id desc limit 1
+	</select>
+
+	<select id="getFeeds" resultType="AlarmEvent">
+		SELECT
+			<include refid="alarmEventColumns"/>
+		FROM guard_alarm_event a
+		<include refid="alarmEventJoins"/>
+		<where>
+			<choose>
+				<when test="nodes != null and nodes != ''">
+				and b.id in(${nodes})<!-- office.id -->
+				</when>
+<!-- 				<otherwise> -->
+<!-- 					AND 1=0 -->
+<!-- 				</otherwise> -->
+			</choose>
+			<if test="id != null and id != ''">
+			AND a.id > #{id}
+			</if>
+			<if test="time != null and time != ''">
+			AND a.time >= #{time}
+			</if>
+		</where>
+		order by a.time desc, a.id desc
+	</select>
+	
+	<select id="findList" resultType="AlarmEvent">
+		SELECT 
+			<include refid="alarmEventColumns"/>
+		FROM guard_alarm_event a
+		<include refid="alarmEventJoins"/>
+		<where>
+			
+			<if test="id != null and id != ''">
+				AND a.id LIKE 
+					<if test="dbName == 'oracle'">'%'||#{id}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{id}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{id},'%')</if>
+			</if>
+			<if test="equipmentId != null and equipmentId != ''">
+				AND a.equipment_id LIKE 
+					<if test="dbName == 'oracle'">'%'||#{equipmentId}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{equipmentId}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{equipmentId},'%')</if>
+			</if>
+			<if test="recordId != null and recordId != ''">
+				AND a.record_id LIKE 
+					<if test="dbName == 'oracle'">'%'||#{recordId}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{recordId}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{recordId},'%')</if>
+			</if>
+			<choose>
+				<when test="nodes != null and nodes != ''">
+				and b.id in(${nodes})<!-- office.id -->
+				</when>
+<!-- 				<otherwise> -->
+<!-- 					AND 1=0 -->
+<!-- 				</otherwise> -->
+			</choose>
+			<if test="eventType != null and eventType != ''">
+				AND a.event_type = #{eventType}
+			</if>
+			<if test="handleUserNameId!=null and handleUserNameId!=''">
+				AND HandleUserNameId = #{handleUserNameId}
+			</if>
+			${sqlMap.dsf}
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			order by a.time desc, a.id desc
+			</otherwise>
+		</choose>
+	</select>
+
+	<update id="update">
+		UPDATE guard_alarm_event
+		<set>
+			<if test="equipmentId!=null and equipmentId!=''">
+				equipment_id = #{equipmentId},
+			</if>
+			<if test="recordId!=null and recordId!=''">
+				record_id = #{recordId},
+			</if>
+			<if test="eventType!=null and eventType!=''">
+				event_type = #{eventType},
+			</if>
+			<if test="equipSn!=null and equipSn!=''">
+				equip_sn = #{equipSn},
+			</if>
+			<if test="time!=null and time!=''">
+				time = #{time},
+			</if>
+			<if test="taskId!=null and taskId!=''">
+				task_id = #{taskId},
+			</if>
+			<if test="handleTime!=null and handleTime!=''">
+				HandleTime = #{handleTime},
+			</if>
+			<if test="handleUserNameId!=null and handleUserNameId!=''">
+				HandleUserNameId = #{handleUserNameId}
+			</if>
+		</set>
+		WHERE id = #{id}
+	</update>
+
+	<select id="findAllList" resultType="AlarmEvent">
+		SELECT
+			<include refid="alarmEventColumns"/>
+		FROM guard_alarm_event a
+		<include refid="alarmEventJoins"/>
+		<where>
+			${sqlMap.dsf}
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			order by a.time desc
+			</otherwise>
+		</choose>
+	</select>
+
+	<insert id="insert" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO guard_alarm_event(
+			equipment_id,
+			record_id,
+			event_type,
+			equip_sn,
+			time,
+			task_id
+		) VALUES (
+			#{equipmentId},
+			#{recordId},
+			#{eventType},
+			#{equipSn},
+			#{time},
+			#{taskId}
+		)
+	</insert>
+
+	<update id="delete">
+		DELETE FROM guard_alarm_event
+		WHERE id = #{id}
+	</update>
+	
+</mapper>

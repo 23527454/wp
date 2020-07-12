@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.guard.dao.SafeGuardDispatchDao">
+    
+    <resultMap id="safeGuardDispatchResult" type="SafeGuardDispatch">
+		<id property="id" column="id" />
+		<result property="dispatchName" column="dispatch_name" />
+		<result property="createDate" column="create_date" />
+		<collection property="dispatchPersonInfoList" ofType="DispatchPersonInfo">
+			<result property="staffId" column="staffId" />
+			<result property="name" column="staffName"></result>
+			<result property="identifyNumber" column="identify_number"></result>
+			<result property="fingerNum" column="finger_num"></result>
+			<result property="phone" column="staffPhone"></result>
+
+		</collection>
+		<collection property="officeList" ofType="Office">
+			<id property="id" column="officeList.id" />
+		</collection>
+	</resultMap>
+	
+    <select id="get" resultMap="safeGuardDispatchResult">
+		select d.id,d.dispatch_name,d.create_date,l.staff_id as "staffId",office_id as "officeList.id",
+		s.name as staffName,s.identify_number,l.finger_num,s.phone as "staffPhone"
+		from guard_safeguard_dispatch d
+		left join guard_safeguard_dispatch_detail l
+		on d.id = l.dispatch_id
+		left join guard_staff s on l.staff_id = s.id
+		where d.id=#{id}
+	</select>
+
+	<select id="findList" resultMap="safeGuardDispatchResult">
+		select d.id,d.dispatch_name,d.create_date,l.staff_id as "staffId",office_id as "officeList.id",
+		s.name as staffName,s.identify_number,l.finger_num
+		from guard_safeguard_dispatch d
+		left join guard_safeguard_dispatch_detail l
+		on d.id = l.dispatch_id
+		left join guard_staff s on l.staff_id = s.id
+		<where>
+			<if test="dispatchName!=null and dispatchName!=''">
+				dispatch_name like concat('%',#{dispatchName},'%')
+			</if>
+		</where>
+		order by d.id desc
+	</select>
+
+	<insert id="insert" useGeneratedKeys="true" keyProperty="id">
+		insert into guard_safeguard_dispatch(
+			dispatch_name,
+			create_date,
+			create_user
+		)values(
+			#{dispatchName},
+			#{createDate},
+			#{createBy.id}
+		)
+	</insert>
+
+	<update id="update">
+		update guard_safeguard_dispatch
+		<set>
+			dispatch_name = #{dispatchName}
+		</set>
+		<where>
+			id=#{id}
+		</where>
+	</update>
+
+	<delete id="delete">
+		delete from guard_safeguard_dispatch where id=#{id}
+	</delete>
+</mapper>

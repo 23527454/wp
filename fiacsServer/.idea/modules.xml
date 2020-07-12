@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/../fiacsCommon/fiacsCommon.iml" filepath="$PROJECT_DIR$/../fiacsCommon/fiacsCommon.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../fiacsNetty/fiacsNetty.iml" filepath="$PROJECT_DIR$/../fiacsNetty/fiacsNetty.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../jeefast/jeefast-common/jeefast-common.iml" filepath="$PROJECT_DIR$/../jeefast/jeefast-common/jeefast-common.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../jeefast/jeefast-parent.iml" filepath="$PROJECT_DIR$/../jeefast/jeefast-parent.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../jeefast/jeefast-rest/jeefast-rest.iml" filepath="$PROJECT_DIR$/../jeefast/jeefast-rest/jeefast-rest.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../jeefast/jeefast-system/jeefast-system.iml" filepath="$PROJECT_DIR$/../jeefast/jeefast-system/jeefast-system.iml" />
+      <module fileurl="file://$PROJECT_DIR$/web.iml" filepath="$PROJECT_DIR$/web.iml" />
+    </modules>
+  </component>
+</project>

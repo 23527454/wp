@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<decorators defaultdir="/WEB-INF/views">
+	<decorator name="blank" page="layouts/blank.jsp"/>
+	<decorator name="default" page="layouts/default.jsp"/>
+
+	<decorator name="cms_default_basic" page="modules/cms/front/themes/basic/layouts/default.jsp"/>
+	<decorator name="cms_default_weixin" page="modules/cms/front/themes/weixin/layouts/default.jsp"/>
+</decorators>

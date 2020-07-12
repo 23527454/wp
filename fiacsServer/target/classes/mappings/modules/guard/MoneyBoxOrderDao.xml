@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.guard.dao.MoneyBoxOrderDao">
+
+	<sql id="moneyBoxOrderColumns">
+		a.id AS "id",
+		a.money_box_id AS "moneyBoxId",
+		a.card_num as cardNum,
+		a.equipment_id AS "equipmentId",
+		a.money_box_order_id AS "moneyBoxOrderId",
+		a.order_type AS "orderType",
+		a.allot_return_time AS "allotReturnTime",
+		a.order_time AS "orderTime",
+		a.upload_time AS "uploadTime",
+		a.order_sys_status AS "orderSysStatus",
+		o.id AS "office.id",
+		o.name AS "office.name",
+		m.id AS "moneyBox.id",
+		m.box_code AS "moneyBox.boxCode",
+		m.card_num AS "moneyBox.cardNum",
+		m.box_type AS "moneyBox.boxType"
+	</sql>
+
+	<sql id="moneyBoxOrderJoins">
+		LEFT JOIN guard_equipment teq on teq.id = a.equipment_id
+		LEFT JOIN sys_office o ON o.id = teq.office_id
+		LEFT JOIN sys_area ar ON ar.id = o.area_id
+		LEFT JOIN guard_money_box m ON m.id = a.money_box_id
+	</sql>
+
+	<select id="get" resultType="MoneyBoxOrder">
+		SELECT
+		<include refid="moneyBoxOrderColumns" />
+		FROM guard_money_box_order a
+		<include refid="moneyBoxOrderJoins" />
+		WHERE a.id = #{id}
+	</select>
+
+	<select id="findList" resultType="MoneyBoxOrder">
+		SELECT
+		<include refid="moneyBoxOrderColumns" />
+		FROM guard_money_box_order a
+		<include refid="moneyBoxOrderJoins" />
+		<where>
+			<if
+				test="moneyBox != null and  moneyBox.boxCode != null and moneyBox.boxCode != ''">
+				AND m.box_code LIKE
+				<if test="dbName == 'oracle'">'%'||#{moneyBox.boxCode}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{moneyBox.boxCode}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{moneyBox.boxCode},'%')</if>
+			</if>
+			<if
+				test="moneyBox != null and  moneyBox.cardNum != null and moneyBox.cardNum != ''">
+				AND m.card_num LIKE
+				<if test="dbName == 'oracle'">'%'||#{moneyBox.cardNum}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{moneyBox.cardNum}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{moneyBox.cardNum},'%')</if>
+			</if>
+			<if
+				test="office != null and  office.id !=null and office.name !=''">
+				AND o.id =#{office.id}
+			</if>
+			
+			<if test="orderTime != null">
+				<![CDATA[
+					AND a.order_time >=#{orderTime}
+				]]>
+			</if>
+			<if test="orderTimeTo != null">
+				<![CDATA[
+					AND a.order_time <=#{orderTimeTo}
+				]]>
+			</if>
+			${sqlMap.dsf}
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			order by a.order_time desc
+			</otherwise>
+		</choose>
+	</select>
+
+	<select id="findListByArea" resultType="MoneyBoxOrder">
+		SELECT
+		<include refid="moneyBoxOrderColumns" />
+		FROM guard_money_box_order a
+		LEFT JOIN guard_equipment teq on teq.id = a.equipment_id
+		LEFT JOIN sys_office o on teq.office_id = o.id
+		LEFT JOIN guard_money_box m ON m.id = a.money_box_id
+		<where>
+
+			<!-- <if test="id != null and id != ''">
+				AND a.id = #{id}
+			</if>
+			<if test="equipmentId != null and equipmentId != ''">
+				AND a.equipment_id = #{equipmentId}
+			</if>
+			<if test="areaId != null and areaId != ''">
+				AND o.area_id = #{areaId}
+			</if> -->
+			<if test="allotReturnTime != null and allotReturnTime != ''">
+				<if test="dbName == 'mssql'">AND ( DateDiff(dd,a.allot_return_time,#{allotReturnTime})
+				= 0 or
+				order_type = 0)</if>
+				<if test="dbName == 'mysql'">AND (DateDiff(date_format(a.allot_return_time,'%Y-%m-%d'),#{allotReturnTime}) = 0 or
+				order_type =
+				0)</if>
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			order by a.order_time desc
+			</otherwise>
+		</choose>
+	</select>
+
+	<select id="findAllList" resultType="MoneyBoxOrder">
+		SELECT
+		<include refid="moneyBoxOrderColumns" />
+		FROM guard_money_box_order a
+		<include refid="moneyBoxOrderJoins" />
+		<where>
+			${sqlMap.dsf}
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			order by a.order_time desc
+			</otherwise>
+		</choose>
+	</select>
+
+	<insert id="insert" useGeneratedKeys="true" keyProperty="id">
+		INSERT
+		INTO guard_money_box_order(
+		money_box_id,
+		equipment_id,
+		money_box_order_id,
+		order_type,
+		allot_return_time,
+		order_time,
+		upload_time,
+		order_sys_status
+		) VALUES (
+		#{moneyBoxId},
+		#{equipmentId},
+		#{moneyBoxOrderId},
+		#{orderType},
+		#{allotReturnTime},
+		#{orderTime},
+		#{uploadTime},
+		#{orderSysStatus}
+		)
+	</insert>
+
+	<update id="update">
+		UPDATE guard_money_box_order SET
+		money_box_id =
+		#{moneyBoxId},
+		equipment_id = #{equipmentId},
+		money_box_order_id =
+		#{moneyBoxOrderId},
+		order_type = #{orderType},
+		allot_return_time =
+		#{allotReturnTime},
+		order_time = #{orderTime},
+		upload_time =
+		#{uploadTime},
+		order_sys_status = #{orderSysStatus}
+		WHERE id = #{id}
+	</update>
+
+	<update id="delete">
+		DELETE FROM guard_money_box_order
+		WHERE id = #{id}
+	</update>
+
+</mapper>

@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.guard.dao.TbAccessParametersDao">
+    
+	<sql id="tbAccessParametersColumns">
+		a.id AS "id",
+		a.equip_sn AS "equipSn",
+		a.equipment_id AS "equipmentId",
+		a.Door_pos AS "doorPos",
+		a.Relayactiontime AS "relayActionTime",
+		a.Delayclosetime as "delayCloseTime",
+		a.Alarmtime as "alarmTime",
+		a.TimeZonenumber as "timeZoneNumber",
+		a.Combinationnumber as "combinationNumber",
+		a.Centerpermit as "centerPermit",
+		a.open_type as "openType"
+	</sql>
+	
+	<sql id="tbAccessParametersJoins">
+		
+	</sql>
+    
+	<select id="get" resultType="TbAccessParameters">
+		SELECT 
+			<include refid="tbAccessParametersColumns"/>
+		FROM tbAccessParameters a
+		<include refid="tbAccessParametersJoins"/>
+		WHERE a.id = #{id} 
+	</select>
+	
+	<select id="findList" resultType="TbAccessParameters">
+		SELECT 
+			<include refid="tbAccessParametersColumns"/>
+		FROM tbAccessParameters a
+		<include refid="tbAccessParametersJoins"/>
+		<where>
+			del_flag = 0 and
+			equipment_id = #{equipmentId}			
+		</where>
+		ORDER BY a.Door_pos asc
+	</select>
+	
+	<insert id="insert" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO tbAccessParameters(
+			equip_sn,
+			equipment_id,
+			Door_pos,
+			open_type
+		) values( 
+			#{equipSn},
+			#{equipmentId},
+			#{doorPos},
+			#{openType}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE tbAccessParameters SET 	
+			Door_pos = #{doorPos},
+			Relayactiontime = #{relayActionTime},
+			Delayclosetime = #{delayCloseTime},
+			Alarmtime = #{alarmTime},
+			TimeZonenumber=#{timeZoneNumber},
+			Combinationnumber = #{combinationNumber},
+			Centerpermit = #{centerPermit},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			open_type = #{openType}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		update tbAccessParameters set del_flag=1
+		<choose>
+			<when test="id !=null and id != ''">
+				WHERE id = #{id}
+			</when>
+			<otherwise>
+				equipment_id = #{equipmentId}
+			</otherwise>
+		</choose>
+	</update>
+	
+</mapper>

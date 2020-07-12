@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.guard.dao.ConnectCommissionerDao">
+
+	<sql id="connectCommissionerColumns">
+		a.id AS "id",
+		a.record_id AS "recordId",
+		a.finger_id AS
+		"fingerId",
+		a.time AS "time",
+		a.task_id AS "taskId"
+	</sql>
+
+	<sql id="connectCommissionerJoins">
+		LEFT JOIN guard_connect_event b ON b.record_id = a.record_id
+	</sql>
+
+	<select id="get" resultType="ConnectCommissioner">
+		SELECT
+		<include refid="connectCommissionerColumns" />
+		FROM guard_connect_commissioner a
+		<include refid="connectCommissionerJoins" />
+		WHERE a.id = #{id}
+	</select>
+
+	<select id="findList" resultType="ConnectCommissioner">
+		SELECT
+		<include refid="connectCommissionerColumns" />
+		FROM guard_connect_commissioner a
+		<include refid="connectCommissionerJoins" />
+		<where>
+
+			<if test="id != null and id != ''">
+				AND a.id LIKE
+				<if test="dbName == 'oracle'">'%'||#{id}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{id}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{id},'%')</if>
+			</if>
+			<if test="recordId != null and recordId != ''">
+				AND a.record_id LIKE
+				<if test="dbName == 'oracle'">'%'||#{recordId}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{recordId}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{recordId},'%')</if>
+			</if>
+			<if test="fingerId != null and fingerId != ''">
+				AND a.finger_id LIKE
+				<if test="dbName == 'oracle'">'%'||#{fingerId}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{fingerId}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{fingerId},'%')</if>
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			ORDER BY a.time desc
+			</otherwise>
+		</choose>
+	</select>
+
+	<select id="findAllList" resultType="ConnectCommissioner">
+		SELECT
+		<include refid="connectCommissionerColumns" />
+		FROM guard_connect_commissioner a
+		<include refid="connectCommissionerJoins" />
+		<where>
+
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			ORDER BY a.time desc
+			</otherwise>
+		</choose>
+	</select>
+
+	<insert id="insert" useGeneratedKeys="true" keyProperty="id">
+		INSERT
+		INTO guard_connect_commissioner(
+		record_id,
+		finger_id,
+		time,
+		task_id
+		) VALUES (
+		#{recordId},
+		#{fingerId},
+		#{time},
+		#{taskId}
+		)
+	</insert>
+
+	<update id="update">
+		UPDATE guard_connect_commissioner SET
+		record_id = #{recordId},
+		finger_id = #{fingerId},
+		time = #{time},
+		task_id = #{taskId}
+		WHERE id = #{id}
+	</update>
+
+	<update id="delete">
+		DELETE FROM guard_connect_commissioner
+		<choose>
+			<when test="id !=null and id != ''">
+				WHERE id = #{id}
+			</when>
+			<otherwise>
+				WHERE record_id = #{recordId}
+			</otherwise>
+		</choose>
+	</update>
+
+</mapper>

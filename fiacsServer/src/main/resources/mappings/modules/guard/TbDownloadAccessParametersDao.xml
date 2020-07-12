@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper
+	namespace="com.thinkgem.jeesite.modules.guard.dao.TbDownloadAccessParametersDao">
+
+	<sql id="tbDownloadAccessParametersColumn">
+		a.id AS "id",
+		a.Parameters_id AS "parametersId",
+		a.equipment_id AS "equipmentId",
+		a.register_time AS "registerTime",
+		a.download_time AS "downloadTime",
+		a.is_download AS "isDownload",
+		a.download_type AS "downloadType",
+		o2.name as "office.name",
+		tb.Door_pos as "doorPos"
+	</sql>
+
+	<sql id="tbDownloadAccessParametersJoins">
+		LEFT JOIN tbAccessParameters tb on a.Parameters_id = tb.id
+		LEFT JOIN guard_equipment eq ON eq.id = a.equipment_id
+		LEFT JOIN
+		sys_office o2 ON o2.id = eq.office_id
+	</sql>
+
+	<select id="get" resultType="TbDownloadAccessParameters">
+		SELECT
+		<include refid="tbDownloadAccessParametersColumn" />
+		FROM tbDownloadAccessParameters a
+		<include refid="tbDownloadAccessParametersJoins" />
+		WHERE a.id = #{id}
+	</select>
+
+	<select id="findList" resultType="TbDownloadAccessParameters">
+		SELECT
+		<include refid="tbDownloadAccessParametersColumn" />
+		FROM tbDownloadAccessParameters a
+
+		<include refid="tbDownloadAccessParametersJoins" />
+		<where>
+			1=1 AND o2.id IN
+			<foreach collection="officeIds" index="index" item="item"
+				open="(" separator="," close=")">
+				${item}
+			</foreach>
+			<if
+				test="office != null and  office.id !=null and office.name !=''">
+				AND o2.id =#{office.id}
+			</if>
+			<if test="downloadTime != null and downloadTime != ''">
+				AND (a.download_time >= #{downloadTime} or
+				a.download_time is NULL )
+			</if>
+			<if test="downloadTimeTwo != null and downloadTimeTwo != ''">
+				AND (#{downloadTimeTwo} >= a.download_time or
+				a.download_time is NULL )
+			</if>
+		</where>
+		<choose>
+			<when
+				test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				order by a.register_time desc
+			</otherwise>
+		</choose>
+	</select>
+
+	<select id="findAllList" resultType="TbDownloadAccessParameters">
+		SELECT
+		<include refid="tbDownloadAccessParametersColumn" />
+		FROM tbDownloadAccessParameters a
+		<include refid="tbDownloadAccessParametersJoins" />
+		<where>
+
+		</where>
+		<choose>
+			<when
+				test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				order by a.register_time desc
+			</otherwise>
+		</choose>
+	</select>
+
+	<select id="countByEntity" resultType="int">
+		select count(1) from tbDownloadAccessParameters where
+		Parameters_id=#{parametersId} AND equipment_id= #{equipmentId} AND
+		download_type='0' AND is_download=#{isDownload} 
+	</select>
+	<insert id="insert" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO
+		tbDownloadAccessParameters(
+		Parameters_id,
+		equipment_id,
+		register_time,
+		download_time,
+		is_download,
+		download_type
+		) VALUES (
+		#{parametersId},
+		#{equipmentId},
+		#{registerTime},
+		#{downloadTime},
+		#{isDownload},
+		#{downloadType}
+		)
+	</insert>
+
+	<update id="update">
+		UPDATE tbDownloadAccessParameters SET
+		Parameters_id =
+		#{parametersId}
+		WHERE id = #{id}
+	</update>
+
+	<update id="delete">
+		<!-- UPDATE tbDownloadAccessParameters SET download_type ='2' WHERE id 
+			= #{id} -->
+
+		DELETE FROM tbDownloadAccessParameters
+		WHERE id = #{id}
+	</update>
+	<update id="delete1">
+		<!-- UPDATE tbDownloadAccessParameters SET download_type ='2' WHERE id 
+			= #{id} -->
+
+		DELETE FROM tbDownloadAccessParameters
+		WHERE Parameters_id =
+		#{parametersId} and is_download=#{isDownload}
+	</update>
+
+</mapper>

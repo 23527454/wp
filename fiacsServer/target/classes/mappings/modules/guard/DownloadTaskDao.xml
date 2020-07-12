@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.guard.dao.DownloadTaskDao">
+
+	<sql id="downloadTaskColumns">
+		a.id AS "id",
+		a.task_id AS "taskId",
+		eq.id AS "equipmentId",
+		a.register_time AS "registerTime",
+		a.download_time AS
+		"downloadTime",
+		a.is_download AS "isDownload",
+		a.download_type AS
+		"downloadType",
+		a1.id AS "task.id",
+		a1.allot_date AS "task.allotDate",
+		a1.allot_time AS "task.allot_time",
+		a1.task_type AS "task.taskType",
+		a2.id AS "classTaskInfo.id",
+		a2.name AS "classTaskInfo.name",
+		a3.id AS
+		"office.id",
+		a3.name As "office.name"
+	</sql>
+
+	<sql id="downloadTaskJoins">
+		LEFT JOIN guard_task_schedule_info a1 ON a1.id = a.task_id
+		LEFT JOIN guard_class_task_info a2 ON a2.id = a1.class_task_id
+		LEFT JOIN guard_equipment eq on eq.id = a.equipment_id
+		LEFT JOIN sys_office a3 ON a3.id = eq.office_id
+	</sql>
+
+	<select id="get" resultType="DownloadTask">
+		SELECT
+		<include refid="downloadTaskColumns" />
+		FROM guard_download_task a
+		<include refid="downloadTaskJoins" />
+		WHERE a.id = #{id}
+	</select>
+
+	<select id="findList" resultType="DownloadTask">
+		SELECT
+		<include refid="downloadTaskColumns" />
+		FROM guard_download_task a
+		<!-- LEFT JOIN guard_task_schedule_info a1 ON a1.id = a.task_id
+		LEFT JOIN guard_class_task_info a2 ON a2.id = a1.class_task_id
+		LEFT JOIN guard_equipment eq on eq.office_id = a.equipment_id
+		LEFT JOIN sys_office a3 ON a3.id = eq.office_id -->
+		<include refid="downloadTaskJoins" />
+		<where>1=1 AND a3.id IN  
+				    <foreach collection="officeIds" index="index" item="item" open="(" separator="," close=")">  
+				        ${item}  
+				    </foreach>  
+			<if
+				test="task != null and  task.taskType != null and task.taskType != ''">
+				AND a1.task_type =#{task.taskType}
+			</if>
+			<if
+				test="office != null and  office.id !=null and office.name !=''">
+				AND a3.id =#{office.id}
+			</if>
+			<if test="downloadTime != null and downloadTime != ''">
+				AND (a.download_time >= #{downloadTime} or a.download_time is NULL )
+			</if>
+			<if test="downloadTimeTwo != null and downloadTimeTwo != ''">
+				AND (#{downloadTimeTwo} >= a.download_time or a.download_time is NULL )
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			order by a.register_time desc
+			</otherwise>
+		</choose>
+	</select>
+
+	<select id="findAllList" resultType="DownloadTask">
+		SELECT
+		<include refid="downloadTaskColumns" />
+		FROM guard_download_task a
+		<include refid="downloadTaskJoins" />
+		<where>
+
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			order by a.register_time desc
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="countByEntity" resultType="int">
+		select count(1) from guard_download_task where
+			task_id=#{taskId} AND equipment_id= #{equipmentId} AND is_download=#{isDownload}
+	</select>
+	<insert id="insert" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO
+		guard_download_task(
+		task_id,
+		equipment_id,
+		register_time,
+		download_time,
+		is_download,
+		download_type
+		) VALUES (
+		#{taskId},
+		#{equipmentId},
+		#{registerTime},
+		#{downloadTime},
+		#{isDownload},
+		#{downloadType}
+		)
+	</insert>
+
+	<update id="update">
+		UPDATE guard_download_task SET
+		task_id = #{taskId}
+		WHERE id = #{id}
+	</update>
+
+	<update id="delete">
+	<!-- UPDATE guard_download_task SET 	
+			download_type = '2'	
+		WHERE id = #{id}  -->
+		
+		DELETE FROM guard_download_task
+		WHERE id = #{id}
+	</update>
+
+</mapper>

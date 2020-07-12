@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.guard.dao.MoneyBoxEventDao">
+    
+	<sql id="moneyBoxEventColumns">
+		a.id AS "id",
+		a.record_id AS "recordId",
+		a.equipment_id AS "equipmentId",
+		a.equip_sn AS "equipSn",
+		a.time AS "time",
+		a.task_id AS "taskId"
+	</sql>
+	
+	<sql id="moneyBoxEventJoins">
+	</sql>
+    
+	<select id="get" resultType="MoneyBoxEvent">
+		SELECT 
+			<include refid="moneyBoxEventColumns"/>
+		FROM guard_money_box_event a
+		<include refid="moneyBoxEventJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="MoneyBoxEvent">
+		SELECT 
+			<include refid="moneyBoxEventColumns"/>
+		FROM guard_money_box_event a
+		<include refid="moneyBoxEventJoins"/>
+		<where>
+			
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			order by a.time desc
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="MoneyBoxEvent">
+		SELECT 
+			<include refid="moneyBoxEventColumns"/>
+		FROM guard_money_box_event a
+		<include refid="moneyBoxEventJoins"/>
+		<where>
+			
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			order by a.time desc
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO guard_money_box_event(
+			record_id,
+			equipment_id,
+			equip_sn,
+			time,
+			task_id
+		) VALUES (
+			#{recordId},
+			#{equipmentId},
+			#{equipSn},
+			#{time},
+			#{taskId}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE guard_money_box_event SET 	
+			record_id = #{recordId},
+			equipment_id = #{equipmentId},
+			equip_sn = #{equipSn},
+			time = #{time},
+			task_id = #{taskId}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		DELETE FROM guard_money_box_event
+		WHERE id = #{id}
+	</update>
+	
+</mapper>

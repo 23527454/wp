@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.guard.dao.CarEventDao">
+    
+	<sql id="carEventColumns">
+		a.id AS "id",
+		a.record_id AS "recordId",
+		a.car_id AS "carId",
+		a.card_num as cardNum,
+		a.equipment_id AS "equipmentId",
+		a.equip_sn AS "equipSn",
+		a.time AS "time",
+		a.task_id AS "taskId",
+		a.class_task_id as classTaskId,
+		b.name as "officeName",
+		d.carplate as "carplate",
+		d.admin as "admin",
+		d.phone as "phone"
+	</sql>
+	
+	<sql id="carEventJoins">
+	    LEFT JOIN guard_equipment teq on teq.id = a.equipment_id
+		LEFT JOIN sys_office b ON b.id = teq.office_id
+		LEFT JOIN sys_area c ON c.id=b.area_id
+		LEFT JOIN guard_car d ON d.id = a.car_id
+	</sql>
+    
+	<select id="get" resultType="CarEvent">
+		SELECT 
+			<include refid="carEventColumns"/>
+		FROM guard_car_event a
+		<include refid="carEventJoins"/>
+		WHERE a.id = #{id}
+	</select>
+
+	<select id="findOne" resultType="CarEvent">
+		SELECT
+		<include refid="carEventColumns"/>
+		FROM guard_car_event a
+		<include refid="carEventJoins"/>
+		WHERE 1=1
+		<if test="recordId!=null and recordId!=''">
+			and a.record_id = #{recordId}
+		</if>
+		<if test="equipmentId!=null and equipmentId!=''">
+			and a.equipment_Id = #{equipmentId}
+		</if>
+		<if test="carId!=null and carId!=''">
+			and a.car_id = #{carId}
+		</if>
+		<if test="time!=null and time!=''">
+			and a.time = #{time}
+		</if>
+		order by a.id desc limit 1
+	</select>
+
+	<select id="getFeeds" resultType="CarEvent">
+		SELECT
+			<include refid="carEventColumns"/>
+		FROM guard_car_event a
+		<include refid="carEventJoins"/>
+		<where>
+			<choose>
+				<when test="nodes != null and nodes != ''">
+					and b.id in(${nodes})<!-- office.id -->
+				</when>
+<!-- 				<otherwise> -->
+<!-- 					and 1=0 -->
+<!-- 				</otherwise> -->
+			</choose>
+			<if test="id != null and id != ''">
+			AND a.id > #{id}
+			</if>
+			<if test="time != null and time != ''">
+			AND a.time > #{time}
+			</if>
+		</where>
+		ORDER BY a.time desc,a.id desc 
+	</select>
+	
+	<select id="findList" resultType="CarEvent">
+		SELECT 
+			<include refid="carEventColumns"/>
+		FROM guard_car_event a
+		<include refid="carEventJoins"/>
+		<where>
+			1=1 AND a.del_flag=0
+			<if test="id != null and id != ''">
+				AND a.id LIKE 
+					<if test="dbName == 'oracle'">'%'||#{id}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{id}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{id},'%')</if>
+			</if>
+			<if test="carId != null and carId != ''">
+				AND a.car_id LIKE 
+					<if test="dbName == 'oracle'">'%'||#{carId}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{carId}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{carId},'%')</if>
+			</if>
+			<if test="time != null and time!= ''" >
+				and a.time = #{time}
+			</if>
+			<if test="date != null and date!=''" >
+				and SUBSTRING(a.time, 1, 10) = #{date}
+			</if>
+			<if test="afterEqDate != null and afterEqDate != ''" >
+				<![CDATA[and a.time >= #{afterEqDate}]]>
+			</if>
+			<if test="beforeEqDate != null and beforeEqDate!= ''" >
+				<![CDATA[and a.time <= #{beforeEqDate}]]>
+			</if>
+			<choose>
+				<when test="nodes != null and nodes != ''">
+					and b.id in(${nodes})<!-- office.id -->
+				</when>
+<!-- 				<otherwise> -->
+<!-- 					and 1=0 -->
+<!-- 				</otherwise> -->
+			</choose>
+			<if test="equipmentId != null and equipmentId != ''">
+				AND a.equipment_id =  #{equipmentId}
+			</if>
+			${sqlMap.dsf}
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			ORDER BY a.time desc, a.id desc
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="CarEvent">
+		SELECT 
+			<include refid="carEventColumns"/>
+		FROM guard_car_event a
+		<include refid="carEventJoins"/>
+		<where>
+			${sqlMap.dsf}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			ORDER BY a.time desc
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO guard_car_event(
+			record_id,
+			car_id,
+			card_num,
+			equipment_id,
+			equip_sn,
+			time,
+			class_task_id,
+			task_id,
+			del_flag
+		) VALUES (
+			#{recordId},
+			#{carId},
+			#{cardNum},
+			#{equipmentId},
+			#{equipSn},
+			#{time},
+			#{classTaskId},
+			#{taskId},
+			#{flag}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE guard_car_event SET 	
+			record_id = #{recordId}
+		WHERE id = #{id}
+	</update>
+	<update id="delflag">
+		UPDATE guard_car_event SET 	
+			del_flag=1
+		WHERE 1=1
+			<if test="id != null and id!= ''" >
+				and id = #{id}
+			</if>
+	</update>
+	<update id="delete">
+		DELETE FROM guard_car_event
+		WHERE id = #{id}
+	</update>
+	
+</mapper>

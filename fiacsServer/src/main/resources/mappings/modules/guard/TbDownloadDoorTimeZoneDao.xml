@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper
+	namespace="com.thinkgem.jeesite.modules.guard.dao.TbDownloadDoorTimeZoneDao">
+
+	<sql id="tbDownloadDoorTimeZoneColumn">
+		a.id AS "id",
+		a.TimeZone_id AS "timeZoneId",
+		a.equipment_id
+		AS "equipmentId",
+		a.register_time AS "registerTime",
+		a.download_time AS
+		"downloadTime",
+		a.is_download AS "isDownload",
+		a.download_type AS
+		"downloadType",
+		o2.name as "office.name",
+		tb.Door_pos as "doorPos",
+		tb.WeekNumber as "weekNumber"
+	</sql>
+
+	<sql id="tbDownloadDoorTimeZoneJoins">
+		LEFT JOIN tbDoorTimeZone tb on tb.id = a.TimeZone_id
+		LEFT
+		JOIN guard_equipment eq ON eq.id = a.equipment_id
+		LEFT JOIN sys_office
+		o2 ON o2.id = eq.office_id
+	</sql>
+
+	<select id="get" resultType="TbDownloadDoorTimeZone">
+		SELECT
+		<include refid="tbDownloadDoorTimeZoneColumn" />
+		FROM tbDownloadDoorTimeZone a
+		<include refid="tbDownloadDoorTimeZoneJoins" />
+		WHERE a.id = #{id}
+	</select>
+
+	<select id="findList" resultType="TbDownloadDoorTimeZone">
+		SELECT
+		<include refid="tbDownloadDoorTimeZoneColumn" />
+		FROM tbDownloadDoorTimeZone a
+
+		<include refid="tbDownloadDoorTimeZoneJoins" />
+		<where>
+			1=1 AND o2.id IN
+			<foreach collection="officeIds" index="index" item="item"
+				open="(" separator="," close=")">
+				${item}
+			</foreach>
+			<if
+				test="office != null and  office.id !=null and office.name !=''">
+				AND o2.id =#{office.id}
+			</if>
+			<if test="downloadTime != null and downloadTime != ''">
+				AND (a.download_time >= #{downloadTime} or
+				a.download_time is NULL )
+			</if>
+			<if test="downloadTimeTwo != null and downloadTimeTwo != ''">
+				AND (#{downloadTimeTwo} >= a.download_time or
+				a.download_time is NULL )
+			</if>
+		</where>
+		<choose>
+			<when
+				test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				order by a.register_time desc
+			</otherwise>
+		</choose>
+	</select>
+
+	<select id="findAllList" resultType="TbDownloadDoorTimeZone">
+		SELECT
+		<include refid="tbDownloadDoorTimeZoneColumn" />
+		FROM tbDownloadDoorTimeZone a
+		<include refid="tbDownloadDoorTimeZoneJoins" />
+		<where>
+
+		</where>
+		<choose>
+			<when
+				test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				order by a.register_time desc
+			</otherwise>
+		</choose>
+	</select>
+
+	<select id="countByEntity" resultType="int">
+		select count(1) from tbDownloadDoorTimeZone where
+		TimeZone_id=#{timeZoneId} AND equipment_id= #{equipmentId} AND
+		download_type='0' AND is_download=#{isDownload}
+	</select>
+
+	<insert id="insert" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO
+		tbDownloadDoorTimeZone(
+		TimeZone_id,
+		equipment_id,
+		register_time,
+		download_time,
+		is_download,
+		download_type
+		) VALUES (
+		#{timeZoneId},
+		#{equipmentId},
+		#{registerTime},
+		#{downloadTime},
+		#{isDownload},
+		#{downloadType}
+		)
+	</insert>
+
+	<update id="update">
+		UPDATE tbDownloadDoorTimeZone SET
+		TimeZone_id =
+		#{timeZoneId}
+		WHERE id = #{id}
+	</update>
+
+	<update id="delete">
+		<!-- UPDATE tbDownloadDoorTimeZone SET download_type ='2' WHERE id = #{id} -->
+
+		DELETE FROM tbDownloadDoorTimeZone
+		WHERE id = #{id}
+	</update>
+	<update id="delete1">
+		<!-- UPDATE tbDownloadDoorTimeZone SET download_type ='2' WHERE id = #{id} -->
+
+		DELETE FROM tbDownloadDoorTimeZone
+		WHERE TimeZone_id = #{timeZoneId}
+		and is_download=#{isDownload}
+	</update>
+
+</mapper>

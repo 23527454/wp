@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.guard.dao.DoorInOutEventQueryDao">
+
+	<sql id="doorInOutEventQueryColumns">
+		a.id AS "id",
+		a.equipment_id AS "equipmentId",
+		a.record_id AS "recordId",
+		a.equip_sn AS "equipSn",
+		a.time AS "time",
+		o1.id AS "office.id",
+		o1.name AS "office.name",
+		o2.id AS "area.id",
+		o2.name AS "area.name",
+		a.DoorPos AS "doorPos",
+		a.event_type as eventType,
+		a.AccessStatus AS "accessStatus",
+		a.HandleStatus as handleStatus,
+		a.HandleTime as "handleTime",
+		a.HandleUserNameId as "handleUserNameId",
+		a.HandleMode as "handleMode",
+		a.Remark as "remark",
+		staff.name as "personName",
+		a.finger_id as "fingerNumLabel",
+		suser.name as "handleUserName",
+		ed.id as "eventDetailId",
+		ed.author_type as "authorType"
+	</sql>
+
+	<sql id="doorInOutEventQueryJoins">
+		LEFT JOIN guard_equipment teq on teq.id = a.equipment_id
+		LEFT JOIN sys_office o1 ON o1.id = teq.office_id
+		LEFT JOIN sys_area o2 ON o2.id = o1.area_id
+		LEFT JOIN guard_staff staff on staff.id=a.person_id
+		LEFT JOIN sys_user suser on suser.id = a.handleUserNameId
+		LEFT JOIN guard_event_detail ed on ed.record_id=a.record_id and ed.equipment_id=a.equipment_id and ed.person_id=a.person_id and ed.event_type=4
+	</sql>
+
+	<select id="get" resultType="DoorInOutEventQuery">
+		SELECT
+		<include refid="doorInOutEventQueryColumns" />
+		FROM tbAccessControlEvent a
+		<include refid="doorInOutEventQueryJoins" />
+		WHERE a.id = #{id}
+	</select>
+
+	<select id="findList" resultType="DoorInOutEventQuery">
+		SELECT
+		<include refid="doorInOutEventQueryColumns" />
+		FROM tbAccessControlEvent a
+		<include refid="doorInOutEventQueryJoins" />
+		<where>
+			<if test="id != null and id != ''">
+				AND a.id LIKE
+				<if test="dbName == 'oracle'">'%'||#{id}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{id}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{id},'%')</if>
+			</if>
+			<if test="equipmentId != null and equipmentId != ''">
+				AND a.equipment_id LIKE
+				<if test="dbName == 'oracle'">'%'||#{equipmentId}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{equipmentId}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{equipmentId},'%')</if>
+			</if>
+			<if
+				test="area != null and area.id != '' and area.id != null">
+				AND a9.area_id = #{area.id}
+			</if>
+			<if
+				test="office != null and office.id != '' and office.id != null">
+				AND o1.id = #{office.id}
+			</if>
+			<if test="time != null and time != ''">
+				AND a.time >= #{time}
+			</if>
+			<if test="timeTwo != null and timeTwo != ''">
+				AND #{timeTwo} >= a.time
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			ORDER BY a.time desc
+			</otherwise>
+		</choose>
+	</select>
+
+	<select id="findAllList" resultType="DoorInOutEventQuery">
+		SELECT
+		<include refid="doorInOutEventQueryColumns" />
+		FROM tbAccessControlEvent a
+		<include refid="doorInOutEventQueryJoins" />
+		<where>
+
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			ORDER BY a.time desc
+			</otherwise>
+		</choose>
+	</select>
+</mapper>

@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.guard.dao.StaffExWorkDao">
+    
+	<sql id="staffExWorkColumns">
+		a.id AS "id",
+		a.staff_id AS "staffId",
+		a.work_name AS "workName",
+		a.work_time AS "workTime",
+		a.dept AS "dept",
+		a.dupt AS "dupt",
+		a.certifier AS "certifier"
+	</sql>
+	
+	<sql id="staffExWorkJoins">
+		LEFT JOIN guard_staff b ON b.id = a.staff_id
+	</sql>
+    
+	<select id="get" resultType="StaffExWork">
+		SELECT 
+			<include refid="staffExWorkColumns"/>
+		FROM guard_staff_ex_work a
+		<include refid="staffExWorkJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="StaffExWork">
+		SELECT 
+			<include refid="staffExWorkColumns"/>
+		FROM guard_staff_ex_work a
+		<include refid="staffExWorkJoins"/>
+		<where>
+			
+			<if test="id != null and id != ''">
+				AND a.id = #{id}
+			</if>
+			<if test="staffId != null and staffId != ''">
+				AND a.staff_id = #{staffId}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="StaffExWork">
+		SELECT 
+			<include refid="staffExWorkColumns"/>
+		FROM guard_staff_ex_work a
+		<include refid="staffExWorkJoins"/>
+		<where>
+			
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO guard_staff_ex_work(
+			staff_id,
+			work_name,
+			work_time,
+			dept,
+			dupt,
+			certifier
+		) VALUES (
+			#{staffId},
+			#{workName},
+			#{workTime},
+			#{dept},
+			#{dupt},
+			#{certifier}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE guard_staff_ex_work SET 	
+			staff_id = #{staffId},
+			work_name = #{workName},
+			work_time = #{workTime},
+			dept = #{dept},
+			dupt = #{dupt},
+			certifier = #{certifier}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		DELETE FROM guard_staff_ex_work
+		<choose>
+			<when test="id !=null and id != ''">
+				WHERE id = #{id}
+			</when>
+			<otherwise>
+				WHERE staff_id = #{staffId}
+			</otherwise>
+		</choose>
+	</update>
+	
+</mapper>

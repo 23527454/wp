@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.guard.dao.TbcarDao">
+    
+	<sql id="tbcarColumns">
+		a.id AS "id",
+		a.ncarno AS "ncarno",
+		a.szcardnum AS "szcardnum",
+		a.szcarplate AS "szcarplate",
+		a.szcarmodel AS "szcarmodel",
+		a.ncarcolor AS "ncarcolor",
+		a.tenterdate AS "tenterdate",
+		a.nworkstatus AS "nworkstatus",
+		a.ncarsysstatus AS "ncarsysstatus",
+		a.szadmin AS "szadmin",
+		a.szadminphone AS "szadminphone",
+		a.carbrand AS "carbrand",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.szcarimage AS "szcarimage"
+	</sql>
+	
+	<sql id="tbcarJoins">
+	</sql>
+    
+	<select id="get" resultType="Tbcar">
+		SELECT 
+			<include refid="tbcarColumns"/>
+		FROM tbcar a
+		<include refid="tbcarJoins"/>
+		WHERE a.id = #{id} and a.del_flag = '0'
+	</select>
+	
+	<select id="findList" resultType="Tbcar">
+		SELECT 
+			<include refid="tbcarColumns"/>
+		FROM tbcar a
+		<include refid="tbcarJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="id != null and id != ''">
+				AND a.id LIKE 
+					<if test="dbName == 'oracle'">'%'||#{id}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{id}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{id},'%')</if>
+			</if>
+			<if test="szcardnum != null and szcardnum != ''">
+				AND a.szcardnum LIKE 
+					<if test="dbName == 'oracle'">'%'||#{szcardnum}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{szcardnum}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{szcardnum},'%')</if>
+			</if>
+			<if test="szcarplate != null and szcarplate != ''">
+				AND a.szcarplate LIKE 
+					<if test="dbName == 'oracle'">'%'||#{szcarplate}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{szcarplate}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{szcarplate},'%')</if>
+			</if>
+			<if test="szadmin != null and szadmin != ''">
+				AND a.szadmin = #{szadmin}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="Tbcar">
+		SELECT 
+			<include refid="tbcarColumns"/>
+		FROM tbcar a
+		<include refid="tbcarJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO tbcar(
+			ncarno,
+			szcardnum,
+			szcarplate,
+			szcarmodel,
+			ncarcolor,
+			tenterdate,
+			nworkstatus,
+			ncarsysstatus,
+			szadmin,
+			szadminphone,
+			carbrand,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			szcarimage
+		) VALUES (
+			#{ncarno},
+			#{szcardnum},
+			#{szcarplate},
+			#{szcarmodel},
+			#{ncarcolor},
+			#{tenterdate},
+			#{nworkstatus},
+			#{ncarsysstatus},
+			#{szadmin},
+			#{szadminphone},
+			#{carbrand},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{szcarimage}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE tbcar SET 	
+			ncarno = #{ncarno},
+			szcardnum = #{szcardnum},
+			szcarplate = #{szcarplate},
+			szcarmodel = #{szcarmodel},
+			ncarcolor = #{ncarcolor},
+			nworkstatus = #{nworkstatus},
+			szadmin = #{szadmin},
+			szadminphone = #{szadminphone},
+			carbrand = #{carbrand},
+			szcarimage = #{szcarimage}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		UPDATE tbcar SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+</mapper>

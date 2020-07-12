@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.guard.dao.CompanyExDao">
+    
+	<sql id="companyExColumns">
+		a.id AS "id",
+		a.company_id AS "companyId",
+		a.image_type AS "imageType",
+		a.image_path AS "imagePath",
+		a.img_data AS "imgData"
+	</sql>
+	
+	<sql id="companyExJoins">
+		LEFT JOIN guard_company b ON b.id = a.company_id
+	</sql>
+    
+	<select id="get" resultType="CompanyEx">
+		SELECT 
+			<include refid="companyExColumns"/>
+		FROM guard_company_ex a
+		<include refid="companyExJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="CompanyEx">
+		SELECT 
+			<include refid="companyExColumns"/>
+		FROM guard_company_ex a
+		<include refid="companyExJoins"/>
+		<where>
+			
+			<if test="companyId != null and companyId != ''">
+				AND a.company_id = #{companyId}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="CompanyEx">
+		SELECT 
+			<include refid="companyExColumns"/>
+		FROM guard_company_ex a
+		<include refid="companyExJoins"/>
+		<where>
+			
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO guard_company_ex(
+			company_id,
+			image_type,
+			image_path,
+			img_data
+		) VALUES (
+			#{companyId},
+			#{imageType},
+			#{imagePath},
+			#{imgData}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE guard_company_ex SET 	
+			image_type = #{imageType},
+			image_path = #{imagePath},
+			img_data = #{imgData}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		DELETE FROM guard_company_ex
+		<choose>
+			<when test="id !=null and id != ''">
+				WHERE id = #{id}
+			</when>
+			<otherwise>
+				WHERE company_id = #{companyId}
+			</otherwise>
+		</choose>
+	</update>
+	
+</mapper>

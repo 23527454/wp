@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.guard.dao.ConnectEventDao">
+
+	<sql id="connectEventColumns">
+		a.id AS "id",
+		a.equipment_id AS "equipmentId",
+		a.record_id AS "recordId",
+		a.money_box_event_id AS "moneyBoxEventId",
+		i.label AS "taskType",
+		a.equip_sn AS "equipSn",
+		a.task_type as "type",
+		a.time AS "time",
+		a.task_id AS "taskId",
+		a.car_id AS "carId",
+		b.name as "officeName",
+		b.type as "officeType",
+		d.carplate as "carplate",
+		d.card_num as "cardNum",
+		company.short_name as "companyName",
+		d.admin as "carAdmin",
+		d.phone as "carPhone",
+<!-- 		d.image_path AS "imagePath", -->
+		f.name as "taskName",
+		h.name as "areaName",
+		h.id as "areaId",
+		g.allot_date AS "allotDate",
+		g.allot_time AS "allotTime",
+		b.id as "officeId"
+	</sql>
+
+	<sql id="connectEventJoins">
+		LEFT JOIN guard_equipment teq on teq.id = a.equipment_id
+		LEFT JOIN sys_office b ON b.id = teq.office_id
+		LEFT JOIN guard_task_schedule_info g ON a.task_id = g.id
+		LEFT JOIN guard_class_task_info f ON g.class_task_id = f.id
+		LEFT JOIN guard_car d ON d.id = a.car_id
+		LEFT JOIN guard_company company on company.id = d.company_id
+		LEFT JOIN sys_area h ON h.id = b.area_id
+		LEFT JOIN sys_dict i ON a.task_type = i.value and i.type='task_type'
+		<!-- LEFT JOIN guard_event_detail ged on ged.record_id=a.record_id and ged.del_flag=0
+		LEFT JOIN guard_commissioner_event gce on gce.record_id=a.record_id and gce.del_flag=0 -->
+	</sql>
+
+	<select id="get" resultType="ConnectEvent">
+		SELECT
+		<include refid="connectEventColumns" />
+		FROM guard_connect_event a
+		<include refid="connectEventJoins" />
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findOne" resultType="ConnectEvent">
+		SELECT
+		<include refid="connectEventColumns" />
+		FROM guard_connect_event a
+		<include refid="connectEventJoins" />
+		WHERE 1=1
+		<if test="recordId!=null and recordId!=''">
+			and a.record_id = #{recordId}
+		</if>
+		<if test="equipmentId!=null and equipmentId!=''">
+		 	and a.equipment_Id = #{equipmentId}
+		</if>
+		<if test="time!=null and time!=''">
+			and a.time = #{time}
+		</if>
+		order by a.id desc limit 1
+	</select>
+
+	<select id="getFeeds" resultType="ConnectEvent">
+		SELECT 
+		<include refid="connectEventColumns" />
+		FROM guard_connect_event a
+		<include refid="connectEventJoins" />
+		<where>
+			<choose>
+				<when test="nodes != null and nodes != ''">
+					and b.id in(${nodes})<!-- office.id -->
+				</when>
+<!-- 				<otherwise> -->
+<!-- 					AND 1=0 -->
+<!-- 				</otherwise> -->
+			</choose>
+			<if test="id != null and id != ''">
+				AND a.id > #{id}
+			</if>
+			<if test="time != null and time != ''">
+				AND a.time >= #{time}
+			</if>
+		</where>
+		order by a.time desc, a.id desc
+	</select>
+
+	<select id="findList" resultType="ConnectEvent">
+		SELECT
+		<include refid="connectEventColumns" />
+		FROM guard_connect_event a
+		<include refid="connectEventJoins" />
+		<where>
+			1=1
+			<if test="id != null and id != ''">
+				AND a.id LIKE
+				<if test="dbName == 'oracle'">'%'||#{id}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{id}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{id},'%')</if>
+			</if>
+			<if test="taskId != null and taskId != ''">
+				AND a.task_id = #{taskId}
+			</if>
+			<if test="recordId != null and recordId != ''">
+				AND a.record_id = #{recordId}
+			</if>
+			<if test="officeId != null and officeId != ''">
+				and b.id =#{officeId}
+			</if>
+			<if test="taskType != null and taskType != ''">
+				AND a.task_type = #{taskType}
+			</if>
+			<if test="areaId != null and areaId != ''">
+				AND h.id = #{areaId}
+			</if>
+			<if test="equipmentId != null and equipmentId != ''">
+				AND a.equipment_id = #{equipmentId}
+			</if>
+			<choose>
+				<when test="nodes != null and nodes != ''">
+					and b.id in(${nodes})<!-- office.id -->
+				</when>
+<!-- 				<otherwise> -->
+<!-- 					AND 1=0 -->
+<!-- 				</otherwise> -->
+			</choose>
+			<if test="time != null and time != ''">
+				AND a.time >= #{time}
+			</if>
+			<if test="taskDateTwo != null and taskDateTwo != ''">
+				AND #{taskDateTwo} >= a.time
+			</if>
+			${sqlMap.dsf}
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			order by a.time desc, a.id desc
+			</otherwise>
+		</choose>
+	</select>
+
+	<select id="findAllList" resultType="ConnectEvent">
+		SELECT
+		<include refid="connectEventColumns" />
+		FROM guard_connect_event a
+		<include refid="connectEventJoins" />
+		<where>
+			${sqlMap.dsf}
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			ORDER BY a.time desc
+			</otherwise>
+		</choose>
+	</select>
+
+	<insert id="insert" useGeneratedKeys="true" keyProperty="id">
+		INSERT
+		INTO guard_connect_event(
+		equipment_id,
+		record_id,
+		task_type,
+		equip_sn,
+		time,
+		task_id,
+		car_id,
+		card_num,
+		money_box_event_id
+		) VALUES (
+		#{equipmentId},
+		#{recordId},
+		#{taskType},
+		
+		#{equipSn},
+		#{time},
+		#{taskId},
+		#{carId},
+		#{cardNum},
+		#{moneyBoxEventId}
+		)
+	</insert>
+
+	<update id="update">
+		UPDATE guard_connect_event SET
+		equipment_id = #{equipmentId},
+		record_id = #{recordId},
+		task_type = #{taskType},
+		equip_sn = #{equipSn},
+		time = #{time},
+		task_id = #{taskId},
+		car_id = #{carId}
+		WHERE id = #{id}
+	</update>
+
+	<update id="delete">
+		DELETE FROM guard_connect_event
+		WHERE id = #{id}
+	</update>
+
+</mapper>

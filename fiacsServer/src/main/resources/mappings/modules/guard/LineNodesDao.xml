@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.guard.dao.LineNodesDao">
+    
+	<sql id="lineNodesColumns">
+		a.id AS "id",
+		a.line_id AS "lineId",
+		a.equipment_id AS "equipmentId",
+		o3.id AS "office.id",
+		a.node_sn AS "nodeSn",
+		a.node_next_gap AS "nodeNextGap",
+		o3.name AS "office.name"
+	</sql>
+	
+	<sql id="lineNodesJoins">
+		LEFT JOIN guard_line b ON b.id = a.line_id
+		LEFT JOIN guard_equipment teq on teq.id = a.equipment_id
+		LEFT JOIN sys_office o3 ON o3.id = teq.office_id
+	</sql>
+    
+	<select id="get" resultType="LineNodes">
+		SELECT 
+			<include refid="lineNodesColumns"/>
+		FROM guard_line_nodes a
+		<include refid="lineNodesJoins"/>
+		WHERE a.id = #{id} 
+	</select>
+	
+	<select id="findList" resultType="LineNodes">
+		SELECT 
+			<include refid="lineNodesColumns"/>
+		FROM guard_line_nodes a
+		<include refid="lineNodesJoins"/>
+		<where>
+			
+			<if test="id != null and id != ''">
+				AND a.id LIKE 
+					<if test="dbName == 'oracle'">'%'||#{id}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{id}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{id},'%')</if>
+			</if>
+			<if test="lineId != null and lineId != ''">
+				AND a.line_id = #{lineId}
+			</if>
+			<if test="office != null and office.id != null and office.id != ''">
+				AND o3.id = #{office.id}
+			</if>
+		</where>
+		ORDER BY a.node_sn asc
+	</select>
+	
+	
+	<select id="findOfficeInLineNodeByArea" resultType="java.lang.String">
+		SELECT 
+			distinct o.id
+		FROM guard_line_nodes a
+		inner join guard_equipment e on a.equipment_id=e.id
+		inner join sys_office o on e.office_id = o.id
+		<where>
+			<if test="areaId != null and areaId != ''">
+				and o.area_id=#{areaId}
+			</if>
+		</where>
+	</select>
+	
+	
+	<select id="findAllList" resultType="LineNodes">
+		SELECT 
+			<include refid="lineNodesColumns"/>
+		FROM guard_line_nodes a
+		<include refid="lineNodesJoins"/>
+		<where>
+			
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			ORDER BY a.node_sn asc
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO guard_line_nodes(
+			line_id,
+			equipment_id,
+			node_sn,
+			node_next_gap
+		) 
+		select 
+			#{lineId},
+			equ.id,
+			#{nodeSn},
+			#{nodeNextGap}
+		from guard_equipment equ where office_id=#{office.id}
+	</insert>
+	
+	<update id="update">
+		UPDATE guard_line_nodes SET 	
+			line_id = #{lineId},
+			equipment_id = (
+				select 
+					equ.id
+				from guard_equipment equ where office_id=#{office.id}
+			),
+			node_sn = #{nodeSn},
+			node_next_gap = #{nodeNextGap}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		DELETE FROM guard_line_nodes
+		<choose>
+			<when test="id !=null and id != ''">
+				WHERE id = #{id}
+			</when>
+			<otherwise>
+				WHERE line_id = #{lineId}
+			</otherwise>
+		</choose>
+	</update>
+	
+</mapper>

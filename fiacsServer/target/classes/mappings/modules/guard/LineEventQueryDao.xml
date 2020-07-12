@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.guard.dao.LineEventQueryDao">
+
+	<sql id="lineEventQueryColumns">
+		a.id AS "id",
+		a.line_id AS "line.id",
+		a.nodes_id AS "nodesId",
+		o4.id AS "office.id",
+		a.event_id AS "eventId",
+		a.equip_sn AS "equipSn",
+		a.time AS "time",
+		a.task_id AS "taskScheduleInfo.id",
+		a1.task_type AS "taskScheduleInfo.taskType",
+		a1.task_date AS "taskScheduleInfo.taskDate",
+		a1.task_time AS "taskScheduleInfo.taskTime",
+		a3.name AS "classTaskfo.name",
+		a3.verify_car AS "classTaskfo.verifyCar",
+		a3.verify_inter_man AS "classTaskfo.verifyInterMan",
+		o1.carplate AS "car.carplate",
+		o2.line_name AS "line.lineName",
+		o3.name As "classTaskfo.staffOne.name",
+		o4.name As "classTaskfo.staffTwo.name"
+		
+	</sql>
+
+	<sql id="lineEventQueryJoins">
+		LEFT JOIN guard_task_schedule_info a1 ON a1.id = a.task_id
+		LEFT JOIN guard_class_task_info a3 ON a3.id = a1.class_task_id
+		LEFT JOIN guard_equipment teq on teq.id = a.equipment_id
+		LEFT JOIN sys_office a4 ON a4.id = teq.office_id
+		LEFT JOIN sys_area a5 ON a5.id = a4.area_id
+		LEFT JOIN guard_car o1 ON o1.id = a3.car_id
+		LEFT JOIN guard_line o2 ON o2.id = a3.line_id
+		LEFT JOIN guard_staff o3 ON o3.id =a3.person_one_id
+		LEFT JOIN guard_staff o4 ON o4.id = a3.person_two_id
+	</sql>
+
+	<select id="get" resultType="LineEventQuery">
+		SELECT
+		<include refid="lineEventQueryColumns" />
+		FROM guard_line_event a
+		<include refid="lineEventQueryJoins" />
+		WHERE a.id = #{id}
+	</select>
+
+	<select id="findList" resultType="LineEventQuery">
+		SELECT
+		<include refid="lineEventQueryColumns" />
+		FROM guard_line_event a
+		<include refid="lineEventQueryJoins" />
+		<where>
+
+			<if test="id != null and id != ''">
+				AND a.id LIKE
+				<if test="dbName == 'oracle'">'%'||#{id}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{id}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{id},'%')</if>
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			order by a.update_date desc
+			</otherwise>
+		</choose>
+	</select>
+
+	<select id="findAllList" resultType="LineEventQuery">
+		SELECT
+		<include refid="lineEventQueryColumns" />
+		FROM guard_line_event a
+		<include refid="lineEventQueryJoins" />
+		<where>
+
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			order by a.update_date desc
+			</otherwise>
+		</choose>
+	</select>
+
+	<insert id="insert" useGeneratedKeys="true" keyProperty="id">
+		INSERT
+		INTO guard_line_event(
+		line_id,
+		nodes_id,
+		equipment_id,
+		event_id,
+		equip_sn,
+		time,
+		task_id
+		) VALUES (
+		#{line.id},
+		#{nodesId},
+		#{equipmentId},
+		#{eventId},
+		#{equipSn},
+		#{time},
+		#{taskScheduleInfo.id}
+		)
+	</insert>
+
+	<update id="update">
+		UPDATE guard_line_event SET
+		line_id = #{line.id},
+		nodes_id = #{nodesId},
+		equipment_id = #{equipmentId},
+		event_id = #{eventId},
+		equip_sn = #{equipSn},
+		time = #{time},
+		task_id = #{taskScheduleInfo.id}
+		WHERE id = #{id}
+	</update>
+
+	<update id="delete">
+		DELETE FROM guard_line_event
+		WHERE id = #{id}
+	</update>
+
+</mapper>

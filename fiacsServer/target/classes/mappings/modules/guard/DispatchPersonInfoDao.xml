@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.guard.dao.DispatchPersonInfoDao">
+    
+  	<insert id="insert">
+		insert into guard_safeguard_dispatch_detail(
+			dispatch_id,
+			staff_id,
+			office_id,
+			finger_num
+		)values(
+			#{dispatchId},
+			#{staffId},
+			#{officeId},
+			#{fingerNum}
+		)
+	</insert>
+
+	<select id="findList" resultType="DispatchPersonInfo">
+		select * from 	guard_safeguard_dispatch_detail
+		<where>
+			<if test="dispatchId!=null and dispatchId!=''">
+				dispatch_id=#{dispatchId}
+			</if>
+			<if test="staffId!=null and staffId!=''">
+                and staff_id=#{staffId}
+            </if>
+            <if test="officeId!=null and officeId!=''">
+				and office_id=#{officeId}
+			</if>
+		</where>
+	</select>
+
+	<delete id="deleteDispatch">
+		delete from guard_safeguard_dispatch_detail where dispatch_id=#{id}
+	</delete>
+
+	<select id="countByCondition" resultType="java.lang.Integer">
+		select count(1) from guard_safeguard_dispatch_detail
+		<where>
+			<if test="staffId!=null and staffId!=''">
+				staff_id=#{staffId}
+			</if>
+			<if test="officeId!=null and officeId!=''">
+				and office_id=#{officeId}
+			</if>
+		</where>
+	</select>
+
+	<delete id="delete">
+		delete from guard_safeguard_dispatch_detail where id=#{id}
+	</delete>
+</mapper>

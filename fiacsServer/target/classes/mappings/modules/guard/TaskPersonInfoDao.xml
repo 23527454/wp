@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.guard.dao.TaskPersonInfoDao">
+    
+	<sql id="taskPersonInfoColumns">
+		a.id AS "id",
+		a.task_schedule_id AS "taskScheduleId",
+		a.person_id AS "personId",
+		a.finger_num AS "fingerNum",
+		c.name AS "name",
+		c.identify_number AS "identifyNumber",
+		c.area_id as areaId
+	</sql>
+	
+	<sql id="taskPersonInfoJoins">
+		LEFT JOIN guard_task_schedule_info b ON b.id = a.task_schedule_id
+		LEFT JOIN guard_staff c ON c.id = a.person_id
+	</sql>
+    
+	<select id="get" resultType="TaskPersonInfo">
+		SELECT 
+			<include refid="taskPersonInfoColumns"/>
+		FROM guard_task_person_info a
+		<include refid="taskPersonInfoJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="TaskPersonInfo">
+		SELECT 
+			<include refid="taskPersonInfoColumns"/>
+		FROM guard_task_person_info a
+		<include refid="taskPersonInfoJoins"/>
+		<where>
+			
+			<if test="taskScheduleId != null and taskScheduleId != ''">
+				AND a.task_schedule_id = #{taskScheduleId}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="TaskPersonInfo">
+		SELECT 
+			<include refid="taskPersonInfoColumns"/>
+		FROM guard_task_person_info a
+		<include refid="taskPersonInfoJoins"/>
+		<where>
+			
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO guard_task_person_info(
+			task_schedule_id,
+			person_id,
+			finger_num
+		) VALUES (
+			#{taskScheduleId},
+			#{personId},
+			#{fingerNum}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE guard_task_person_info SET 	
+			task_schedule_id = #{taskScheduleId},
+			person_id = #{personId},
+			finger_num = #{fingerNum}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		DELETE FROM guard_task_person_info
+				WHERE task_schedule_id = #{taskScheduleId}
+	</update>
+	
+</mapper>

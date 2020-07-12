@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.guard.dao.StaffImageDao">
+    
+	<sql id="staffImageColumns">
+		a.id AS "id",
+		a.staff_id AS "staffId",
+		a.image_type AS "imageType",
+		a.image_path AS "imagePath",
+		a.img_data AS "imgData"
+	</sql>
+	
+	<sql id="staffImageJoins">
+		LEFT JOIN guard_staff b ON b.id = a.staff_id
+	</sql>
+    
+	<select id="get" resultType="StaffImage">
+		SELECT 
+			<include refid="staffImageColumns"/>
+		FROM guard_staff_image a
+		<include refid="staffImageJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="StaffImage">
+		SELECT 
+			<include refid="staffImageColumns"/>
+		FROM guard_staff_image a
+		<include refid="staffImageJoins"/>
+		<where>
+			<if test="id != null and id != ''">
+				AND a.id = #{id}
+			</if>
+			<if test="staffId != null and staffId != ''">
+				AND a.staff_id = #{staffId}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="StaffImage">
+		SELECT 
+			<include refid="staffImageColumns"/>
+		FROM guard_staff_image a
+		<include refid="staffImageJoins"/>
+		<where>
+			
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO guard_staff_image(
+			staff_id,
+			image_type,
+			image_path,
+			img_data
+		) VALUES (
+			#{staffId},
+			#{imageType},
+			#{imagePath},
+			#{imgData}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE guard_staff_image SET 	
+			staff_id = #{staffId},
+			image_type = #{imageType},
+			image_path = #{imagePath},
+			img_data=#{imgData}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+	UPDATE guard_staff_image SET 	
+			del_flag = '1'	
+		WHERE staff_id = #{staffId}
+	</update>
+	
+</mapper>

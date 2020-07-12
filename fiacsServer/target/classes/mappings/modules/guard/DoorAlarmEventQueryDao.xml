@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.guard.dao.DoorAlarmEventQueryDao">
+
+	<sql id="doorAlarmEventQueryColumns">
+		a.id AS "id",
+		a.equipment_id AS "equipmentId",
+		a.record_id AS "recordId",
+		a.equip_sn AS "equipSn",
+		a.time AS "time",
+		o1.id AS "office.id",
+		o1.name AS "office.name",
+		o2.id AS "area.id",
+		o2.name AS
+		"area.name",
+		a.DoorPos AS "doorPos",
+		a.event_type as eventType,
+		a.Alarmstatus AS "alarmStatus",
+		a.HandleStatus as handleStatus,
+		a.HandleTime as "handleTime",
+		a.HandleUserNameId as "handleUserNameId",
+		a.HandleMode as "handleMode",
+		a.Remark as "remark",
+	
+		suser.name as "handleUserName"
+	</sql>
+
+	<sql id="doorAlarmEventQueryJoins">
+		LEFT JOIN guard_equipment teq on teq.id = a.equipment_id
+		LEFT JOIN sys_office o1 ON o1.id = teq.office_id
+		LEFT JOIN sys_area o2 ON o2.id = o1.area_id
+		
+		LEFT JOIN sys_user suser on suser.id = a.handleUserNameId
+		
+	</sql>
+
+	<select id="get" resultType="DoorAlarmEventQuery">
+		SELECT
+		<include refid="doorAlarmEventQueryColumns" />
+		FROM tbAccessAlarmEvent a
+		<include refid="doorAlarmEventQueryJoins" />
+		WHERE a.id = #{id}
+	</select>
+
+	<select id="findList" resultType="DoorAlarmEventQuery">
+		SELECT
+		<include refid="doorAlarmEventQueryColumns" />
+		FROM tbAccessAlarmEvent a
+		<include refid="doorAlarmEventQueryJoins" />
+		<where>
+			<if test="id != null and id != ''">
+				AND a.id LIKE
+				<if test="dbName == 'oracle'">'%'||#{id}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{id}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{id},'%')</if>
+			</if>
+			<if test="equipmentId != null and equipmentId != ''">
+				AND a.equipment_id LIKE
+				<if test="dbName == 'oracle'">'%'||#{equipmentId}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{equipmentId}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{equipmentId},'%')</if>
+			</if>
+			<if
+				test="area != null and area.id != '' and area.id != null">
+				AND a9.area_id = #{area.id}
+			</if>
+			<if
+				test="office != null and office.id != '' and office.id != null">
+				AND o1.id = #{office.id}
+			</if>
+			<if test="time != null and time != ''">
+				AND a.time >= #{time}
+			</if>
+			<if test="timeTwo != null and timeTwo != ''">
+				AND #{timeTwo} >= a.time
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			ORDER BY a.time desc
+			</otherwise>
+		</choose>
+	</select>
+
+	<select id="findAllList" resultType="DoorAlarmEventQuery">
+		SELECT
+		<include refid="doorAlarmEventQueryColumns" />
+		FROM tbAccessAlarmEvent a
+		<include refid="doorAlarmEventQueryJoins" />
+		<where>
+
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			ORDER BY a.time desc
+			</otherwise>
+		</choose>
+	</select>
+</mapper>

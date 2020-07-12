@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.guard.dao.TbmoneylockersDao">
+    
+	<sql id="tbmoneylockersColumns">
+		a.id AS "id",
+		a.szlockername AS "szlockername",
+		a.nlockersn AS "nlockersn",
+		a.szcardnumber AS "szcardnumber",
+		a.szlockercode AS "szlockercode",
+		a.area_id AS "area.id",
+		a.uclockertype AS "uclockertype",
+		a.uclockerstatus AS "uclockerstatus",
+		a.uclockersysstatus AS "uclockersysstatus",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a6.name AS "area.name"
+	</sql>
+	
+	<sql id="tbmoneylockersJoins">
+		LEFT JOIN sys_area a6 ON a6.id = a.area_id
+	</sql>
+    
+	<select id="get" resultType="Tbmoneylockers">
+		SELECT 
+			<include refid="tbmoneylockersColumns"/>
+		FROM tbmoneylockers a
+		<include refid="tbmoneylockersJoins"/>
+		WHERE a.id = #{id} and a.del_flag = '0'
+	</select>
+	
+	<select id="findList" resultType="Tbmoneylockers">
+		SELECT 
+			<include refid="tbmoneylockersColumns"/>
+		FROM tbmoneylockers a
+		<include refid="tbmoneylockersJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="id != null and id != ''">
+				AND a.id LIKE 
+					<if test="dbName == 'oracle'">'%'||#{id}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{id}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{id},'%')</if>
+			</if>
+			<if test="szcardnumber != null and szcardnumber != ''">
+				AND a.szcardnumber LIKE 
+					<if test="dbName == 'oracle'">'%'||#{szcardnumber}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{szcardnumber}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{szcardnumber},'%')</if>
+			</if>
+			<if test="szlockercode != null and szlockercode != ''">
+				AND a.szlockercode LIKE 
+					<if test="dbName == 'oracle'">'%'||#{szlockercode}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{szlockercode}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{szlockercode},'%')</if>
+			</if>
+			<if test="area != null and area.id != null and area.id != ''">
+				AND a.area_id = #{area.id}
+			</if>
+			<if test="uclockertype != null and uclockertype != ''">
+				AND a.uclockertype = #{uclockertype}
+			</if>
+			<if test="uclockerstatus != null and uclockerstatus != ''">
+				AND a.uclockerstatus = #{uclockerstatus}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="Tbmoneylockers">
+		SELECT 
+			<include refid="tbmoneylockersColumns"/>
+		FROM tbmoneylockers a
+		<include refid="tbmoneylockersJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO tbmoneylockers(
+			nlockersn,
+			szcardnumber,
+			szlockercode,
+			area_id,
+			uclockertype,
+			uclockerstatus,
+			uclockersysstatus,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag
+		) VALUES (
+			#{nlockersn},
+			#{szcardnumber},
+			#{szlockercode},
+			#{area.id},
+			#{uclockertype},
+			#{uclockerstatus},
+			#{uclockersysstatus},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE tbmoneylockers SET 	
+			nlockersn = #{nlockersn},
+			szcardnumber = #{szcardnumber},
+			szlockercode = #{szlockercode},
+			area_id = #{area.id},
+			uclockertype = #{uclockertype},
+			uclockerstatus = #{uclockerstatus},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		UPDATE tbmoneylockers SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+</mapper>

@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.guard.dao.StaffExFamilyDao">
+    
+	<sql id="staffExFamilyColumns">
+		a.id AS "id",
+		a.staff_id AS "staffId",
+		a.name AS "name",
+		a.age AS "age",
+		a.relation AS "relation",
+		a.work AS "work",
+		a.phone AS "phone"
+	</sql>
+	
+	<sql id="staffExFamilyJoins">
+		LEFT JOIN guard_staff b ON b.id = a.staff_id
+	</sql>
+    
+	<select id="get" resultType="StaffExFamily">
+		SELECT 
+			<include refid="staffExFamilyColumns"/>
+		FROM guard_staff_ex_family a
+		<include refid="staffExFamilyJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="StaffExFamily">
+		SELECT 
+			<include refid="staffExFamilyColumns"/>
+		FROM guard_staff_ex_family a
+		<include refid="staffExFamilyJoins"/>
+		<where>
+			
+			<if test="id != null and id != ''">
+				AND a.id = #{id}
+			</if>
+			<if test="staffId != null and staffId != ''">
+				AND a.staff_id = #{staffId}
+			</if>
+			<if test="name != null and name != ''">
+				AND a.name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{name}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{name}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{name},'%')</if>
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="StaffExFamily">
+		SELECT 
+			<include refid="staffExFamilyColumns"/>
+		FROM guard_staff_ex_family a
+		<include refid="staffExFamilyJoins"/>
+		<where>
+			
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO guard_staff_ex_family(
+			staff_id,
+			name,
+			age,
+			relation,
+			work,
+			phone
+		) VALUES (
+			#{staffId},
+			#{name},
+			#{age},
+			#{relation},
+			#{work},
+			#{phone}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE guard_staff_ex_family SET 	
+			staff_id = #{staffId},
+			name = #{name},
+			age = #{age},
+			relation = #{relation},
+			work = #{work},
+			phone = #{phone}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		DELETE FROM guard_staff_ex_family
+		<choose>
+			<when test="id !=null and id != ''">
+				WHERE id = #{id}
+			</when>
+			<otherwise>
+				WHERE staff_id = #{staffId}
+			</otherwise>
+		</choose>
+	</update>
+	
+</mapper>

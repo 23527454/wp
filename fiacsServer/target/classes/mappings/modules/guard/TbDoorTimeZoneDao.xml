@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.guard.dao.TbDoorTimeZoneDao">
+    
+	<sql id="tbDoorTimeZoneColumns">
+		a.id AS "id",
+		a.equip_sn AS "equipSn",
+		a.equipment_id AS "equipmentId",
+		a.Door_pos AS "doorPos",
+		a.TimeZonenumber AS "timeZoneNumber",
+		a.WeekNumber AS "weekNumber",
+		a.Timeframestart1 as "timeFrameStart1",
+		a.Timeframeend1 as "timeFrameEnd1",
+		a.Timeframestart2 as "timeFrameStart2",
+		a.Timeframeend2 as "timeFrameEnd2",
+		a.Timeframestart3 as "timeFrameStart3",
+		a.Timeframeend3 as "timeFrameEnd3",
+		a.Timeframestart4 as "timeFrameStart4",
+		a.Timeframeend4 as "timeFrameEnd4"
+	</sql>
+	
+	<sql id="tbDoorTimeZoneJoins">
+		
+	</sql>
+    
+	<select id="get" resultType="TbDoorTimeZone">
+		SELECT 
+			<include refid="tbDoorTimeZoneColumns"/>
+		FROM tbDoorTimeZone a
+		<include refid="tbDoorTimeZoneJoins"/>
+		WHERE a.id = #{id} 
+	</select>
+	
+	<select id="findList" resultType="TbDoorTimeZone">
+		SELECT 
+			<include refid="tbDoorTimeZoneColumns"/>
+		FROM tbDoorTimeZone a
+		<include refid="tbDoorTimeZoneJoins"/>
+		<where>
+		del_flag = 0
+		and 
+			equipment_id = #{equipmentId}			
+		</where>
+		ORDER BY a.Door_pos asc
+	</select>
+	
+	<insert id="insert" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO tbDoorTimeZone(
+			equip_sn,
+			equipment_id,
+			Door_pos,
+			TimeZonenumber,
+			WeekNumber,
+			Timeframestart1,
+			Timeframestart2,
+			Timeframestart3,
+			Timeframestart4,
+			Timeframeend1,
+			Timeframeend2,
+			Timeframeend3,
+			Timeframeend4
+		) values( 
+			#{equipSn},
+			#{equipmentId},
+			#{doorPos},
+			#{timeZoneNumber},
+			#{weekNumber},
+			#{timeFrameStart1},
+			#{timeFrameStart2},
+			#{timeFrameStart3},
+			#{timeFrameStart4},
+			#{timeFrameEnd1},
+			#{timeFrameEnd2},
+			#{timeFrameEnd3},
+			#{timeFrameEnd4}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE tbDoorTimeZone SET 	
+			Door_pos = #{doorPos},
+			TimeZonenumber = #{timeZoneNumber},
+			WeekNumber = #{weekNumber},
+			Timeframestart1 = #{timeFrameStart1},
+			Timeframestart2 = #{timeFrameStart2},
+			Timeframestart3 = #{timeFrameStart3},
+			Timeframestart4 = #{timeFrameStart4},
+			Timeframeend1 = #{timeFrameEnd1},
+			Timeframeend2 = #{timeFrameEnd2},
+			Timeframeend3 = #{timeFrameEnd3},
+			Timeframeend4 = #{timeFrameEnd4}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		update tbDoorTimeZone set del_flag=1
+		<choose>
+			<when test="id !=null and id != ''">
+				WHERE id = #{id}
+			</when>
+			<otherwise>
+				equipment_id = #{equipmentId}
+			</otherwise>
+		</choose>
+	</update>
+	
+</mapper>

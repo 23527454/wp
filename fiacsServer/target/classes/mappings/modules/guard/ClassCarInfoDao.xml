@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.guard.dao.ClassCarInfoDao">
+
+	<sql id="classCarInfoColumns">
+		a.id AS "id",
+		a.class_task_id AS "classTaskId",
+		a.car_id AS
+		"carId",
+		a.card_num AS "cardNum",
+		c.name AS "name",
+		c.carplate AS "carplate"
+	</sql>
+
+	<sql id="classCarInfoJoins">
+		LEFT JOIN guard_class_task_info b ON b.id = a.class_task_id
+		LEFT JOIN guard_car c ON c.id = a.car_id
+	</sql>
+
+	<select id="get" resultType="ClassCarInfo">
+		SELECT
+		<include refid="classCarInfoColumns" />
+		FROM guard_class_car_info a
+		<include refid="classCarInfoJoins" />
+		WHERE a.id = #{id}
+	</select>
+
+	<select id="findList" resultType="ClassCarInfo">
+		SELECT
+		<include refid="classCarInfoColumns" />
+		FROM guard_class_car_info a
+		<include refid="classCarInfoJoins" />
+		<where>
+
+			<if test="classTaskId != null and classTaskId != ''">
+				AND a.class_task_id = #{classTaskId}
+			</if>
+			<if test="name != null and name != ''">
+				AND c.name like '%'+#{name}+'%'
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+
+	<select id="findAllList" resultType="ClassCarInfo">
+		SELECT
+		<include refid="classCarInfoColumns" />
+		FROM guard_class_car_info a
+		<include refid="classCarInfoJoins" />
+		<where>
+
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+
+	<insert id="insert" useGeneratedKeys="true" keyProperty="id">
+		INSERT
+		INTO guard_class_car_info(
+		class_task_id,
+		car_id,
+		card_num
+		) VALUES (
+		#{classTaskId},
+		#{carId},
+		#{cardNum}
+		)
+	</insert>
+
+	<update id="update">
+		UPDATE guard_class_car_info SET
+		class_task_id = #{classTaskId},
+		car_id = #{carId},
+		card_num = #{cardNum}
+		WHERE id = #{id}
+	</update>
+
+	<update id="deleteCar">
+		DELETE FROM guard_class_car_info WHERE car_id = #{carId}
+	</update>
+	<update id="deleteClass">
+		DELETE FROM guard_class_car_info WHERE class_task_id = #{classTaskId}
+	</update>
+
+</mapper>

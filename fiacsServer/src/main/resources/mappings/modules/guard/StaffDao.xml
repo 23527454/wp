@@ -1,0 +1,342 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper
+	namespace="com.thinkgem.jeesite.modules.guard.dao.StaffDao">
+
+	<sql id="staffColumns">
+		a.id AS "id",
+		a.name AS "name",
+		a.birthday AS "birthday",
+		a.sex AS "sex",
+		a.work_num AS "workNum",
+		a.identify_type AS
+		"identifyType",
+		a.identify_number AS
+		"identifyNumber",
+		a.dept AS "dept",
+		a.dupt AS "dupt",
+		a.work AS "work",
+		a.phone AS "phone",
+		a.nation AS
+		"nation",
+		a.education AS "education",
+		a.email AS "email",
+		a.address AS
+		"address",
+		a.staff_type AS "staffType",
+		a.work_status AS "workStatus",
+		a.status AS "status",
+		a.create_by AS
+		"createBy.id",
+		a.create_date AS
+		"createDate",
+		a.update_by AS
+		"updateBy.id",
+		a.update_date AS
+		"updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		case when
+		a.staff_type = 1 then
+		a.nManage_id
+		end As "office.id",
+		case when a.staff_type = 0 or a.staff_type = 2 then
+		a.nManage_id
+		end As "company.id",
+		a.area_id As "area.id",
+		o3.name AS
+		"office.name",
+		o4.name AS "area.name",
+		o5.short_name AS
+		"company.shortName"
+	</sql>
+
+	<sql id="staffJoins">
+		LEFT JOIN sys_office o3 ON o3.id = a.nManage_id
+		LEFT JOIN
+		sys_area o4 ON o4.id = a.area_id
+		LEFT JOIN guard_company o5 ON o5.id =
+		a.nManage_id
+		JOIN sys_user
+		u ON u.id = a.create_by
+	</sql>
+
+	<select id="get" resultType="Staff">
+		SELECT
+		<include refid="staffColumns" />
+		FROM guard_staff a
+		<include refid="staffJoins" />
+		WHERE a.id = #{id} and a.del_flag = '0'
+	</select>
+
+	<select id="getWithDel" resultType="Staff">
+		SELECT
+		<include refid="staffColumns" />
+		FROM guard_staff a
+		<include refid="staffJoins" />
+		WHERE a.id = #{id}
+	</select>
+
+	<select id="findListByOfficeId" resultType="string"
+		parameterType="java.util.HashMap">
+		SELECT a.id
+		FROM guard_staff a
+		<where>
+			a.del_flag = 0 and a.nManage_id=#{officeId} 
+			<if test="staffType==1">
+				and a.staff_type=#{staffType}
+			</if>
+			<if test="staffType==0">
+				and a.staff_type in (0,2)
+			</if>
+		</where>
+	</select>
+	
+	<update id="updateStaffArea" parameterType="java.util.HashMap">
+		update guard_staff set area_id=#{areaId}
+		<where>
+			id in
+			<foreach collection="staffIds" item="item" open="(" close=")" separator=",">
+				#{item}
+			</foreach>
+		</where>
+	</update>
+
+	<select id="findList" resultType="Staff"
+		parameterType="com.thinkgem.jeesite.modules.guard.entity.Staff">
+		SELECT
+		<include refid="staffColumns" />
+		FROM guard_staff a
+		<include refid="staffJoins" />
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="id != null and id != ''">
+				AND a.id = #{id}
+			</if>
+			<if test="name != null and name != ''">
+				AND a.name LIKE
+				<if test="dbName == 'oracle'">'%'||#{name}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{name}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{name},'%')</if>
+			</if>
+			<if
+				test="company != null and company.id != null and company.id != ''">
+				AND (<!-- o5.parent_ids LIKE <if test="dbName == 'oracle'">'%,'||#{company.id}||',%'</if> 
+					<if test="dbName == 'mssql'">'%,'+#{company.id}+',%'</if> <if test="dbName 
+					== 'mysql'">CONCAT('%,', #{company.id}, ',%')</if> -->
+				<!-- OR a.nManage_id = #{company.id} -->
+				a.nManage_id IN
+				<foreach collection="compIds" index="index" item="item"
+					open="(" separator="," close=")">
+					${item}
+				</foreach>
+				)
+				and a.staff_type in ('0', '2')
+			</if>
+			<if
+				test="office != null and office.id != null and office.id != ''">
+				AND (o3.parent_ids LIKE
+				<if test="dbName == 'oracle'">'%,'||#{office.id}||',%'</if>
+				<if test="dbName == 'mssql'">'%,'+#{office.id}+',%'</if>
+				<if test="dbName == 'mysql'">CONCAT('%,', #{office.id}, ',%')</if>
+				OR a.nManage_id = #{office.id})
+				and a.staff_type = '1'
+			</if>
+			<if test="identifyNumber != null and identifyNumber != ''">
+				AND a.identify_number = #{identifyNumber}
+			</if>
+			<if test="workNum != null and workNum != ''">
+				AND a.work_num LIKE
+				<if test="dbName == 'oracle'">'%'||#{workNum}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{workNum}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{workNum},'%')</if>
+			</if>
+			<if test="area != null and area.id != null and area.id != ''">
+				AND a.area_id = #{area.id}
+			</if>
+			<if test="queryType!=null and queryType == 1">
+				and a.staff_type in ('0')
+				and a.status in('2', '3')
+				and
+				a.work_status = '1'
+				and not exists(
+				select 1 from guard_class_person_info g
+				where g.person_id = a.id
+				and g.class_task_id != #{classTaskId}
+				)
+			</if>
+			<if test="queryType!=null and queryType==2">
+				and a.staff_type in ('2')
+				and a.status in('2', '3')
+				and
+				a.work_status = '1'
+			</if>
+			${sqlMap.dsf}
+		</where>
+		<choose>
+			<when
+				test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+
+	<select id="countByColumnExceptSelf" resultType="int">
+		SELECT
+		count(1)
+		FROM guard_staff a
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="workNum != null and workNum != ''">
+				AND a.work_num=#{workNum}
+			</if>
+			<if test="identifyNumber != null and identifyNumber != ''">
+				AND a.identify_number=#{identifyNumber}
+			</if>
+			<if test="id != null and id != ''">
+				and a.id != #{id}
+			</if>
+		</where>
+	</select>
+
+
+	<select id="findAllList" resultType="Staff">
+		SELECT
+		<include refid="staffColumns" />
+		FROM guard_staff a
+		<include refid="staffJoins" />
+		<where>
+			${sqlMap.dsf}
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>
+		<choose>
+			<when
+				test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+
+	<insert id="insert" useGeneratedKeys="true" keyProperty="id">
+		INSERT
+		INTO guard_staff(
+		name,
+		birthday,
+		sex,
+		work_num,
+		identify_type,
+		identify_number,
+		dept,
+		dupt,
+		work,
+		phone,
+		nation,
+		education,
+		email,
+		address,
+		staff_type,
+		work_status,
+		status,
+		create_by,
+		create_date,
+		update_by,
+		update_date,
+		remarks,
+		del_flag,
+		nManage_id,
+		area_id
+		) VALUES (
+		#{name},
+		#{birthday},
+		#{sex},
+		#{workNum},
+		#{identifyType},
+		#{identifyNumber},
+		#{dept},
+		#{dupt},
+		#{work},
+		#{phone},
+		#{nation},
+		#{education},
+		#{email},
+		#{address},
+		#{staffType},
+		#{workStatus},
+		#{status},
+		#{createBy.id},
+		#{createDate},
+		#{updateBy.id},
+		#{updateDate},
+		#{remarks},
+		#{delFlag},
+		<choose>
+			<when test="staffType == STAFF_TYPE_HANDOVER_CLERK">
+				#{office.id},
+			</when>
+			<otherwise>
+				#{company.id},
+			</otherwise>
+		</choose>
+		#{area.id}
+		)
+	</insert>
+
+	<update id="update">
+		UPDATE guard_staff SET
+		name = #{name},
+		birthday =#{birthday},
+		sex =
+		#{sex},
+		<choose>
+			<when test="staffType == STAFF_TYPE_HANDOVER_CLERK">
+				nManage_id=#{office.id},
+			</when>
+			<otherwise>
+				nManage_id=#{company.id},
+			</otherwise>
+		</choose>
+		work_num =#{workNum},
+		identify_type = #{identifyType},
+		identify_number
+		=#{identifyNumber},
+		dept = #{dept},
+		dupt = #{dupt},
+		work = #{work},
+		phone
+		=#{phone},
+		nation = #{nation},
+		education = #{education},
+		email =
+		#{email},
+		address = #{address},
+		staff_type = #{staffType},
+		work_status
+		=#{workStatus},
+		status = #{status},
+		update_by = #{updateBy.id},
+		update_date = #{updateDate},
+		remarks = #{remarks},
+		area_id=#{area.id}
+		WHERE id = #{id}
+	</update>
+
+	<update id="delete">
+		UPDATE guard_staff SET
+		del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+
+	<select id="findAll" resultType="Staff">
+		select * from guard_staff where del_flag='0'
+	</select>
+
+	<select id="findByOfficeId" resultType="Staff">
+		select * from guard_staff where del_flag='0' and nManage_id=#{officeId}
+	</select>
+</mapper>

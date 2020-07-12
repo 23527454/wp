@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.firsttable.dao.TbTestDao">
+    
+	<sql id="tbTestColumns">
+		a.id AS "id",
+		a.phone AS "phone",
+		a.name AS "name",
+		a.age AS "age",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.office_id AS "office.id"
+	</sql>
+	
+	<sql id="tbTestJoins">
+		LEFT JOIN sys_office o11 ON o11.id = a.office_id
+	</sql>
+    
+	<select id="get" resultType="TbTest">
+		SELECT 
+			<include refid="tbTestColumns"/>
+		FROM tb_test a
+		<include refid="tbTestJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="TbTest">
+		SELECT 
+			<include refid="tbTestColumns"/>
+		FROM tb_test a
+		<include refid="tbTestJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="phone != null and phone != ''">
+				AND a.phone = #{phone}
+			</if>
+			<if test="name != null and name != ''">
+				AND a.name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{name}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{name}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{name},'%')</if>
+			</if>
+			<if test="age != null and age != ''">
+				AND a.age = #{age}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="TbTest">
+		SELECT 
+			<include refid="tbTestColumns"/>
+		FROM tb_test a
+		<include refid="tbTestJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO tb_test(
+			id,
+			phone,
+			name,
+			age,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			office_id
+		) VALUES (
+			#{id},
+			#{phone},
+			#{name},
+			#{age},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{office.id}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE tb_test SET 	
+			phone = #{phone},
+			name = #{name},
+			age = #{age},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			office_id = #{office.id}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		UPDATE tb_test SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+</mapper>

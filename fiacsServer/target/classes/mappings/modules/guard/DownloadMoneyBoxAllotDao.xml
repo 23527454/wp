@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper
+	namespace="com.thinkgem.jeesite.modules.guard.dao.DownloadMoneyBoxAllotDao">
+
+	<sql id="downloadMoneyBoxAllotColumns">
+		a.id AS "id",
+		a.money_box_id AS "moneyBoxId",
+		eq.id AS "equipmentId",
+<!-- 		mba.class_task_id AS "classTaskId", -->
+<!-- 		mba.task_schedule_id AS "taskScheduleId", -->
+		a.register_time AS "registerTime",
+		a.download_time AS "downloadTime",
+		a.is_download AS "isDownload",
+		a.download_type AS "downloadType",
+		o3.id AS "office.id",
+		o3.name AS "office.name",
+		a1.id AS "moneyBox.id",
+		a1.box_code AS "moneyBox.boxCode",
+		a1.card_num AS "moneyBox.cardNum",
+		a1.box_type AS "moneyBox.boxType"
+	</sql>
+
+	<sql id="downloadMoneyBoxAllotJoins">
+		inner JOIN guard_money_box a1 ON a1.id = a.money_box_id
+<!-- 		inner JOIN guard_money_box_allot mba on mba.money_box_id = A.id  -->
+		inner JOIN guard_equipment eq on eq.id = a.equipment_id
+		inner JOIN sys_office o3 ON o3.id = eq.office_id
+	</sql>
+
+	<select id="get" resultType="DownloadMoneyBoxAllot">
+		SELECT
+		<include refid="downloadMoneyBoxAllotColumns" />
+		FROM guard_download_money_box_allot a
+		<include refid="downloadMoneyBoxAllotJoins" />
+		WHERE a.id = #{id}
+	</select>
+
+	<select id="findList" resultType="DownloadMoneyBoxAllot">
+		SELECT
+		<include refid="downloadMoneyBoxAllotColumns" />
+		FROM guard_download_money_box_allot a
+	
+		<include refid="downloadMoneyBoxAllotJoins" />
+		<where>1=1 AND o3.id IN  
+				    <foreach collection="officeIds" index="index" item="item" open="(" separator="," close=")">  
+				        ${item}  
+				    </foreach>  
+			<if
+				test="moneyBox != null and  moneyBox.boxCode != null and moneyBox.boxCode != ''">
+				AND a1.box_code =#{moneyBox.boxCode}
+			</if>
+			<if
+				test="office != null and  office.id !=null and office.name !=''">
+				AND o3.id =#{office.id}
+			</if>
+			<if test="downloadTime != null and downloadTime != ''">
+				AND (a.download_time >= #{downloadTime} or a.download_time is NULL )
+			</if>
+			<if test="downloadTimeTwo != null and downloadTimeTwo != ''">
+				AND (#{downloadTimeTwo} >= a.download_time or a.download_time is NULL )
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			order by a.register_time desc
+			</otherwise>
+		</choose>
+	</select>
+
+	<select id="findAllList" resultType="DownloadMoneyBoxAllot">
+		SELECT
+		<include refid="downloadMoneyBoxAllotColumns" />
+		FROM guard_download_money_box_allot a
+		<include refid="downloadMoneyBoxAllotJoins" />
+		<where>
+
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			order by a.register_time desc
+			</otherwise>
+		</choose>
+	</select>
+
+	<insert id="insert" useGeneratedKeys="true" keyProperty="id">
+		INSERT
+		INTO guard_download_money_box_allot(
+		money_box_id,
+		equipment_id,
+		register_time,
+		download_time,
+		is_download,
+		download_type,
+		allot_schedule_id
+		) VALUES (
+		#{moneyBoxId},
+		#{equipmentId},
+		#{registerTime},
+		#{downloadTime},
+		#{isDownload},
+		#{downloadType},
+		#{taskScheduleId}
+		)
+	</insert>
+
+	<update id="update">
+		UPDATE guard_download_money_box_allot SET
+		money_box_id =
+		#{moneyBoxId}
+		WHERE id = #{id}
+	</update>
+
+	<update id="delete">
+	<!-- UPDATE guard_download_money_box_allot SET 	
+			download_type = '2'	
+		WHERE id = #{id} and is_download='0' -->
+		
+		DELETE FROM guard_download_money_box_allot
+		WHERE id = #{id} 
+	</update>
+
+</mapper>

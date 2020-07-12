@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.guard.dao.ConnectPersonnelDao">
+
+	<sql id="connectPersonnelColumns">
+		a.id AS "id",
+		o1.id AS "office.id",
+		a.event_id AS
+		"eventId",
+		a.task_type AS "taskType",
+		a.equip_sn AS "equipSn",
+		a.time AS
+		"time",
+		a.task_id AS "taskScheduleInfo.id",
+		a.car_id AS "carId",
+		o1.name AS "office.name",
+		a2.id AS "classTaskfo.id",
+		a2.name AS "classTaskfo.name",
+		o2.id AS "area.id",
+		o2.name AS
+		"area.name",
+		a3.id AS "staff.id",
+		a3.id AS "staff_id",
+		a3.name AS
+		"staff.name",
+		a3.work_num AS
+		"staff.workNum",
+		a4.finger_num AS
+		"fingerInfo.fingerNum",
+		a5.image_path
+		AS "staffImage.imagePath",
+		a6.image_data AS "eventDetail.imageData"
+	</sql>
+
+	<sql id="connectPersonnelJoins">
+		LEFT JOIN guard_task_schedule_info a1 ON a1.id = a.task_id
+		LEFT JOIN guard_equipment teq on teq.id = a.equipment_id
+		LEFT JOIN sys_office o1 ON o1.id = teq.office_id
+		LEFT JOIN guard_class_task_info a2 ON a2.id = a1.class_task_id
+		LEFT JOIN sys_area o2 ON o2.id = o1.area_id
+		LEFT JOIN guard_staff a3 ON (a3.id = a2.person_one_id or a3.id=a2.person_two_id)
+		LEFT JOIN guard_finger_info a4 ON a4.staff_id = a3.id
+		LEFT JOIN guard_staff_image a5 ON (a5.staff_id = a3.id AND a5.image_type=0)
+		LEFT JOIN guard_event_detail a6 ON a6.record_id = a.id
+	</sql>
+
+	<select id="get" resultType="ConnectPersonnel">
+		SELECT
+		<include refid="connectPersonnelColumns" />
+		FROM guard_connect_event a
+		<include refid="connectPersonnelJoins" />
+		WHERE a.id = #{id}
+	</select>
+
+	<select id="getTwo" resultType="ConnectPersonnel">
+		SELECT
+		<include refid="connectPersonnelColumns" />
+		FROM guard_connect_event a
+		<include refid="connectPersonnelJoins" />
+		<where>
+			a.id = #{id} and a3.id = #{staff_id}
+		</where>
+	</select>
+
+	<select id="findList" resultType="ConnectPersonnel">
+		SELECT
+		<include refid="connectPersonnelColumns" />
+		FROM guard_connect_event a
+		<include refid="connectPersonnelJoins" />
+		<where>
+			<if test="id != null and id != ''">
+				AND a.id LIKE
+				<if test="dbName == 'oracle'">'%'||#{id}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{id}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{id},'%')</if>
+			</if>
+			<if test="eventId != null and eventId != ''">
+				AND a.event_id LIKE
+				<if test="dbName == 'oracle'">'%'||#{eventId}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{eventId}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{eventId},'%')</if>
+			</if>
+			<if test="taskType != null and taskType != ''">
+				AND a.task_type = #{taskType}
+			</if>
+			<if
+				test="area != null and area.id != '' and area.id != null">
+				AND o1.area_id = #{area.id}
+			</if>
+			<if
+				test="office != null and office.id != '' and office.id != null">
+				AND o1.id = #{office.id}
+			</if>
+			<if test="time != null and time != ''">
+				AND a.time >= #{time}
+			</if>
+			<if test="timeTwo != null and timeTwo != ''">
+				AND #{timeTwo} >= a.time
+			</if>
+			<if
+				test="text != null and text != '' and text=1 and textS !=null and textS!=''">
+				AND a3.name =#{textS}
+			</if>
+			<if
+				test="text != null and text != '' and text=2 and textS !=null and textS!=''">
+				AND a3.work_num =#{textS}
+			</if>
+			<if
+				test="text != null and text != '' and text=3 and textS !=null and textS!=''">
+				AND a4.finger_num =#{textS}
+			</if>
+
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			ORDER BY a.time desc
+			</otherwise>
+		</choose>
+	</select>
+
+	<select id="findAllList" resultType="ConnectPersonnel">
+		SELECT
+		<include refid="connectPersonnelColumns" />
+		FROM guard_connect_event a
+		<include refid="connectPersonnelJoins" />
+		<where>
+
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			ORDER BY a.time desc
+			</otherwise>
+		</choose>
+	</select>
+
+	<insert id="insert" useGeneratedKeys="true" keyProperty="id">
+		INSERT
+		INTO guard_connect_event(
+		equipment_id,
+		event_id,
+		task_type,
+		equip_sn,
+		time,
+		task_id,
+		car_id
+		) select 
+			equ.id,
+			#{eventId},
+			#{taskType},
+			#{equipSn},
+			#{time},
+			#{taskId},
+			#{carId}
+		from guard_equipment equ where office_id=#{office.id}
+	</insert>
+
+	<update id="update">
+		UPDATE guard_connect_event SET
+		equipment_id =(
+			select 
+				equ.id
+			from guard_equipment equ where office_id=#{office.id}
+		),
+		event_id = #{eventId},
+		task_type = #{taskType},
+		equip_sn = #{equipSn},
+		time = #{time},
+		task_id = #{taskId},
+		car_id = #{carId}
+		WHERE id = #{id}
+	</update>
+
+	<update id="delete">
+		DELETE FROM guard_connect_event
+		WHERE id = #{id}
+	</update>
+
+</mapper>

@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.guard.dao.EventDetailQueryDao">
+
+	<sql id="eventDetailQueryColumns">
+		a.id AS "id",
+		a.finger_id AS "fingerId",
+		a.person_id AS
+		"personId",
+		a.equipment_id AS "equipmentId",
+		a.record_id AS "recordId",
+		a.image_data AS "imageData",
+		a.image_size AS "imageSize",
+		a.time AS "time",
+		o2.id AS "areaId",
+		o2.name AS "areaName",
+		o1.id AS "officeId",
+		o1.name AS "officeName",
+		c2.name AS "className",
+		c1.task_type AS "taskType"
+	</sql>
+
+	<sql id="eventDetailQueryJoins">
+		LEFT JOIN guard_equipment teq on teq.id = a.equipment_id
+		LEFT JOIN sys_office o1 ON o1.id = teq.office_id
+		LEFT JOIN sys_area o2 ON o2.id = o1.area_id
+		LEFT JOIN guard_connect_event ce on ce.record_id = a.record_id 
+			and ce.equipment_id = a.equipment_id 
+			and ce.time = a.time
+		LEFT JOIN guard_task_schedule_info c1 ON c1.id = ce.class_task_id
+		LEFT JOIN guard_class_task_info c2 ON c2.id = c1.class_task_id
+		LEFT JOIN guard_staff a2 ON a2.id = a.person_id
+	</sql>
+
+	<select id="get" resultType="EventDetailQuery">
+		SELECT
+		<include refid="eventDetailQueryColumns" />
+		FROM guard_event_detail a
+		<include refid="eventDetailQueryJoins" />
+		WHERE a.id = #{id}
+	</select>
+
+	<select id="findList" resultType="EventDetailQuery">
+		SELECT
+		<include refid="eventDetailQueryColumns" />
+		FROM guard_event_detail a
+		<include refid="eventDetailQueryJoins" />
+		<where>
+			<if test="id != null and id != ''">
+				AND a.id LIKE
+				<if test="dbName == 'oracle'">'%'||#{id}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{id}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{id},'%')</if>
+			</if>
+			<if test="areaName != '' and areaName != null">
+				AND o2.name = #{areaName}
+			</if>
+			<if test="officeId != '' and officeId != null">
+				AND o1.id = #{officeId}
+			</if>
+			<if test="taskType != '' and taskType != null">
+				AND c1.task_type = #{taskType}
+			</if>
+			<if test="staffType != '' and staffType != null">
+				AND a2.staff_type = #{staffType}
+			</if>
+			<if test="time != null and time != ''">
+				AND a.time >= #{time}
+			</if>
+			<if test="timeTwo != null and timeTwo != ''">
+				AND #{timeTwo} >= a.time
+			</if>
+			<if
+				test="text != null and text != '' and text==1 and textS !=null and textS!=''">
+				AND a2.name =#{textS}
+			</if>
+			<if
+				test="text != null and text != '' and text==2 and textS !=null and textS!=''">
+				AND a2.work_num =#{textS}
+			</if>
+			<if
+				test="text != null and text != '' and text==3 and textS !=null and textS!=''">
+				AND a.finger_id =#{textS}
+			</if>
+			${sqlMap.dsf}
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			ORDER BY a.time desc
+			</otherwise>
+		</choose>
+	</select>
+
+	<select id="findAllList" resultType="EventDetailQuery">
+		SELECT
+		<include refid="eventDetailQueryColumns" />
+		FROM guard_event_detail a
+		<include refid="eventDetailQueryJoins" />
+		<where>
+			${sqlMap.dsf}
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			ORDER BY a.time desc
+			</otherwise>
+		</choose>
+	</select>
+
+	<update id="delete">
+		DELETE FROM guard_event_detail
+		WHERE id = #{id}
+	</update>
+
+</mapper>

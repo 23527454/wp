@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.guard.dao.TaskLineInfoDao">
+    
+	<sql id="taskLineInfoColumns">
+		a.id AS "id",
+		a.task_schedule_id AS "taskScheduleId",
+		a.equipment_id AS "equipmentId",
+		c.name AS "name"
+	</sql>
+	
+	<sql id="taskLineInfoJoins">
+		LEFT JOIN guard_task_schedule_info b ON b.id = a.task_schedule_id
+		LEFT JOIN guard_equipment teq on teq.id = a.equipment_id
+		LEFT JOIN sys_office c ON c.id = teq.office_id
+	</sql>
+    
+	<select id="get" resultType="TaskLineInfo">
+		SELECT 
+			<include refid="taskLineInfoColumns"/>
+		FROM guard_task_line_info a
+		<include refid="taskLineInfoJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="TaskLineInfo">
+		SELECT 
+			<include refid="taskLineInfoColumns"/>
+		FROM guard_task_line_info a
+		<include refid="taskLineInfoJoins"/>
+		<where>
+			
+			<if test="taskScheduleId != null and taskScheduleId != ''">
+				AND a.task_schedule_id = #{taskScheduleId}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="TaskLineInfo">
+		SELECT 
+			<include refid="taskLineInfoColumns"/>
+		FROM guard_task_line_info a
+		<include refid="taskLineInfoJoins"/>
+		<where>
+			
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO guard_task_line_info(
+			task_schedule_id,
+			equipment_id
+		) VALUES (
+			#{taskScheduleId},
+			#{equipmentId}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE guard_task_line_info SET 	
+			task_schedule_id = #{taskScheduleId},
+			equipment_id = #{equipmentId}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		DELETE FROM guard_task_line_info
+				WHERE task_schedule_id = #{taskScheduleId}
+	</update>
+	
+</mapper>

@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.guard.dao.LineEventDao">
+
+	<sql id="lineEventColumns">
+		a.id AS "id",
+		a.class_task_id AS "classTaskId",
+		a.verify_car
+		AS "verifyCar",
+		a.allot_date AS "allotDate",
+		a.allot_time AS
+		"allotTime",
+		a.verify_inter_man AS "verifyInterMan",
+		a.verify_money_box
+		AS "verifyMoneyBox",
+		a.task_date AS "taskDate",
+		a.patrol_man_num AS
+		"patrolManNum",
+		a.task_time AS "taskTime",
+		a.inter_man_num AS
+		"interManNum",
+		a.task_timeout AS "taskTimeout",
+		a.task_type AS
+		"taskType",
+		a.task_time_class AS "taskTimeClass",
+		a.create_by AS
+		"createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS
+		"updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		b.name AS "classTaskInfo.name",
+		b.id AS
+		"classTaskInfo.id",
+		b.verify_car AS "classTaskInfo.verifyCar",
+		b.verify_inter_man AS "classTaskInfo.verifyInterMan",
+		b.verify_money_box AS "classTaskInfo.verifyLocker",
+		b.patrol_man_num AS
+		"classTaskInfo.patrolManNum",
+		b.inter_man_num AS
+		"classTaskInfo.interManNum",
+		b.task_timeout AS
+		"classTaskInfo.taskTimeout",
+		c.id AS "lineId",
+		c.line_name AS "lineName"
+	</sql>
+
+	<sql id="lineEventJoins">
+		LEFT JOIN guard_class_task_info b ON b.id = a.class_task_id
+		LEFT JOIN guard_line c ON c.id = b.line_id
+		LEFT JOIN sys_area d ON d.id = b.area_id JOIN sys_user u ON u.id = a.create_by
+	</sql>
+
+	<select id="get" resultType="LineEvent">
+		SELECT
+		<include refid="lineEventColumns" />
+		FROM guard_task_schedule_info a
+		<include refid="lineEventJoins" />
+		WHERE a.id = #{id} and a.del_flag = '0'
+	</select>
+
+
+	<select id="getFeeds" resultType="LineEvent">
+		SELECT
+		<include refid="lineEventColumns" />
+		FROM guard_task_schedule_info a
+		<include refid="lineEventJoins" />
+		<where>
+			<choose>
+				<when test="id != null and id != ''">
+					AND a.id > #{id}
+				</when>
+<!-- 				<otherwise> -->
+<!-- 					AND 1=0 -->
+<!-- 				</otherwise> -->
+			</choose>
+		</where>
+	</select>
+
+	<select id="findList" resultType="LineEvent">
+		SELECT
+		<include refid="lineEventColumns" />
+		FROM guard_task_schedule_info a
+		<include refid="lineEventJoins" />
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="id != null and id != ''">
+				AND a.id LIKE
+				<if test="dbName == 'oracle'">'%'||#{id}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{id}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{id},'%')</if>
+			</if>
+			<choose>
+				<when test="nodes != null and nodes != ''">
+					and c.id in(${nodes})<!-- line.id -->
+				</when>
+<!-- 				<otherwise> -->
+<!-- 				    and 1=0 -->
+<!-- 				</otherwise> -->
+			</choose>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			order by a.update_date desc
+			</otherwise>
+		</choose>
+	</select>
+
+	<select id="findAllList" resultType="LineEvent">
+		SELECT
+		<include refid="lineEventColumns" />
+		FROM guard_task_schedule_info a
+		<include refid="lineEventJoins" />
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			order by a.update_date desc
+			</otherwise>
+		</choose>
+	</select>
+
+	<insert id="insert" useGeneratedKeys="true" keyProperty="id">
+		INSERT
+		INTO guard_task_schedule_info(
+		class_task_id,
+		verify_car,
+		allot_date,
+		allot_time,
+		verify_inter_man,
+		verify_money_box,
+		task_date,
+		patrol_man_num,
+		task_time,
+		inter_man_num,
+		task_timeout,
+		task_type,
+		task_time_class,
+		create_by,
+		create_date,
+		update_by,
+		update_date,
+		remarks,
+		del_flag
+		) VALUES (
+		#{classTaskId},
+		#{verifyCar},
+		#{allotDate},
+		#{allotTime},
+		#{verifyInterMan},
+		#{verifyMoneyBox},
+		#{taskDate},
+		#{patrolManNum},
+		#{taskTime},
+		#{interManNum},
+		#{taskTimeout},
+		#{taskType},
+		#{taskTimeClass},
+		#{createBy.id},
+		#{createDate},
+		#{updateBy.id},
+		#{updateDate},
+		#{remarks},
+		#{delFlag}
+		)
+	</insert>
+
+	<update id="update">
+		UPDATE guard_task_schedule_info SET
+		class_task_id =
+		#{classTaskId},
+		verify_car = #{verifyCar},
+		allot_date = #{allotDate},
+		allot_time = #{allotTime},
+		verify_inter_man = #{verifyInterMan},
+		verify_money_box = #{verifyMoneyBox},
+		task_date = #{taskDate},
+		patrol_man_num = #{patrolManNum},
+		task_time = #{taskTime},
+		inter_man_num = #{interManNum},
+		task_timeout = #{taskTimeout},
+		task_type = #{taskType},
+		task_time_class = #{taskTimeClass},
+		remarks =
+		#{remarks}
+		WHERE id = #{id}
+	</update>
+
+	<update id="delete">
+		UPDATE guard_task_schedule_info SET
+		del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+
+</mapper>

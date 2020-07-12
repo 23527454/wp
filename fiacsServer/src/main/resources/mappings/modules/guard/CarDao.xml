@@ -1,0 +1,223 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.guard.dao.CarDao">
+
+	<sql id="carColumns">
+		a.id AS "id",
+		a.name AS "name",
+		a.company_id AS "company.id",
+		a.area_id AS "area.id",
+		a.card_num AS "cardNum",
+		a.carplate AS
+		"carplate",
+		a.color
+		AS "color",
+		a.admin AS "admin",
+		a.phone AS "phone",
+		a.work_status AS
+		"workStatus",
+		a.create_by
+		AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS
+		"updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS
+		"delFlag",
+		a4.name AS "area.name",
+		c4.short_name AS
+		"company.shortName"
+	</sql>
+
+	<sql id="carJoins">
+		LEFT JOIN sys_area a4 ON a4.id = a.area_id
+		LEFT JOIN guard_company c4 ON c4.id = a.company_id
+		JOIN sys_user u ON u.id = a.create_by
+	</sql>
+
+	<select id="get" resultType="Car">
+		SELECT
+		<include refid="carColumns" />
+		FROM guard_car a
+		<include refid="carJoins" />
+		WHERE a.id = #{id} and a.del_flag = '0'
+	</select>
+
+	<select id="findListByCompanyIds" resultType="string" parameterType="string">
+		select id from guard_car where company_id=#{companyId} and del_flag = 0
+	</select>
+	
+	<update id="updateCarArea" parameterType="java.util.HashMap">
+		update guard_car set area_id=#{areaId}
+		<where>
+			id in
+			<foreach collection="carIds" item="item" open="(" close=")" separator=",">
+				#{item}
+			</foreach>
+		</where>
+	</update>
+	
+	<select id="findList" resultType="Car">
+		SELECT
+		<include refid="carColumns" />
+		FROM guard_car a
+		<include refid="carJoins" />
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="id != null and id != ''">
+				AND a.id = #{id}
+			</if>
+			<if test="name != null and name != ''">
+				AND a.name LIKE
+				<if test="dbName == 'oracle'">'%'||#{name}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{name}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{name},'%')</if>
+			</if>
+			<if test="cardNum != null and cardNum != ''">
+				AND a.card_num LIKE
+				<if test="dbName == 'oracle'">'%'||#{cardNum}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{cardNum}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{cardNum},'%')</if>
+			</if>
+			<!-- <if test="area != null and area.id != null and area.id != ''">
+				AND (a4.parent_ids LIKE
+				<if test="dbName == 'oracle'">'%'||#{area.id}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{area.id}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{area.id},'%')</if>
+				OR a.area_id = #{area.id})
+			</if>
+ -->    
+ 			<if test="area != null and area.id != null and area.id != ''">
+				AND a.area_id = #{area.id}
+			</if>
+			<if test="company != null  and company.id != null and company.id != ''">
+				AND (c4.parent_ids LIKE
+				<if test="dbName == 'oracle'">'%,'||#{company.id}||',%'</if>
+				<if test="dbName == 'mssql'">'%,'+#{company.id}+',%'</if>
+				<if test="dbName == 'mysql'">CONCAT('%,', #{company.id}, ',%')</if>
+				OR a.company_id = #{company.id})
+			</if>
+
+			<if test="carplate != null and carplate != ''">
+				AND a.carplate LIKE
+				<if test="dbName == 'oracle'">'%'||#{carplate}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{carplate}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{carplate},'%')</if>
+			</if>
+			${sqlMap.dsf}
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+
+	<select id="findAllList" resultType="Car">
+		SELECT
+		<include refid="carColumns" />
+		FROM guard_car a
+		<include refid="carJoins" />
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				${sqlMap.dsf}
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+
+	<insert id="insert" useGeneratedKeys="true" keyProperty="id">
+		INSERT
+		INTO guard_car(
+		name,
+		company_id,
+		area_id,
+		card_num,
+		carplate,
+		color,
+		admin,
+		phone,
+		work_status,
+		create_by,
+		create_date,
+		update_by,
+		update_date,
+		remarks,
+		del_flag
+		) VALUES (
+		#{name},
+		#{company.id},
+		#{area.id},
+		#{cardNum},
+		#{carplate},
+		#{color},
+		#{admin},
+		#{phone},
+		#{workStatus},
+		#{createBy.id},
+		#{createDate},
+		#{updateBy.id},
+		#{updateDate},
+		#{remarks},
+		#{delFlag}
+		)
+	</insert>
+
+	<update id="update">
+		UPDATE guard_car SET
+		name = #{name},
+		company_id=#{company.id},
+		area_id =
+		#{area.id},
+		card_num =
+		#{cardNum},
+		carplate = #{carplate},
+		color = #{color},
+		admin = #{admin},
+		phone =
+		#{phone},
+		work_status = #{workStatus},
+		update_by = #{updateBy.id},
+		update_date =
+		#{updateDate},
+		remarks =
+		#{remarks}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		UPDATE guard_car SET
+		del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+
+	<select id="countByColumnExceptSelf" resultType="int">
+		SELECT
+			count(1)
+		FROM guard_car a
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="cardNum != null and cardNum != ''">
+				AND a.card_num=#{cardNum}
+			</if>
+			<if test="carplate != null and carplate != ''">
+				AND a.carplate=#{carplate}
+			</if>
+			<if test="id != null and id != ''">
+				and a.id != #{id}
+			</if>
+		</where>
+	</select>
+	
+
+</mapper>

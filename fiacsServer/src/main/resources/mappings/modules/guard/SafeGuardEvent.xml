@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.guard.dao.SafeGuardEventDao">
+    
+	<sql id="safeGuardEventColumns">
+		a.id AS "id",
+		a.record_id AS "recordId",
+		ed.event_type as eventType,
+		a.equipment_id AS "equipmentId",
+		a.equip_sn AS "equipSn",
+		a.time AS "time",
+		b.name as "officeName",
+		staff.name as "personName",
+		ed.id as "eventDetailId",
+		a.finger_id as "fingerNumLabel",
+		sd.label as "authorType"
+	</sql>
+	
+	<sql id="safeGuardEventJoins">
+	    LEFT JOIN guard_equipment teq on teq.id = a.equipment_id
+		LEFT JOIN sys_office b ON b.id = teq.office_id
+		LEFT JOIN sys_area c ON c.id=b.area_id
+		Left join guard_event_detail ed on ed.record_id=a.record_id and ed.person_id=a.person_id and ed.equipment_id=a.equipment_id and ed.event_type=3
+		left join guard_staff staff on staff.id=a.person_id
+		left join sys_dict sd  on ed.author_type=sd.value and sd.type="door_open_type"
+	</sql>
+    
+	<select id="get" resultType="SafeGuardEvent">
+		SELECT 
+			<include refid="safeGuardEventColumns"/>
+		FROM guard_safeguard_event a
+		<include refid="safeGuardEventJoins"/>
+		WHERE a.id = #{id}
+	</select>
+
+	<select id="findOne" resultType="SafeGuardEvent">
+		SELECT
+		<include refid="safeGuardEventColumns"/>
+		FROM guard_safeguard_event a
+		<include refid="safeGuardEventJoins"/>
+		WHERE 1=1
+		<if test="recordId!=null and recordId!=''">
+			and a.record_id = #{recordId}
+		</if>
+		<if test="equipmentId!=null and equipmentId!=''">
+			and a.equipment_Id = #{equipmentId}
+		</if>
+		<if test="personId!=null and personId!=''">
+			and a.person_id = #{personId}
+		</if>
+		<if test="time!=null and time!=''">
+			and a.time = #{time}
+		</if>
+		order by a.id desc limit 1
+	</select>
+	
+	<select id="getFeeds" resultType="SafeGuardEvent">
+		SELECT
+			<include refid="safeGuardEventColumns"/>
+		FROM guard_safeguard_event a
+		<include refid="safeGuardEventJoins"/>
+		<where>
+			<choose>
+				<when test="nodes != null and nodes != ''">
+					and b.id in(${nodes})<!-- office.id -->
+				</when>
+<!-- 				<otherwise> -->
+<!-- 					and 1=0 -->
+<!-- 				</otherwise> -->
+			</choose>
+			<if test="id != null and id != ''">
+			AND a.id > #{id}
+			</if>
+			<if test="time != null and time != ''">
+			AND a.time > #{time}
+			</if>
+		</where>
+		ORDER BY a.time desc,a.id desc 
+	</select>
+	
+	<select id="findList" resultType="SafeGuardEvent">
+		SELECT 
+			<include refid="safeGuardEventColumns"/>
+		FROM guard_safeguard_event a
+		<include refid="safeGuardEventJoins"/>
+		<where>
+			1=1 
+			<if test="id != null and id != ''">
+				AND a.id LIKE 
+					<if test="dbName == 'oracle'">'%'||#{id}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{id}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{id},'%')</if>
+			</if>
+			<if test="time != null and time!= ''" >
+				and a.time = #{time}
+			</if>
+			<if test="date != null and date!=''" >
+				and SUBSTRING(a.time, 1, 10) = #{date}
+			</if>
+			<if test="afterEqDate != null and afterEqDate != ''" >
+				<![CDATA[and a.time >= #{afterEqDate}]]>
+			</if>
+			<if test="beforeEqDate != null and beforeEqDate!= ''" >
+				<![CDATA[and a.time <= #{beforeEqDate}]]>
+			</if>
+			<choose>
+				<when test="nodes != null and nodes != ''">
+					and b.id in(${nodes})<!-- office.id -->
+				</when>
+<!-- 				<otherwise> -->
+<!-- 					and 1=0 -->
+<!-- 				</otherwise> -->
+			</choose>
+			<if test="equipmentId != null and equipmentId != ''">
+				AND a.equipment_id =  #{equipmentId}
+			</if>
+			${sqlMap.dsf}
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			ORDER BY a.time desc, a.id desc
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="SafeGuardEvent">
+		SELECT 
+			<include refid="safeGuardEventColumns"/>
+		FROM guard_safeguard_event a
+		<include refid="safeGuardEventJoins"/>
+		<where>
+			${sqlMap.dsf}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			ORDER BY a.time desc
+			</otherwise>
+		</choose>
+	</select>
+	
+	<!-- <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO guard_safeguard_event(
+			record_id,
+			car_id,
+			card_num,
+			equipment_id,
+			equip_sn,
+			time,
+			class_task_id,
+			task_id,
+			del_flag
+		) VALUES (
+			#{recordId},
+			#{carId},
+			#{cardNum},
+			#{equipmentId},
+			#{equipSn},
+			#{time},
+			#{classTaskId},
+			#{taskId},
+			#{flag}
+		)
+	</insert> -->
+	
+	<!-- <update id="update">
+		UPDATE guard_safeguard_event SET 	
+			record_id = #{recordId}
+		WHERE id = #{id}
+	</update>
+	<update id="delflag">
+		UPDATE guard_safeguard_event SET 	
+			del_flag=1
+		WHERE 1=1
+			<if test="id != null and id!= ''" >
+				and id = #{id}
+			</if>
+	</update>
+	<update id="delete">
+		DELETE FROM guard_safeguard_event
+		WHERE id = #{id}
+	</update> -->
+	
+</mapper>

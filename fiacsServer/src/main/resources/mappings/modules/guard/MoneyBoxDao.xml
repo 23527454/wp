@@ -1,0 +1,316 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.guard.dao.MoneyBoxDao">
+	<sql id="moneyBoxColumns">
+		a.id AS "id",
+		a.box_code AS "boxCode",
+		a.office_id AS
+		"office.id",
+		a.box_type AS "boxType",
+		a.card_num AS "cardNum",
+		a.door_status AS "doorStatus",
+		a.power_info AS "powerInfo",
+		a.close_pwd
+		AS "closePwd",
+		a.alarm_status AS "alarmStatus",
+		a.alarm_date AS
+		"alarmDate",
+		a.close_date AS "closeDate",
+		a.sensor_status AS
+		"sensorStatus",
+		a.create_by AS "createBy.id",
+		a.create_date AS
+		"createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS
+		"updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		o3.name AS
+		"office.name",
+		o4.id AS "office.area.id",
+		o4.name AS "office.area.name",
+		o4.id AS "area.id",
+		o4.name AS "area.name"
+	</sql>
+
+	<sql id="moneyBoxJoins">
+		LEFT JOIN sys_office o3 ON o3.id = a.office_id
+		LEFT JOIN
+		sys_area o4 ON o4.id = o3.area_id
+		JOIN sys_user u ON u.id = a.create_by
+	</sql>
+
+	<select id="get" resultType="MoneyBox">
+		SELECT
+		<include refid="moneyBoxColumns" />
+		FROM guard_money_box a
+		<include refid="moneyBoxJoins" />
+		WHERE a.id = #{id} and a.del_flag = '0'
+	</select>
+
+	<select id="getByBoxCode" resultType="MoneyBox">
+		SELECT
+		<include refid="moneyBoxColumns" />
+		FROM guard_money_box a
+		<include refid="moneyBoxJoins" />
+		WHERE a.box_code = #{boxCode} and a.del_flag = '0'
+	</select>
+	
+	<select id="getWithDel" resultType="MoneyBox">
+		SELECT
+		<include refid="moneyBoxColumns" />
+		FROM guard_money_box a
+		<include refid="moneyBoxJoins" />
+		WHERE a.id = #{id}
+	</select>
+	
+
+	<select id="findOne" resultType="MoneyBox">
+		SELECT
+		<include refid="moneyBoxColumns" />
+		FROM guard_money_box a
+		<include refid="moneyBoxJoins" />
+		<where>
+			<if test="cardNum != null and cardNum != ''">
+			and a.card_num=#{cardNum}
+			</if>
+			<if test="id != null and id != ''">
+			and a.id=#{id}
+			</if>
+		</where>
+	</select>
+
+	<select id="findList" resultType="MoneyBox">
+		SELECT
+		<include refid="moneyBoxColumns" />
+		FROM guard_money_box a
+		<include refid="moneyBoxJoins" />
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="id != null and id != ''">
+				AND a.id LIKE
+				<if test="dbName == 'oracle'">'%'||#{id}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{id}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{id},'%')</if>
+			</if>
+			<if test="cardNum != null and cardNum != ''">
+				AND a.card_num LIKE
+				<if test="dbName == 'oracle'">'%'||#{cardNum}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{cardNum}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{cardNum},'%')</if>
+			</if>
+
+			<if test="boxCode != null and boxCode != ''">
+				AND a.box_code LIKE
+				<if test="dbName == 'oracle'">'%'||#{boxCode}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{boxCode}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{boxCode},'%')</if>
+			</if>
+			<if test="office != null and office.id != null and office.id != ''">
+				AND (o3.parent_ids LIKE
+				
+				<if test="office.area != null and office.area.id != null and office.area.id != ''">
+					<if test="dbName == 'oracle'">'%,'||#{office.parent.id}||',%'</if>
+					<if test="dbName == 'mssql'">'%,'+#{office.parent.id}+',%'</if>
+					<if test="dbName == 'mysql'">CONCAT('%,', #{office.area.id}, ',%')</if>
+				</if>
+				<if test="office.area == null">
+					<if test="dbName == 'oracle'">'%,'||#{office.id}||',%'</if>
+					<if test="dbName == 'mssql'">'%,'+#{office.id}+',%'</if>
+					<if test="dbName == 'mysql'">CONCAT('%,', #{office.id}, ',%')</if>
+				</if>
+				OR a.office_id = #{office.id})
+			</if>
+<!--old			<if test="office != null and office.id != null and office.id != ''">
+				AND (o3.parent_ids LIKE
+	
+				<if test="dbName == 'oracle'">'%,'||#{office.id}||',%'</if>
+				<if test="dbName == 'mssql'">'%,'+#{office.id}+',%'</if>
+				<if test="dbName == 'mysql'">CONCAT('%,', #{office.area.id}, ',%')</if>
+				
+				OR a.office_id = #{office.id})
+			</if> -->
+			<if test="boxType != null and boxType != ''">
+				AND a.box_type = #{boxType}
+			</if>
+			<if test="boxOrder != null and boxOrder != ''"><!-- 查重剔除 -->
+				AND (select count(1) as num from guard_money_box_order n where
+				n.money_box_id = a.id AND n.del_flag=0) = 0
+			</if>
+			<if test="doorStatus != null and doorStatus != ''">
+				AND a.door_status = #{doorStatus}
+			</if>
+			${sqlMap.dsf}
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+
+	<select id="findTmpList" resultType="MoneyBox">
+		SELECT
+		<include refid="moneyBoxColumns" />
+		FROM guard_money_box a
+		JOIN sys_office o3 ON o3.id = a.office_id
+		LEFT
+		JOIN sys_area o4 ON o4.id = o3.area_id
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+
+			<if test="office != null and office.id != null and office.id != ''">
+				AND (a.office_id in  (select id from sys_office where
+				area_id = (select area_id from sys_office where id = #{office.id}) and type=2) 
+				or a.office_id=#{office.id})
+			</if>
+			<if test="boxType != null and boxType != ''">
+				AND a.box_type = #{boxType}
+			</if>
+			${sqlMap.dsf}
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findParentTmpList" resultType="MoneyBox">
+		SELECT
+		<include refid="moneyBoxColumns" />
+		FROM guard_money_box a
+		JOIN sys_office o3 ON o3.id = a.office_id
+		LEFT
+		JOIN sys_area o4 ON o4.id = o3.area_id
+		<where>
+			a.del_flag = 0
+			and o3.id in
+			<foreach collection="parentIds" item="item" separator="," open="(" close=")">
+				 #{item}			
+			</foreach>
+			and o3.type=2
+			AND a.box_type = 1
+			and o3.area_id!=(select area_id from sys_office where id=#{officeId})
+			<!-- ${sqlMap.dsf} -->
+		</where>
+	</select>
+
+	<select id="findAllList" resultType="MoneyBox">
+		SELECT
+		<include refid="moneyBoxColumns" />
+		FROM guard_money_box a
+		<include refid="moneyBoxJoins" />
+		<where>
+			${sqlMap.dsf}
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+
+	<insert id="insert" useGeneratedKeys="true" keyProperty="id">
+		INSERT
+		INTO guard_money_box(
+		box_code,
+		office_id,
+		box_type,
+		card_num,
+		door_status,
+		power_info,
+		close_pwd,
+		alarm_status,
+		alarm_date,
+		close_date,
+		sensor_status,
+		create_by,
+		create_date,
+		update_by,
+		update_date,
+		remarks,
+		del_flag
+		) VALUES (
+		#{boxCode},
+		#{office.id},
+		#{boxType},
+		#{cardNum},
+		#{doorStatus},
+		<!-- #{powerInfo},
+		#{closePwd},
+		#{alarmStatus}, -->
+		0,
+		0,
+		0,
+		#{alarmDate},
+		#{closeDate},
+		<!-- #{sensorStatus}, -->
+		0,
+		#{createBy.id},
+		#{createDate},
+		#{updateBy.id},
+		#{updateDate},
+		#{remarks},
+		#{delFlag}
+		)
+	</insert>
+
+	<update id="update">
+		UPDATE guard_money_box SET
+		box_code = #{boxCode},
+		office_id = #{office.id},
+		box_type = #{boxType},
+		card_num = #{cardNum},
+		door_status = #{doorStatus},
+		power_info = #{powerInfo},
+		close_pwd =
+		#{closePwd},
+		alarm_status = #{alarmStatus},
+		alarm_date = #{alarmDate},
+		close_date = #{closeDate},
+		sensor_status = #{sensorStatus},
+		update_by =
+		#{updateBy.id},
+		update_date = #{updateDate},
+		remarks = #{remarks}
+		WHERE
+		id = #{id}
+	</update>
+
+	<update id="delete">
+		UPDATE guard_money_box SET
+		del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+
+	<select id="countByColumnExceptSelf" resultType="int">
+		SELECT
+			count(1)
+		FROM guard_money_box a
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="boxCode != null and boxCode != ''">
+				AND a.box_code=#{boxCode}
+			</if>
+			<if test="cardNum != null and cardNum != ''">
+				AND a.card_num=#{cardNum}
+			</if>
+			<if test="id != null and id != ''">
+				and a.id != #{id}
+			</if>
+		</where>
+	</select>
+	
+</mapper>

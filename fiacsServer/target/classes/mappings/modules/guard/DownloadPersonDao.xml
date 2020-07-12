@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper
+	namespace="com.thinkgem.jeesite.modules.guard.dao.DownloadPersonDao">
+
+	<sql id="downloadPersonColumns">
+		a.id AS "id",
+		a.person_id AS "personId",
+		eq.id AS
+		"equipmentId",
+		a.register_time AS "registerTime",
+		a.download_time AS
+		"downloadTime",
+		a.is_download AS "isDownload",
+		a.download_type AS
+		"downloadType",
+		a4.name AS "staff.name",
+		a4.staff_type AS
+		"staff.staffType",
+		o3.name AS "office.name",
+		o3.id AS "office.id"
+	</sql>
+
+	<sql id="downloadPersonJoins">
+		inner JOIN guard_staff a4 ON a4.id = a.person_id
+		inner JOIN
+		guard_equipment eq on eq.id = a.equip_id
+		inner JOIN sys_office o3 ON
+		o3.id = eq.office_id
+	</sql>
+
+	<select id="get" resultType="DownloadPerson">
+		SELECT
+		<include refid="downloadPersonColumns" />
+		FROM guard_download_person a
+		<include refid="downloadPersonJoins" />
+		WHERE a.id = #{id}
+	</select>
+
+	<select id="findList" resultType="DownloadPerson">
+		SELECT
+		<include refid="downloadPersonColumns" />
+		FROM guard_download_person a
+
+		<include refid="downloadPersonJoins" />
+		<where>
+			1=1 AND o3.id IN
+			<foreach collection="officeIds"  item="item" index="index"
+				open="(" separator="," close=")">
+				${item}
+			</foreach>
+			<if
+				test="staff != null and  staff.name != null and staff.name != ''">
+				AND a4.name =#{staff.name}
+			</if>
+			<if
+				test="office != null and  office.id !=null and office.name !=''">
+				<!-- AND a.equip_id =#{office.id} -->
+				AND o3.id =#{office.id}
+			</if>
+			<if test="downloadTime != null and downloadTime != ''">
+				AND (a.download_time >= #{downloadTime} or
+				a.download_time is NULL )
+			</if>
+			<if test="downloadTimeTwo != null and downloadTimeTwo != ''">
+				AND (#{downloadTimeTwo} >= a.download_time or
+				a.download_time is NULL )
+			</if>
+		</where>
+		<choose>
+			<when
+				test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				order by a.register_time desc
+			</otherwise>
+		</choose>
+	</select>
+
+	<select id="findAllList" resultType="DownloadPerson">
+		SELECT
+		<include refid="downloadPersonColumns" />
+		FROM guard_download_person a
+		<include refid="downloadPersonJoins" />
+		<where>
+
+		</where>
+		<choose>
+			<when
+				test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				order by a.register_time desc
+			</otherwise>
+		</choose>
+	</select>
+
+	<select id="countByEntity" resultType="int">
+		select count(1) from guard_download_person where
+		person_id=#{personId} AND equip_id= #{equipId} AND download_type=#{downloadType}
+		AND is_download=#{isDownload} 
+	</select>
+	<insert id="insert" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO
+		guard_download_person(
+		person_id,
+		equip_id,
+		register_time,
+		download_time,
+		is_download,
+		download_type
+		) VALUES (
+		#{personId},
+		#{equipId},
+		#{registerTime},
+		#{downloadTime},
+		#{isDownload},
+		#{downloadType}
+		)
+	</insert>
+
+	<update id="update">
+		UPDATE guard_download_person SET
+		person_id =
+		#{personId}
+		WHERE id = #{id}
+	</update>
+
+	<update id="delete">
+		<!-- UPDATE guard_download_person SET download_type ='2' WHERE id = #{id} -->
+
+		DELETE FROM guard_download_person
+		WHERE id = #{id}
+	</update>
+	<update id="delete1">
+		<!-- UPDATE guard_download_person SET download_type ='2' WHERE id = #{id} -->
+
+		DELETE FROM guard_download_person
+		WHERE person_id = #{personId} and
+		is_download=#{isDownload}
+		<if test="equipId!=null and equipId!=''">
+			and equip_id=#{equipId}
+		</if>
+	</update>
+
+</mapper>

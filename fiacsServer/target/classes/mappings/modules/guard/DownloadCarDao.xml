@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.guard.dao.DownloadCarDao">
+
+	<sql id="downloadCarColumns">
+		a.id AS "id",
+		a.car_id AS "carId",
+		eq.id AS "equipmentId",
+		a.register_time AS "registerTime",
+		a.download_time AS "downloadTime",
+		a.is_download AS "isDownload",
+		a.download_type AS "downloadType",
+		a4.id
+		AS "car.id",
+		a4.card_num AS "car.cardNum",
+		a4.carplate AS "car.carplate",
+		a4.work_status AS "car.workStatus",
+		o3.id AS "office.id",
+		o3.name AS
+		"office.name"
+	</sql>
+
+	<sql id="downloadCarJoins">
+		inner JOIN guard_car a4 ON a4.id = a.car_id
+		inner JOIN guard_equipment eq on eq.id = a.equip_id
+		inner JOIN sys_office o3 ON o3.id = eq.office_id
+	</sql>
+
+	<select id="get" resultType="DownloadCar">
+		SELECT
+		<include refid="downloadCarColumns" />
+		FROM guard_download_car a
+		<include refid="downloadCarJoins" />
+		WHERE a.id = #{id}
+	</select>
+
+	<select id="findList" resultType="DownloadCar">
+		SELECT
+		<include refid="downloadCarColumns" />
+		FROM guard_download_car a
+		<include refid="downloadCarJoins" />
+		
+		<where>1=1 AND o3.id IN  
+				    <foreach collection="officeIds" index="index" item="item" open="(" separator="," close=")">  
+				        ${item}  
+				    </foreach>  
+			<if test="id != null and id != ''">
+				AND a.id LIKE
+				<if test="dbName == 'oracle'">'%'||#{id}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{id}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{id},'%')</if>
+			</if>
+			<if
+				test="car != null and  car.carplate != null and car.carplate != ''">
+				AND a4.carplate =#{car.carplate}
+			</if>
+			<if
+				test="office != null and  office.id !=null and office.name !=''">
+				<!-- AND a.equip_id =#{office.id} -->
+				AND o3.id =#{office.id}
+			</if>
+			<if test="downloadTime != null and downloadTime != ''">
+				AND (a.download_time >= #{downloadTime} or a.download_time is NULL)
+			</if>
+			<if test="downloadTimeTwo != null and downloadTimeTwo != ''">
+				AND (#{downloadTimeTwo} >= a.download_time or a.download_time is NULL )
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				order by a.register_time desc
+			</otherwise>
+		</choose>
+	</select>
+
+	<select id="findAllList" resultType="DownloadCar">
+		SELECT
+		<include refid="downloadCarColumns" />
+		FROM guard_download_car a
+		<include refid="downloadCarJoins" />
+		<where>
+
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			order by a.register_time desc
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="countByEntity" resultType="int">
+		select count(1) from guard_download_car where
+		car_id=#{carId} AND download_type=#{downloadType} AND
+		equip_id= #{equipId} AND is_download=#{isDownload}
+	</select>
+	<insert id="insert" useGeneratedKeys="true" keyProperty="id">
+		INSERT
+		INTO guard_download_car(
+		car_id,
+		equip_id,
+		register_time,
+		download_time,
+		is_download,
+		download_type
+		) VALUES
+		(
+		#{carId},
+		#{equipId},
+		#{registerTime},
+		#{downloadTime},
+		#{isDownload},
+		#{downloadType}
+		)
+	</insert>
+
+	<update id="update">
+		UPDATE guard_download_car SET
+		car_id = #{carId}
+		WHERE
+		id = #{id}
+	</update>
+
+	<update id="delete">
+<!-- 	UPDATE guard_download_car SET 	
+			download_type = '2'	
+		WHERE id = #{id} -->
+		
+		DELETE FROM guard_download_car
+		WHERE id = #{id}
+	</update>
+<update id="delete1">
+	<!-- UPDATE guard_download_person SET
+		download_type ='2'
+		WHERE id = #{id} -->
+	
+		DELETE FROM guard_download_car
+		WHERE car_id = #{carId} and is_download=#{isDownload}
+	</update>
+</mapper>

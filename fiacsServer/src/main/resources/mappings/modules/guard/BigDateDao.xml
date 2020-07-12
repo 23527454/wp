@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.guard.dao.BigDataDao">
+
+    <!-- 统计班组中线路网点总数 -->
+    <select id="countTaskClass" parameterType="java.util.Map" resultType="int">
+        select count(1) from guard_task_schedule_info i
+        left join guard_task_line_info line on i.id=line.task_schedule_id
+        <where>
+            i.del_flag=0
+            and  i.task_date&lt;=CURDATE()
+            <if test="taskType!=null">
+                and i.task_type=#{taskType}
+            </if>
+            <if test="taskTimeClass!=null">
+                and i.task_time_class=#{taskTimeClass}
+            </if>
+        </where>
+    </select>
+
+    <select id="countTaskClassOfficeId" parameterType="java.util.Map" resultType="int">
+        select count(distinct e.office_id) from guard_task_schedule_info i
+        left join guard_task_line_info line on i.id=line.task_schedule_id
+        left join guard_equipment e on line.equipment_id = e.id
+        <where>
+           i.del_flag=0
+            and  i.task_date&lt;=CURDATE()
+            <if test="taskType!=null">
+                and i.task_type=#{taskType}
+            </if>
+            <if test="taskTimeClass!=null">
+                and i.task_time_class=#{taskTimeClass}
+            </if>
+        </where>
+    </select>
+
+    <select id="finishTaskClass" parameterType="java.util.Map" resultType="int">
+        select
+        <choose>
+            <when test="count=='ALL'">
+                count(1)
+            </when>
+            <otherwise>
+                count(distinct equipment_id)
+            </otherwise>
+        </choose>
+        from guard_connect_event
+        <where>
+            DATE_FORMAT(time,'%Y-%m-%d') = DATE_FORMAT(CURDATE(),'%Y-%m-%d')
+            <if test="taskType!=null">
+                and task_type=#{taskType}
+            </if>
+        </where>
+    </select>
+
+    <select id="countOfficeId" resultType="int">
+        select count(1) from sys_office
+        <where>
+            del_flag=0 and type in (3,4,5)
+        </where>
+    </select>
+
+    <select id="selectToDayConnectEvent" resultType="ConnectEvent">
+        select
+        a.task_id AS "taskId",
+        a.equipment_id AS "equipmentId",
+        a.time AS "time",
+        a.car_id as "carId",
+        g.allot_date AS "allotDate",
+        g.allot_time AS "allotTime",
+        g.task_time as "taskTime",
+        f.line_id as "lineId"
+        from guard_connect_event a
+        LEFT JOIN guard_task_schedule_info g ON a.task_id = g.id
+        LEFT JOIN guard_class_task_info f ON g.class_task_id = f.id
+        <where>
+            DATE_FORMAT(a.time,'%Y-%m-%d') = DATE_FORMAT(CURDATE(),'%Y-%m-%d')
+        </where>
+        order by e.id desc
+    </select>
+
+    <select id="selectToDayCarArriveEvent" resultType="CarEvent">
+        select
+        a.task_id AS "taskId",
+        a.equipment_id AS "equipmentId",
+        a.time AS "time",
+        a.car_id as "carId",
+        g.allot_time AS "allotTime",
+        g.task_time as "taskTime",
+        f.line_id as "lineId"
+        from guard_car_event a
+        LEFT JOIN guard_task_schedule_info g ON a.task_id = g.id
+        LEFT JOIN guard_class_task_info f ON g.class_task_id = f.id
+        <where>
+        a.del_flag=0 and
+            DATE_FORMAT(a.time,'%Y-%m-%d') = DATE_FORMAT(CURDATE(),'%Y-%m-%d')
+        </where>
+    </select>
+    <!-- 款箱统计 -->
+    <select id="countMoneyBox" resultType="int" parameterType="java.util.Map">
+        select count(distinct b.id) from guard_connect_event e
+        left join guard_money_box_event mb on mb.record_id=e.record_id and mb.equipment_id=e.equipment_id
+        left join guard_money_box_event_detail mbd
+         on mbd.record_id=mb.record_id and mbd.equipment_id = mb.equipment_id and mbd.time = mb.time
+        left join guard_money_box b on mbd.money_box_id = b.id
+        <where>
+            DATE_FORMAT(e.time,'%Y-%m-%d') = DATE_FORMAT(CURDATE(),'%Y-%m-%d')
+            and e.task_type = #{taskType}
+            <if test="moneyBoxType!=null">
+              and  b.box_type = #{moneyBoxType}
+            </if>
+        </where>
+    </select>
+
+
+    <!-- 款箱次数统计 -->
+    <!-- 当天预约次数 -->
+    <select id="countMoneyBoxOrder" resultType="int">
+        select count(distinct money_box_order_id) from guard_money_box_order
+        <where>
+            DATE_FORMAT(order_time,	'%Y-%m-%d') = DATE_FORMAT(CURDATE(),'%Y-%m-%d')
+        </where>
+    </select>
+
+    <!-- 当天上缴次数 -->
+    <select id="countMoneyBoxReturn" resultType="int">
+        select count(distinct money_box_return_id) from guard_money_box_return
+        <where>
+            DATE_FORMAT(return_time,	'%Y-%m-%d') = DATE_FORMAT(CURDATE(),'%Y-%m-%d')
+        </where>
+    </select>
+
+    <!-- 当天调拨次数 -->
+    <select id="countMoneyBoxAllot" resultType="int">
+        select count(distinct task_schedule_id) from guard_money_box_allot
+        <where>
+        del_flag=0 and
+            DATE_FORMAT(schedule_time,	'%Y-%m-%d') = DATE_FORMAT(CURDATE(),'%Y-%m-%d')
+        </where>
+    </select>
+
+    <!-- 识别方式 -->
+    <select id="countEventDetailAuthType" resultType="java.util.Map">
+        select author_type as type,count(1) as total from guard_event_detail
+        where DATE_FORMAT(time,'%Y-%m-%d') = DATE_FORMAT(CURDATE(),'%Y-%m-%d') GROUP BY author_type
+    </select>
+    
+    <select id="countCommissionerAuthType" resultType="java.util.Map">
+        select author_type as type,count(1) as total from guard_commissioner_event
+        where DATE_FORMAT(time,'%Y-%m-%d') = DATE_FORMAT(CURDATE(),'%Y-%m-%d')  GROUP BY author_type
+    </select>
+
+    <!-- 告警次数 -->
+    <select id="countAlarmEventTimes" resultType="java.util.Map">
+         select event_type as type,count(1) as total from guard_alarm_event
+        where DATE_FORMAT(time,'%Y-%m-%d') = DATE_FORMAT(CURDATE(),'%Y-%m-%d')  GROUP BY event_type
+    </select>
+</mapper>

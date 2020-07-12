@@ -1,0 +1,228 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.guard.dao.CompanyDao">
+
+	<sql id="companyColumns">
+		a.id AS "id",
+		a.area_id AS "area.id",
+		a.parent_id AS
+		"parent.id",
+		a.parent_ids,
+		a.company_code AS "companyCode",
+		a.company_type AS "companyType",
+		a.short_name AS "shortName",
+		a.full_name AS "fullName",
+		a.address AS "address",
+		a.contact AS
+		"contact",
+		a.phone AS "phone",
+		a.fax AS "fax",
+		a.email AS "email",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks
+		AS "remarks",
+		a.del_flag AS "delFlag",
+		a4.name AS "area.name"
+	</sql>
+
+	<sql id="companyJoins">
+		LEFT JOIN sys_area a4 ON a4.id = a.area_id
+	</sql>
+
+	<select id="get" resultType="Company">
+		SELECT
+		<include refid="companyColumns" />
+		FROM guard_company a
+		<include refid="companyJoins" />
+		WHERE a.id = #{id} and a.del_flag = '0'
+	</select>
+	<select id="getById" resultType="Company">
+		SELECT
+		a.id AS "id",
+		a.area_id AS "area.id"
+		FROM guard_company a
+		WHERE a.id = #{id} and a.del_flag = '0'
+	</select>
+
+	<select id="findList" resultType="Company">
+		SELECT
+		<include refid="companyColumns" />
+		FROM guard_company a
+		<include refid="companyJoins" />
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="companyCode != null and companyCode != ''">
+				AND a.company_code LIKE
+				<if test="dbName == 'oracle'">'%'||#{companyCode}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{companyCode}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{companyCode},'%')</if>
+			</if>
+			<if test="companyType != null and companyType != ''">
+				AND a.company_type = #{companyType}
+			</if>
+			<if test="shortName != null and shortName != ''">
+				AND a.short_name LIKE
+				<if test="dbName == 'oracle'">'%'||#{shortName}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{shortName}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{shortName},'%')</if>
+			</if>
+			<if
+				test="area != null and area.id != null and area.id != '' ">
+				AND a.area_id = #{area.id}
+			</if>
+			and (
+		   		 1=1
+				 ${sqlMap.dsf} <!-- 数据范围过滤 -->
+			)
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+
+	<select id="findAllList" resultType="Company">
+		SELECT
+		<include refid="companyColumns" />
+		FROM guard_company a
+		<include refid="companyJoins" />
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+
+	<select id="findParentIdsList" resultType="Company">
+		SELECT
+		<include refid="companyColumns" />
+		FROM guard_company a
+		<include refid="companyJoins" />
+		WHERE a.del_flag = 0 AND (a.parent_ids LIKE '%,'+#{id}+',%' OR a.id =
+		#{id})
+		ORDER BY a.company_code
+	</select>
+
+	<select id="findByParentIdsLike" resultType="Company">
+		SELECT
+		a.id,
+		a.parent_id AS "parent.id",
+		a.parent_ids
+		FROM guard_company a
+		WHERE
+		a.del_flag = #{DEL_FLAG_NORMAL} AND
+		a.parent_ids LIKE #{parentIds}
+		ORDER BY a.company_code
+	</select>
+
+	<update id="updateParentIds">
+		UPDATE guard_company SET
+		parent_id = #{parent.id},
+		parent_ids = #{parentIds}
+		WHERE id = #{id}
+	</update>
+
+	<insert id="insert" useGeneratedKeys="true" keyProperty="id">
+		INSERT
+		INTO guard_company(
+		company_code,
+		area_id,
+		parent_id,
+		parent_ids,
+		company_type,
+		short_name,
+		full_name,
+		address,
+		contact,
+		phone,
+		fax,
+		email,
+		create_by,
+		create_date,
+		update_by,
+		update_date,
+		remarks,
+		del_flag
+		) VALUES (
+		#{companyCode},
+		#{area.id},
+		#{parent.id},
+		#{parentIds},
+		#{companyType},
+		#{shortName},
+		#{fullName},
+		#{address},
+		#{contact},
+		#{phone},
+		#{fax},
+		#{email},
+		#{createBy.id},
+		#{createDate},
+		#{updateBy.id},
+		#{updateDate},
+		#{remarks},
+		#{delFlag}
+		)
+	</insert>
+
+	<update id="update">
+		UPDATE guard_company SET
+		company_code =
+		#{companyCode},
+		area_id = #{area.id},
+		parent_id = #{parent.id},
+		parent_ids = #{parentIds},
+		company_type = #{companyType},
+		short_name =
+		#{shortName},
+		full_name = #{fullName},
+		address = #{address},
+		contact =
+		#{contact},
+		phone = #{phone},
+		fax = #{fax},
+		email = #{email}
+		WHERE id =
+		#{id}
+	</update>
+
+	<update id="delete">
+		UPDATE guard_company SET
+		del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+
+	<select id="countByColumnExceptSelf" resultType="int">
+		SELECT
+			count(1)
+		FROM guard_company a
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="shortName != null and shortName != ''">
+				AND a.short_name=#{shortName}
+			</if>
+			<if test="fullName != null and fullName != ''">
+				AND a.full_name=#{fullName}
+			</if>
+			<if test="companyCode != null and companyCode != ''">
+				AND a.company_code=#{companyCode}
+			</if>
+			<if test="id != null and id != ''">
+				and a.id != #{id}
+			</if>
+		</where>
+	</select>
+</mapper>

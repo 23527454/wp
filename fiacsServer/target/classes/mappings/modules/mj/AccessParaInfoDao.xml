@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.mj.dao.AccessParaInfoDao">
+
+	<select id="findAll" resultType="AccessParaInfo">
+		select * from mj_access_para_info where del_flag='0'
+	</select>
+
+	<select id="findListById" resultType="AccessParaInfo">
+		select * from mj_access_para_info where del_flag='0' and equipment_id=#{id}
+	</select>
+
+	<select id="get" resultType="AccessParaInfo">
+		SELECT *
+		FROM mj_access_para_info
+		WHERE id = #{id} and del_flag = '0'
+	</select>
+
+	<select id="getByEId" resultType="AccessParaInfo">
+		SELECT *
+		FROM mj_access_para_info
+		WHERE equipment_id = #{id} and del_flag = '0'
+	</select>
+
+	<select id="findList" resultType="AccessParaInfo">
+		SELECT *
+		FROM mj_access_para_info a
+		<where>
+			<if test="doorPos != null and doorPos != ''">
+				AND door_pos =#{doorPos}
+			</if>
+
+			<if test="enterOperaTime != null and enterOperaTime != ''">
+				AND enter_opera_time = #{enterOperaTime}
+			</if>
+			<if test="checkOperaTime != null and checkOperaTime != ''">
+				AND check_opera_time = #{checkOperaTime}
+			</if>
+			<if test="authType != null and authType != ''">
+				AND auth_type = #{authType}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY update_date
+			</otherwise>
+		</choose>
+	</select>
+
+	<insert id="insert" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO mj_access_para_info
+		VALUES (DEFAULT ,
+		#{equipment.id},
+		#{doorPos},
+		#{doorRelayTime},
+		#{doorDelayTime},
+		#{enterOperaTime},
+		#{checkOperaTime},
+		#{outTipsTime},
+		#{alarmIntervalTime},
+		#{remoteOverTime},
+		#{authType},
+		#{centerPermit},
+		#{combNum},
+		#{base1},
+		#{base2},
+		#{base3},
+		#{base4},
+		#{base5},
+		#{base6},
+		#{workTime1},
+		#{workTime2},
+		#{netOutAge1},
+		#{netOutAge2},
+		#{createBy.id},
+		#{createDate},
+		#{updateBy.id},
+		#{updateDate},
+		#{remarks},
+		DEFAULT)
+	</insert>
+
+	<update id="update">
+		UPDATE mj_access_para_info SET
+		equipment_id=#{equipmentId},
+		door_relay_time=#{doorRelayTime},
+		door_delay_time=#{doorDelayTime},
+		enter_opera_time=#{enterOperaTime},
+		check_opera_time=#{checkOperaTime},
+		out_tips_time=#{outTipsTime},
+		alarm_interval_time=#{alarmIntervalTime},
+		remote_over_time=#{remoteOverTime},
+		auth_type=#{authType},
+		center_permit=#{centerPermit},
+		comb_num=#{combNum},
+		base1=#{base1},
+		base2=#{base2},
+		base3=#{base3},
+		base4=#{base4},
+		base5=#{base5},
+		base6=#{base6},
+		work_time1=#{workTime1},
+		work_time2=#{workTime2},
+		net_out_age1=#{netOutAge1},
+		net_out_age2=#{netOutAge2},
+		remarks=#{remarks}
+		WHERE id=#{id}
+	</update>
+
+	<update id="deleteByEId">
+		DELETE FROM mj_access_para_info WHERE equipment_id = #{id}
+	</update>
+	
+</mapper>

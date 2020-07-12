@@ -1,0 +1,79 @@
+<%@ page contentType="text/html;charset=UTF-8"%>
+<%@ include file="/WEB-INF/views/include/taglib.jsp"%>
+<html>
+<head>
+<title>附件管理信息</title>
+<meta name="decorator" content="default" />
+<script type="text/javascript">
+	function page(n, s) {
+		$("#pageNo").val(n);
+		$("#pageSize").val(s);
+		$("#searchForm").submit();
+		return false;
+	}
+</script>
+</head>
+<body>
+	<ul class="nav nav-tabs">
+		<li class="active"><a href="${ctx}/guard/file/">附件信息列表</a></li>
+		<shiro:hasPermission name="guard:file:edit">
+			<li><a href="${ctx}/guard/file/form">附件信息上传</a></li>
+		</shiro:hasPermission>
+	</ul>
+	<form:form id="searchForm" modelAttribute="fileEntity"
+		action="${ctx}/guard/file/" method="post"
+		class="breadcrumb form-search form-inline">
+		<input id="pageNo" name="pageNo" type="hidden" value="${page.pageNo}" />
+		<input id="pageSize" name="pageSize" type="hidden"
+			value="${page.pageSize}" />
+		<div class="form-group">
+			<label>附件名称：</label>
+			<form:input path="fileName" htmlEscape="false" maxlength="32"
+				class="form-control input-sm" />
+		</div>
+        <div class="form-group">
+			<input id="btnSubmit" class="btn btn-primary" type="submit" value="查询" style="margin-left:10px;"/>
+		</div>
+		<div class="form-group" style="float:right;">
+			<font color="red" size="3"  style="font-weight:bold;">注意：上传时，存在相同附件名称的，后者将覆盖前者！</font>
+		</div>
+	</form:form>	
+	<sys:message content="${message}" />
+	<table id="contentTable"
+		class="table table-striped table-bordered table-condensed">
+		<thead>
+			<tr>
+				<th style="width: 30px;">序号</th>
+				<th>附件名称</th>
+				<th>文件描述</th>
+				<th style="width: 200px;">上传时间</th>
+				<shiro:hasPermission name="guard:file:edit">
+					<th style="width: 120px;">操作</th>
+				</shiro:hasPermission>
+			</tr>
+		</thead>
+		<tbody>
+			<c:forEach items="${page.list}" var="fileEntity" varStatus="varStatus">
+				<tr>
+					<td style="text-align: center;">${varStatus.count}</td>
+					<td><a
+						href="${ctx}/guard/file/download?id=${fileEntity.id}">
+							${fileEntity.fileName} </a></td>
+					<td>${fileEntity.remarks}</td>
+					<td><fmt:formatDate value="${fileEntity.createDate}"
+							pattern="yyyy-MM-dd HH:mm:ss" /></td>
+					<shiro:hasPermission name="guard:file:edit">
+						<td>
+							<a
+							href="${ctx}/guard/file/form?id=${fileEntity.id}">修改</a>
+							<a
+							href="${ctx}/guard/file/delete?id=${fileEntity.id}"
+							onclick="return confirmx('确认要删除该附件吗？', this.href)">删除</a></td>
+					</shiro:hasPermission>
+				</tr>
+			</c:forEach>
+		</tbody>
+	</table>
+	<div class="pagination">${page}</div>
+</body>
+</html>

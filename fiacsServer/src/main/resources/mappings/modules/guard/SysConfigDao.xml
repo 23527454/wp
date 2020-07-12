@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.guard.dao.SysConfigDao">
+    
+	<sql id="sysConfigColumns">
+		a.attribute AS "attribute",
+		a.value AS "value"
+	</sql>
+	
+	<sql id="sysConfigJoins">
+	</sql>
+	
+	<select id="findList" resultType="SysConfig">
+		SELECT 
+			<include refid="sysConfigColumns"/>
+		FROM guard_sys_config a
+		<include refid="sysConfigJoins"/>
+		<where>
+			<if test="attribute != null and attribute != ''">
+				and a.attribute = ${attribute}
+			</if>
+		</where>
+		<choose>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findOne" resultType="SysConfig">
+		SELECT 
+			<include refid="sysConfigColumns"/>
+		FROM guard_sys_config a
+		<include refid="sysConfigJoins"/>
+		<where>
+			<if test="attribute != null and attribute != ''">
+				and a.attribute = #{attribute}
+			</if>
+		</where>
+		<choose>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+	
+	<update id="update">
+		UPDATE guard_sys_config SET
+		value = #{value}
+		WHERE attribute = #{attribute}
+	</update>
+	
+
+	<insert id="insert">
+		insert into guard_sys_config(attribute, value)
+		values(#{attribute}, #{value})
+	</insert>
+	
+	
+</mapper>
