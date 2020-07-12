@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.jeefast.modules.fiacs.dao.EquipEntityDao">
+
+	<resultMap type="cn.jeefast.modules.fiacs.entity.EquipEntity"
+		id="EquipEntityMap">
+		<result column="control_pos" property="equipName" />
+		<result column="serial_num" property="equipSn" />
+		<result column="ip" property="equipIP" />
+		<result column="port" property="equipPort" />
+		<result column="net_gate" property="gateway" />
+		<result column="net_mask" property="subnetMask" />
+		<result column="upload_event_srv_ip" property="centerIP" />
+		<result column="upload_event_srv_port" property="centerPort" />
+		<result column="print_server_ip" property="printIP" />
+		<result column="print_server_port" property="printPort" />
+		<result column="equip_type" property="equipType" />
+		<result column="officeName" property="officeName" />
+		<result column="site_type" property="siteType" />
+		<result column="office_id" property="officeId" />
+		<result column="id" property="id" />
+		<result column="oldIp" property="oldIP" />
+		<result column="oldPort" property="oldPort" />
+	</resultMap>
+
+	<select id="queryByCondition" resultMap="EquipEntityMap">
+		select e.*,o.name as officeName,e.ip as oldIp,e.port as oldPort from
+		guard_equipment e left join sys_office o on e.office_id=o.id
+		<where>
+			e.del_flag=0
+			<if test="equipSn!=null and equipSn!=''">
+				and e.serial_num = #{equipSn}
+			</if>
+			<if test="officeId!=null and officeId!=''">
+				and e.office_id = #{officeId}
+			</if>
+		</where>
+	</select>
+	
+	<select id="queryAllNotConnect" resultMap="EquipEntityMap">
+		select e.*,o.name as officeName from
+		guard_equipment e left join sys_office o on e.office_id=o.id
+		<where>
+			e.del_flag=0 
+		</where>
+	</select>
+	
+	<select id="queryAllByDeptId" resultMap="EquipEntityMap">
+		select e.*,o.name as officeName from guard_equipment e left join
+		sys_office o on e.office_id=o.id
+		<where>
+			e.del_flag=0
+		</where>
+	</select>
+
+	<select id="queryByCenterIP" resultType="int">
+		select count(1) from
+		guard_equipment where serial_num!= #{equipSn} and ip=#{equipIP}
+	</select>
+
+	<select id="selectStaffList" parameterType="string"
+		resultType="cn.jeefast.modules.fiacs.entity.Staff">
+		select id,status,staff_type as staffType,nManage_id as
+		officeId from guard_staff where area_id =
+		(select area_id from sys_office where id = #{officeId})
+	</select>
+
+	<insert id="inserDownLoadPerson" parameterType="java.util.Map">
+		INSERT INTO
+		guard_download_person(
+		person_id,
+		equip_id,
+		register_time,
+		is_download,
+		download_type
+		) VALUES (
+		#{personId},
+		#{equipId},
+		#{registerDate},
+		#{isDownLoad},
+		#{downLoadType}
+		)
+	</insert>
+
+	<select id="countDownLoadPerson" resultType="int">
+		select count(1) from
+		guard_download_person where
+		person_id=#{personId} AND equip_id=
+		#{equipId} AND download_type='0'
+		AND is_download=#{isDownLoad}
+	</select>
+
+	<select id="findByIdAndParent" parameterType="java.util.Map"
+		resultType="string">
+		SELECT id from sys_office a
+		WHERE a.del_flag = 0 AND
+		(a.parent_ids LIKE #{idLike} OR a.id = #{id})
+		ORDER BY a.code
+	</select>
+	
+	<select id="findParentOfficeId" parameterType="string" resultType="string">
+		select parent_id from sys_office where id=#{officeId}
+	</select>
+	
+	<select id="selectCarList" parameterType="string" resultType="string">
+		select id from guard_car where area_id = 
+		(select area_id from sys_office where id = #{officeId})
+	</select>
+	
+	<select id="countDownLoadCar" resultType="int">
+		select count(1) from guard_download_car where
+		car_id=#{carId} AND
+		equip_id= #{equipId} AND is_download=#{isDownLoad}
+	</select>
+	<insert id="insertDownLoadCar" parameterType="java.util.Map">
+		INSERT
+		INTO guard_download_car(
+		car_id,
+		equip_id,
+		register_time,
+		is_download,
+		download_type
+		) VALUES
+		(
+		#{carId},
+		#{equipId},
+		#{registerDate},
+		#{isDownLoad},
+		#{downLoadType}
+		)
+	</insert>
+	
+	<select id="selectAreaIdByOfficeId" parameterType="string" resultType="string">
+		select area_id from sys_office where id=#{officeId}
+	</select>
+	
+	<select id="selectMoneyBoxList" parameterType="java.util.Map" resultType="string">
+		select a.id from guard_money_box a 
+		LEFT JOIN sys_office o3 ON o3.id = a.office_id
+		where a.del_flag = 0 
+		<if test="officeIdLike!=null and officeIdLike!=''">
+			AND (o3.parent_ids LIKE #{officeIdLike} OR a.office_id = #{officeId}) 
+		</if>
+		<if test="officeIdLike==null">
+			AND a.office_id = #{officeId}
+		</if>
+	</select>
+	
+	<select id="selectEquipmentList" parameterType="java.util.Map" resultType="java.util.Map">
+		select a.id,a.site_type as siteType,a.office_id as officeId,o2.name as officeName from  guard_equipment a
+		LEFT JOIN sys_office o2 ON o2.id = a.office_id
+		LEFT JOIN sys_area o3 ON o3.id = o2.area_id
+		where a.del_flag = 0 
+		AND (o3.parent_ids LIKE #{areaIdLike} OR o2.area_id = #{areaId}) 
+		<if test="siteType!=null and siteType!=''">
+			and a.site_type=#{siteType}
+		</if>
+	</select>
+	
+	<select id="countDownLoadMoneyBox" resultType="int">
+	select count(1) from guard_download_money_box where
+		money_box_id=#{moneyBoxId} AND equipment_id= #{equipId} AND
+		is_download=#{isDownLoad}
+	</select>
+	<insert id="insertDownLoadMoneyBox" parameterType="java.util.Map">
+		INSERT INTO
+		guard_download_money_box(
+		money_box_id,
+		equipment_id,
+		register_time,
+		is_download,
+		download_type
+		) VALUES (
+		#{moneyBoxId},
+		#{equipId},
+		#{registerDate},
+		#{isDownLoad},
+		#{downLoadType}
+		)
+	</insert>
+
+	<select id="selectConfig" resultType="java.lang.String" parameterType="java.lang.String">
+		select value  from guard_sys_config where attribute=#{id}
+	</select>
+</mapper>

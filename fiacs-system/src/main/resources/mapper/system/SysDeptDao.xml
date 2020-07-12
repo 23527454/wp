@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.jeefast.system.dao.SysDeptDao">
+
+	<!-- 通用查询映射结果 -->
+	<resultMap id="BaseResultMap"
+		type="cn.jeefast.system.entity.SysDept">
+		<id column="dept_id" property="deptId" />
+		<result column="parent_id" property="parentId" />
+		<result column="name" property="name" />
+		<result column="order_num" property="orderNum" />
+		<result column="del_flag" property="delFlag" />
+	</resultMap>
+
+	<select id="queryList"
+		resultType="cn.jeefast.system.entity.SysDept">
+		select d.*,(select p.name from sys_dept p where p.dept_id =
+		d.parent_id) as parentName
+		from sys_dept d where d.del_flag = 0
+		${filterSql}
+		<choose>
+			<when test="sidx != null and sidx.trim() != ''">
+				order by d.${sidx} ${order}
+			</when>
+			<otherwise>
+				order by d.order_num asc
+			</otherwise>
+		</choose>
+	</select>
+
+	<select id="queryListByUserId"
+		resultType="cn.jeefast.system.entity.SysDept">
+		select d.*,(select p.name from sys_dept p where p.dept_id =
+		d.parent_id) as parentName
+		from sys_dept d where d.del_flag = 0
+		and
+		d.dept_id in (
+		select distinct dept_id from sys_role_dept where role_id in
+		(select role_id from sys_user_role where user_id=#{userId})
+		)
+		order by d.order_num asc
+	</select>
+
+	<select id="queryDetpIdList" resultType="long">
+		select dept_id from
+		sys_dept where parent_id = #{value} and del_flag = 0
+	</select>
+
+	<select id="queryAllDetpIdList" resultType="long">
+		WITH RECURSIVE
+		cte(dept_id,parentId) AS(
+		SELECT dept_id,parent_id FROM sys_dept WHERE dept_id=#{value} and del_flag = 0
+		UNION ALL
+		SELECT a.dept_id,a.parent_id FROM sys_dept AS a INNER JOIN
+		cte ON a.parent_id=cte.dept_id and del_flag = 0
+		)
+		SELECT dept_id FROM cte
+	</select>
+
+	<select id="findByDeptId"
+		resultType="cn.jeefast.system.entity.SysDept">
+		select d.*,(select p.name from sys_dept p where p.dept_id =
+		d.parent_id) as parentName
+		from sys_dept d where d.del_flag = 0 and
+		d.dept_id=#{deptId}
+	</select>
+</mapper>

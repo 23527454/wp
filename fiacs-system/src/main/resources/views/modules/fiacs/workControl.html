@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>运行监控</title>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta
+	content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+	name="viewport">
+<link rel="stylesheet" href="../../css/bootstrap.min.css">
+<link rel="stylesheet" href="../../css/font-awesome.min.css">
+<link rel="stylesheet"
+	href="../../plugins/jqgrid/ui.jqgrid-bootstrap.css">
+<link rel="stylesheet"
+	href="../../plugins/ztree/css/metroStyle/metroStyle.css">
+<link rel="stylesheet" href="../../css/bootstrap-table.min.css">
+<link rel="stylesheet" href="../../css/main.css">
+<link rel="stylesheet" href="../../plugins/treegrid/jquery.treegrid.css">
+<script src="../../libs/jquery.min.js"></script>
+<script src="../../plugins/layer/layer.js"></script>
+<script src="../../libs/bootstrap.min.js"></script>
+<script src="../../libs/vue.min.js"></script>
+<script src="../../plugins/jqgrid/grid.locale-cn.js"></script>
+<script src="../../plugins/jqgrid/jquery.jqGrid.min.js"></script>
+<script src="../../plugins/ztree/jquery.ztree.all.min.js"></script>
+<script src="../../js/common.js"></script>
+<script src="../../libs/bootstrap-table.min.js"></script>
+<script src="../../plugins/treegrid/jquery.treegrid.min.js"></script>
+<script src="../../plugins/treegrid/jquery.treegrid.bootstrap3.js"></script>
+<script src="../../plugins/treegrid/jquery.treegrid.extension.js"></script>
+<script src="../../plugins/treegrid/tree.table.js"></script>
+<script src="../../plugins/jqgrid/grid.locale-cn.js"></script>
+<script src="../../plugins/jqgrid/jquery.jqGrid.min.js"></script>
+<script src="../../plugins/ztree/jquery.ztree.all.min.js"></script>
+</head>
+<body>
+	<div id="jeefastapp" v-cloak>
+		<div class="panel panel-default">
+			<ul id="myTab" class="nav nav-tabs">
+				<li><a href="#connect" data-toggle="tab">在线</a></li>
+				<li><a href="#notconnect" data-toggle="tab">不在线</a></li>
+				<li><a href="#noLogin" data-toggle="tab">未注册</a></li>
+			</ul>
+			<div id="myTabContent" class="tab-content">
+				<div class="tab-pane fade" id="connect">
+					<div class="grid-btn">
+						<span style="font-size: 18px; margin-right: 20px;">总设备数：<span
+							style="font-size: 18px; margin-right: 20px; color: #00FF33;">{{equipTotal}}</span></span>
+						<span style="font-size: 18px; margin-right: 20px;">服务端口：<span
+							style="font-size: 18px; margin-right: 20px; color: #00FF33;">{{serverPort}}</span></span>
+					</div>
+					<div>
+						<table id="jqGrid"></table>
+						<div id="jqGridPager"></div>
+					</div>
+				</div>
+				<div class="tab-pane fade" id="notconnect">
+					<div class="grid-btn">
+						<span style="font-size: 18px; margin-right: 20px;">总设备数：<span
+							style="font-size: 18px; margin-right: 20px; color: #00FF33;">{{equipTotalTwo}}</span></span>
+					</div>
+					<div>
+						<table id="jqGridTwo"></table>
+						<div id="jqGridPagerTwo"></div>
+					</div>
+				</div>
+				<div class="tab-pane fade" id="noLogin">
+					<div class="grid-btn">
+
+						<a
+							class="btn btn-primary btn-sm" @click="saveDataBase"><i
+							class="fa fa-save"></i>&nbsp;加入数据库</a>
+
+
+					</div>
+					<table id="jqGridThree"></table>
+				</div>
+			</div>
+		</div>
+
+	</div>
+	<div id="saveBaseLayer" style="display: none;padding:10px;">
+		<ul id="roleDeptTree" class="ztree"></ul>
+	</div>
+	<script src="../../js/modules/fiacs/workControl.js"></script>
+	<script type="text/javascript">
+
+		var curTryNum = 0;
+		var maxTryNum = 10;
+
+		var websocket = null;
+
+		var whoClose = 0;//0代表异常关闭 1代表主动关闭
+		var connect = function(url) {
+			//连接次数加一
+			curTryNum = curTryNum + 1;
+
+			if (!window.WebSocket) {
+				window.WebSocket = window.MozWebSocket;
+			}
+			if (window.WebSocket) {
+				websocket = new WebSocket(url);
+
+				websocket.onopen = function(event) {
+					console.log('链接成功');
+					//连接成功时将当前已重连次数归零
+					curTryNum = 0;
+
+					console.log("心跳检测启动");
+					heartCheck.start();
+					websocket.send("serverPort");
+				};
+				websocket.onclose = function(event) {
+					console.log('onclose');
+					if (whoClose == 0) {
+						if (curTryNum <= maxTryNum) {
+							/* alert("连接关闭，5秒后重新连接……"); */
+							// 5秒后重新连接，实际效果：每5秒重连一次，直到连接成功
+							setTimeout(function() {
+								connect(url);
+							}, 5000);
+						} else {
+							alert("连接实时通知服务器失败！");
+						}
+
+					}
+
+				};
+
+				websocket.onmessage = function(message) {
+					console.log(message.data);
+					if (message.data != 'response heart') {
+						if (message.data.indexOf('serverPort') != -1) {
+							vm.serverPort = message.data.substr(10);
+						} else {
+							var dataObject = JSON.parse(message.data);
+							if (dataObject.operateType == 1) {
+								//已连接设备界面处理
+								var getSelect = $("#jqGrid").jqGrid(
+										'getRowData', dataObject.equipSn);
+								if (getSelect.equipSn) {
+									return;
+								}
+								var testdata = {
+									'equipSn' : dataObject.equipSn,
+									'equipName' : dataObject.equipName,
+									'ip' : dataObject.ip,
+									'port' : dataObject.port,
+									'startTime' : dataObject.startTime,
+									'version' : dataObject.version
+								};
+								$("#jqGrid").jqGrid('addRowData',
+										dataObject.equipSn, testdata, 'first');
+								vm.equipTotal = vm.equipTotal + 1;
+								
+								
+								var getSelect = $("#jqGridTwo").jqGrid(
+										'getRowData', dataObject.equipSn);
+								if (getSelect.equipSn) {
+									$("#jqGridTwo").jqGrid('delRowData',
+											dataObject.equipSn);
+									vm.equipTotalTwo = vm.equipTotalTwo - 1;
+								}
+							} else if (dataObject.operateType == 0){
+								var getSelect = $("#jqGrid").jqGrid(
+										'getRowData', dataObject.equipSn);
+								if (getSelect.equipSn) {
+									$("#jqGrid").jqGrid('delRowData',
+											dataObject.equipSn);
+									vm.equipTotal = vm.equipTotal - 1;
+								}
+								
+								var getSelect = $("#jqGridTwo").jqGrid(
+										'getRowData', dataObject.equipSn);
+								if (!getSelect.equipSn) {
+									var testdata = {
+											'equipSn' : dataObject.equipSn,
+											'equipName' : dataObject.equipName,
+											'equipIP' : dataObject.ip,
+											'equipPort' : dataObject.port,
+											'centerIP' : dataObject.centerIp,
+											'centerPort': vm.serverPort
+										};
+										$("#jqGridTwo").jqGrid('addRowData',
+												dataObject.equipSn, testdata, 'first');
+										vm.equipTotalTwo = vm.equipTotalTwo + 1;
+								}
+							}else if (dataObject.operateType == 2){
+								var getSelect = $("#jqGridThree").jqGrid(
+										'getRowData', dataObject.equipSn);
+								if (getSelect.equipSn) {
+									return;
+								}
+								var testdata = {
+									'equipSn' : dataObject.equipSn,
+									'equipName' : dataObject.equipName,
+									'equipIP' : dataObject.ip,
+									'startTime' : dataObject.startTime,
+									'version' : dataObject.version
+								};
+								$("#jqGridThree").jqGrid('addRowData',
+										dataObject.equipSn, testdata, 'first');
+							}
+						}
+					}
+				};
+				websocket.onerror = function(event) {
+					//alert("连接出错");
+
+				};
+
+			} else {
+				alert("你的浏览器不支持websocket协议");
+				window.close();
+			}
+
+			//监听窗口关闭事件，窗口关闭前，主动关闭websocket连接，防止连接还没断开就关闭窗口，server端会抛异常
+			window.onbeforeunload = function() {
+				websocket.close();
+			};
+			/**
+			 * 心跳检测
+			 */
+			var heartCheck = {
+				timeout : 5000, //计时器设定为5s
+				timeoutObj : null,
+				serverTimeoutObj : null,
+				//重置
+				reset : function() {
+					clearTimeout(this.timeoutObj);
+					clearTimeout(this.serverTimeoutObj);
+					this.start();
+				},
+				//开始
+				start : function() {
+					var self = this;
+					this.timeoutObj = setTimeout(function() {
+						websocket.send("HeartBeat");
+						console.log("发送心跳");
+					}, this.timeout);
+				}
+			};
+
+		};
+		/**
+		 * 执行入口
+		 */
+		//离开页面 主动关闭websocket
+		window.onbeforeunload = function() {
+			whoClose = 1;
+			if (websocket) {
+				websocket.close();
+			}
+		}
+	</script>
+</body>
+</html>

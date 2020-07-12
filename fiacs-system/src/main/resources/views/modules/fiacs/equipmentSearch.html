@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>押运设备管理</title>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+	<link rel="stylesheet" href="../../css/bootstrap.min.css">
+	<link rel="stylesheet" href="../../css/font-awesome.min.css">
+	<link rel="stylesheet" href="../../plugins/jqgrid/ui.jqgrid-bootstrap.css">
+	<link rel="stylesheet" href="../../plugins/ztree/css/metroStyle/metroStyle.css">
+	<link rel="stylesheet" href="../../css/bootstrap-table.min.css">
+	<link rel="stylesheet" href="../../css/main.css">
+	<link rel="stylesheet" href="../../plugins/treegrid/jquery.treegrid.css">
+
+	<script src="../../libs/jquery.min.js"></script>
+	<script src="../../plugins/layer/layer.js"></script>
+	<script src="../../libs/bootstrap.min.js"></script>
+	<script src="../../libs/vue.min.js"></script>
+	<script src="../../libs/bootstrap-table.min.js"></script>
+	<script src="../../plugins/treegrid/jquery.treegrid.min.js"></script>
+	<script src="../../plugins/treegrid/jquery.treegrid.bootstrap3.js"></script>
+	<script src="../../plugins/treegrid/jquery.treegrid.extension.js"></script>
+	<script src="../../plugins/treegrid/tree.table.js"></script>
+	<script src="../../plugins/jqgrid/grid.locale-cn.js"></script>
+	<script src="../../plugins/jqgrid/jquery.jqGrid.min.js"></script>
+	<script src="../../plugins/ztree/jquery.ztree.all.min.js"></script>
+	<script src="../../js/common.js"></script>
+</head>
+<body>
+<div id="jeefastapp" v-cloak>
+	<div v-show="showList==0">
+			<div class="grid-btn">
+				<div class="form-group col-sm-2" style="width:150px;height:30px;">
+					<select v-model="paramQuery" class="form-control">
+							<option :value="coupon.id" v-for="coupon in paramQueryList">{{coupon.name}}</option>
+						</select>
+				</div>
+				<a class="btn btn-primary btn-sm" @click="equipQuery"><i
+					class="fa fa-search"></i>&nbsp;搜索</a><a
+					class="btn btn-primary btn-sm" @click="saveDataBase"><i
+					class="fa fa-save"></i>&nbsp;加入数据库</a> 
+					<!-- <a
+					class="btn btn-primary btn-sm" @click="modifyEquip"><i
+					class="fa fa-pencil-square-o"></i>&nbsp;修改</a>  -->
+					<span style="margin-right:20px;"><font color="red" size="4">列表修改按钮，可进行设备参数修改及设备的基本操作</font></span>
+					<span style="float:right;font-size:18px;margin-right:20px;">共{{equipTotal}}条</span>
+			</div>
+			<table id="jqGridEquip"></table>
+			<div id="jqGridEquipPager"></div>
+	</div>
+
+	<div v-show="showList==4" class="panel panel-default">
+		<div class="panel-heading">{{title}}</div>
+		<form class="form-horizontal" style="width: 800px;">
+			<div class="form-group">
+				<input type="button" class="btn btn-primary" @click="resetEquip(1)"
+					 style="width:80px" value="系统重启" /> 
+					 <div class="col-sm-1 control-label"></div>
+				<input type="button" class="btn btn-primary" @click="resetEquip(0)"
+					 style="width:80px;margin-left:10px;" value="APP重启" style="margin-left:30px;"/> 
+					 <div class="col-sm-1 control-label"></div>
+				<input type="button" class="btn btn-primary" @click="resetEquip(2)"
+					 style="width:80px;margin-left:10px;" value="初始化" style="margin-left:30px;"/> 
+					 <div class="col-sm-1 control-label"></div>
+				
+			</div>
+			<div class="form-group">
+				<!-- <div class="col-sm-2 control-label">序列号</div>
+				<div class="col-sm-3">
+					<input type="text" class="form-control" v-model="equipment.equipSn" :readonly="true"/>
+				</div> -->
+				<div class="col-sm-2 control-label">所属机构</div>
+				<div class="col-sm-3">
+<!-- 					<input type="text" class="form-control" style="cursor:pointer;" v-model="equipment.officeName" @click="deptTree" readonly="readonly" placeholder="所属机构"/>
+ -->					<input type="text" class="form-control" v-model="equipment.officeName" readonly="readonly"/>
+				</div>
+				
+				<div class="col-sm-2 control-label">子网掩码</div>
+				<div class="col-sm-3">
+					<input type="text" class="form-control" v-model="equipment.subnetMask" placeholder="子网掩码"/>
+				</div>
+			</div>
+			<div class="form-group">
+				<div class="col-sm-2 control-label">设备名</div>
+				<div class="col-sm-3">
+					<input type="text" class="form-control" v-model="equipment.equipName" placeholder="设备名"/>
+				</div>
+				<div class="col-sm-2 control-label">网关</div>
+				<div class="col-sm-3">
+					<input type="text" class="form-control" v-model="equipment.gateway" placeholder="网关"/>
+				</div>
+			</div>
+			<div class="form-group">
+				<div class="col-sm-2 control-label">网络地址</div>
+				<div class="col-sm-3">
+					<input type="text" class="form-control" v-model="equipment.equipIP" placeholder="ip地址"/>
+				</div>
+				<div class="col-sm-2 control-label">网络端口</div>
+				<div class="col-sm-3">
+					<input type="number" class="form-control" v-model="equipment.equipPort" placeholder="端口号"/>
+				</div>
+			</div>
+			<div class="form-group">
+				<div class="col-sm-2 control-label">中心地址</div>
+				<div class="col-sm-3">
+					<input type="text" class="form-control" v-model="equipment.centerIP" placeholder="上传地址"/>
+				</div>
+				<div class="col-sm-2 control-label">中心端口</div>
+				<div class="col-sm-3">
+					<input type="text" class="form-control" v-model="equipment.centerPort" placeholder="上传端口"/>
+				</div>
+			</div>
+			<div class="form-group">
+				<div class="col-sm-2 control-label">打印地址</div>
+				<div class="col-sm-3">
+					<input type="text" class="form-control" v-model="equipment.printIP" placeholder="打印地址"/>
+				</div>
+				<div class="col-sm-2 control-label">打印端口</div>
+				<div class="col-sm-3">
+					<input type="text" class="form-control" v-model="equipment.printPort" placeholder="打印端口"/>
+				</div>
+			</div>
+			<!-- <div class="form-group">
+				<div class="col-sm-2 control-label">子网掩码</div>
+				<div class="col-sm-3">
+					<input type="text" class="form-control" v-model="equipment.subnetMask" placeholder="子网掩码"/>
+				</div>
+			</div> -->
+			<div class="form-group">
+				<div class="col-sm-6 control-label"></div>
+				<input type="button" class="btn btn-primary" @click="saveEquipBaseInfo" value="保存/修改"/>
+				&nbsp;&nbsp;<input type="button" class="btn btn-warning" @click="backEquipDiv" value="返回"/>
+			</div>
+		</form>
+	</div>		
+</div>
+
+<!-- 选择部门 -->
+<div id="deptLayer" style="display: none;padding:10px;">
+	<ul id="deptTree" class="ztree"></ul>
+</div>
+
+<div id="saveBaseLayer" style="display: none;padding:10px;">
+	<ul id="roleDeptTree" class="ztree"></ul>
+</div>
+	
+<script src="../../js/modules/fiacs/equipmentSearch.js"></script>
+</body>
+</html>

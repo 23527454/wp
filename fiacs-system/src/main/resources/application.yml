@@ -1,0 +1,118 @@
+# Tomcat
+server:
+    tomcat:
+        uri-encoding: UTF-8
+        max-threads: 1000
+        min-spare-threads: 30
+    port: 8080
+
+# mysql
+spring:
+    datasource:
+        druid:
+                  #driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
+                  #url: jdbc:sqlserver://localhost:1433;DatabaseName=FIACS
+                  #username: sa
+                  #password: qqqqqq
+                  driver-class-name: com.mysql.cj.jdbc.Driver
+                  url: jdbc:mysql://127.0.0.1:3306/fiacs?characterEncoding=utf8&useSSL=false&serverTimezone=UTC&zeroDateTimeBehavior=CONVERT_TO_NULL
+                  username: root
+                  password: 111111
+                  type: com.alibaba.druid.pool.DruidDataSource
+                  initial-size: 10 #指定启动连接池时，初始建立的连接数量
+                  max-active: 100 #指定连接池中最大的活跃连接数
+                  min-idle: 10 #指定连接池最小的空闲连接数量
+                  max-wait: 120000 #指定连接池等待连接返回的最大等待时间，毫秒单位
+                  pool-prepared-statements: false #指定是否池化statements
+            #max-pool-prepared-statement-per-connection-size: 20
+                  time-between-eviction-runs-millis: 60000 #指定空闲连接检查、废弃连接清理、空闲连接池大小调整之间的操作时间间隔
+                  min-evictable-idle-time-millis: 300000  #指定一个空闲连接最少空闲多久后可被清除
+                  test-while-idle: false #当连接空闲时，是否执行连接测试
+                  test-on-borrow: false  #当从连接池借用连接时，是否测试该连接
+                  test-on-return: false #在连接归还到连接池时是否测试该连接
+                  filter:
+                      stat:
+                          log-slow-sql: true
+                          slow-sql-millis: 1000
+                          merge-sql: true
+                      wall:
+                          config:
+                              multi-statement-allow: true
+    # jackson时间格式化
+    jackson:
+        time-zone: GMT+8
+        date-format: yyyy-MM-dd HH:mm:ss
+    http:
+        multipart:
+            max-file-size: 1000MB
+            max-request-size: 1000MB
+            enabled: true
+    # 指定静态资源的路径
+    resources:
+        static-locations: classpath:/static/,classpath:/views/
+    cache:
+       ehcache:
+         config: classpath:ehcache.xml
+    redis:
+        open: false  # 是否开启redis缓存  true开启   false关闭
+        database: 0
+        host: localhost
+        port: 16379
+        password:       # 密码（默认为空）
+        timeout: 6000  # 连接超时时长（毫秒）
+        pool:
+            max-active: 1000  # 连接池最大连接数（使用负值表示没有限制）
+            max-wait: -1      # 连接池最大阻塞等待时间（使用负值表示没有限制）
+            max-idle: 10      # 连接池中的最大空闲连接
+            min-idle: 5       # 连接池中的最小空闲连接
+
+#mybatis
+mybatis-plus:
+  mapper-locations: classpath:/mapper/**/*Dao.xml
+  #实体扫描，多个package用逗号或者分号分隔
+  typeAliasesPackage: cn.jeefast.system.entity,cn.jeefast.modules.job.entity,cn.jeefast.modules.platform.entity,cn.jeefast.modules.fiacs.entity
+  global-config:
+    #主键类型  0:"数据库ID自增", 1:"用户输入ID",2:"全局唯一ID (数字类型唯一ID)", 3:"全局唯一ID UUID";
+    id-type: 0
+    #字段策略 0:"忽略判断",1:"非 NULL 判断"),2:"非空判断"
+    field-strategy: 2
+    #驼峰下划线转换
+    db-column-underline: true
+    #刷新mapper 调试神器
+    refresh-mapper: true
+    #数据库大写下划线转换
+    #capital-mode: true
+    #序列接口实现类配置
+    #key-generator: cn.jeefast.xxx
+    #逻辑删除配置
+    logic-delete-value: 0
+    logic-not-delete-value: 1
+    #自定义填充策略接口实现
+    #meta-object-handler: cn.jeefast.xxx
+    #自定义SQL注入器
+    #sql-injector: cn.jeefast.xxx
+  configuration:
+    map-underscore-to-camel-case: true
+    cache-enabled: false
+    
+#热部署配置
+devtools:
+  livereload:
+    enabled: true
+  restart:
+    enabled: true
+    additional-exclude: views/**
+    
+netty:
+  webSocketPort: 10085
+  ip: 127.0.0.1
+  port: 10002
+  
+logo:
+   show: true
+
+#设备搜索等等事件  单位毫秒   1秒=1000毫秒
+search: 
+   timeOut: 1500
+   netCard:
+   

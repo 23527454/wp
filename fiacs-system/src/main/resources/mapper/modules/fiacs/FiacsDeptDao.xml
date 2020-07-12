@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.jeefast.modules.fiacs.dao.FiacsDeptDao">
+
+	<!-- 通用查询映射结果 -->
+	<resultMap id="BaseResultMap"
+		type="cn.jeefast.modules.fiacs.entity.FiacsDept">
+		<id column="id" property="deptId" />
+		<result column="parent_id" property="parentId" />
+		<result column="name" property="name" />
+		<result column="sort" property="orderNum" />
+		<result column="del_flag" property="delFlag" />
+		<result column="control_pos" property="equipName" />
+		<result column="serial_num" property="equipSn" />
+		<result column="ip" property="equipIP" />
+		<result column="port" property="equipPort" />
+		<result column="net_gate" property="gateway" />
+		<result column="net_mask" property="subnetMask" />
+		<result column="upload_event_srv_ip" property="centerIP" />
+		<result column="upload_event_srv_port" property="centerPort" />
+		<result column="print_server_ip" property="printIP" />
+		<result column="print_server_port" property="printPort" />
+		<result column="equip_type" property="equipType" />
+		<result column="areaName" property="areaName"/>
+		<result column="grade" property="grade"/>
+		<result column="address" property="address"/>
+		<result column="zipCode" property="zipCode"/>
+		<result column="master" property="master"/>
+		<result column="phone" property="phone"/>
+		<result column="fax" property="fax"/>
+		<result column="email" property="email"/>
+		<result column="site_type" property="siteType"/>
+	</resultMap>
+	
+	<resultMap type="cn.jeefast.modules.fiacs.entity.EquipEntity" id="EquipEntityMap">
+		<result column="control_pos" property="equipName" />
+		<result column="serial_num" property="equipSn" />
+		<result column="ip" property="equipIP" />
+		<result column="port" property="equipPort" />
+		<result column="net_gate" property="gateway" />
+		<result column="net_mask" property="subnetMask" />
+		<result column="upload_event_srv_ip" property="centerIP" />
+		<result column="upload_event_srv_port" property="centerPort" />
+		<result column="print_server_ip" property="printIP" />
+		<result column="print_server_port" property="printPort" />
+		<result column="equip_type" property="equipType" />
+		<result column="parentName" property="parentName" />
+	</resultMap>
+
+	<select id="queryList"
+		resultMap="BaseResultMap">
+		select 
+		o.id,o.parent_id,o.name,o.sort,o.del_flag,
+		o.type as site_type,
+		e.*
+		from sys_office o
+		left join guard_equipment e
+		on o.id = e.office_id
+		 where o.del_flag=0
+	</select>
+	
+	<select id="queryByDeptId" parameterType="java.lang.String" resultMap="BaseResultMap">
+		select o.*,e.ip,e.serial_num from sys_office o 
+		left join guard_equipment e on o.id=e.office_id
+		where o.id=#{deptId} 
+	</select>
+	
+	<select id="queryDeptInfo" resultMap="BaseResultMap" parameterType="string">
+		select 
+		a.id,
+		a.parent_id,
+		a.code as deptCode,
+		a.name,
+		a.sort,
+		a.type,
+		a.grade,
+		a.address,
+		a.zip_code as zipCode,
+		a.master,
+		a.phone,
+		a.fax,
+		a.email,
+		a.remarks,
+		a.del_flag,
+		a.useable AS useable,
+		p.name AS parentName,
+		ar.name AS areaName
+		FROM sys_office a
+		LEFT JOIN sys_office p ON p.id = a.parent_id
+		LEFT JOIN sys_area ar ON ar.id = a.area_id
+		where a.id=#{deptId}
+	</select>
+</mapper>
