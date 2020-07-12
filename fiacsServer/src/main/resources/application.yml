@@ -17,7 +17,7 @@ management:
   security:
     enabled: false
 
-# jsp视力解析配置
+# jsp视图解析配置
 spring:
   mvc:
     view:
