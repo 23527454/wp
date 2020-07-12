@@ -1,0 +1,32 @@
+spring:
+    datasource:
+        type: com.alibaba.druid.pool.DruidDataSource
+        driverClassName: org.sqlite.JDBC
+        druid: 
+            url: jdbc:sqlite:C:\Users\zgx\Desktop\znzj/znzj.db
+            username: 
+            password: 
+            initial-size: 10
+            max-active: 100
+            min-idle: 10
+            max-wait: 60000
+            pool-prepared-statements: false
+           # max-pool-prepared-statement-per-connection-size: -1
+            time-between-eviction-runs-millis: 60000
+            min-evictable-idle-time-millis: 300000
+            test-while-idle: true
+            test-on-borrow: false
+            test-on-return: false
+            stat-view-servlet:
+                enabled: true
+                url-pattern: /druid/*
+                login-username: admin
+                login-password: admin
+            filter:
+                stat:
+                    log-slow-sql: true
+                    slow-sql-millis: 1000
+                    merge-sql: true
+                wall:
+                    config:
+                        multi-statement-allow: true

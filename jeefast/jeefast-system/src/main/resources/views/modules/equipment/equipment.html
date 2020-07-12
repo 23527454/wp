@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>机构管理</title>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+	<link rel="stylesheet" href="../../css/bootstrap.min.css">
+	<link rel="stylesheet" href="../../css/font-awesome.min.css">
+	<link rel="stylesheet" href="../../plugins/jqgrid/ui.jqgrid-bootstrap.css">
+	<link rel="stylesheet" href="../../plugins/ztree/css/metroStyle/metroStyle.css">
+	<link rel="stylesheet" href="../../css/bootstrap-table.min.css">
+	<link rel="stylesheet" href="../../css/main.css">
+	<link rel="stylesheet" href="../../plugins/treegrid/jquery.treegrid.css">
+
+	<script src="../../libs/jquery.min.js"></script>
+	<script src="../../plugins/layer/layer.js"></script>
+	<script src="../../libs/bootstrap.min.js"></script>
+	<script src="../../libs/vue.min.js"></script>
+	<script src="../../libs/bootstrap-table.min.js"></script>
+	<script src="../../plugins/treegrid/jquery.treegrid.min.js"></script>
+	<script src="../../plugins/treegrid/jquery.treegrid.bootstrap3.js"></script>
+	<script src="../../plugins/treegrid/jquery.treegrid.extension.js"></script>
+	<script src="../../plugins/treegrid/tree.table.js"></script>
+	<script src="../../plugins/jqgrid/grid.locale-cn.js"></script>
+	<script src="../../plugins/jqgrid/jquery.jqGrid.min.js"></script>
+	<script src="../../plugins/ztree/jquery.ztree.all.min.js"></script>
+	<script src="../../js/common.js"></script>
+</head>
+<body>
+<div id="jeefastapp" v-cloak>
+	<div v-show="showList==0">
+		<div style="float:left;width:20%;margin-right:10px;margin-top:43px;">
+			<!-- <div class="grid-btn">
+				<a class="btn btn-primary btn-sm" @click="treeReload"><i class="fa fa-plus"></i>&nbsp;刷新</a>
+			</div> -->
+			
+			<table id="deptTable" data-mobile-responsive="true" data-click-to-select="true">
+				<thead>
+				<tr>
+					<th data-field="selectItem" data-checkbox="true"></th>
+				</tr>
+				</thead>
+			</table>
+			
+		</div>
+		<div style="float:left;width:77%;margin-left:5px;workflow-x:auto;display:inline-block;">
+			<div class="grid-btn">
+				<a v-if="hasPermission('equipment:add')" class="btn btn-primary btn-sm" @click="add"><i class="fa fa-plus"></i>&nbsp;新增</a>
+				<a v-if="hasPermission('equipment:update')" class="btn btn-primary btn-sm" @click="update"><i class="fa fa-pencil-square-o"></i>&nbsp;修改</a>
+				<!-- <a v-if="hasPermission('searchEquipment:operator')" class="btn btn-primary btn-sm" @click="operateEquip"><i class="fa fa-gavel"></i>&nbsp;操控</a> -->
+				<a v-if="hasPermission('equipment:delete')" class="btn btn-primary btn-sm" @click="del"><i class="fa fa-trash-o"></i>&nbsp;删除</a>
+				<a v-if="hasPermission('searchEquipment:list')" class="btn btn-primary btn-sm" @click="equipQueryDiv"><i class="fa fa-search"></i>&nbsp;设备搜索</a>
+			</div>
+			 <table id="jqGrid"></table>
+			  <div id="jqGridPager"></div>
+		</div>
+	</div>
+
+	<div v-show="showList==1" class="panel panel-default">
+		<div class="panel-heading">{{title}}</div>
+		<form class="form-horizontal">
+			<div class="form-group">
+				<div class="col-sm-2 control-label">序列号</div>
+				<div class="col-sm-10">
+					<input type="text" class="form-control" v-model="equipment.equipReq" :readonly="equipment.id"/>
+				</div>
+			</div>
+			<!-- <div class="form-group">
+				<div class="col-sm-2 control-label">sn码</div>
+				<div class="col-sm-10">
+					<input type="text" class="form-control" v-model="equipment.equipSn" :readonly="equipment.id"/>
+				</div>
+			</div> -->
+			<div class="form-group">
+				<div class="col-sm-2 control-label">所属机构</div>
+				<div class="col-sm-10">
+					<input type="text" class="form-control" style="cursor:pointer;" v-model="equipment.deptName" @click="deptTree" readonly="readonly" placeholder="所属机构"/>
+				</div>
+			</div>
+			<div class="form-group">
+				<div class="col-sm-2 control-label">设备名</div>
+				<div class="col-sm-10">
+					<input type="text" class="form-control" v-model="equipment.otherName" placeholder="方便记忆"/>
+				</div>
+			</div>
+			<div class="form-group">
+				<div class="col-sm-2 control-label">网关</div>
+				<div class="col-sm-10">
+					<input type="text" class="form-control" v-model="equipment.gateWay" placeholder="网关"/>
+				</div>
+			</div>
+			<div class="form-group">
+				<div class="col-sm-2 control-label">子网掩码</div>
+				<div class="col-sm-10">
+					<input type="text" class="form-control" v-model="equipment.subnetMask" placeholder="子网掩码"/>
+				</div>
+			</div>
+			<div class="form-group">
+				<div class="col-sm-2 control-label">网络地址</div>
+				<div class="col-sm-10">
+					<input type="text" class="form-control" v-model="equipment.ip" placeholder="ip地址"/>
+				</div>
+			</div>
+			<div class="form-group">
+				<div class="col-sm-2 control-label">网络端口</div>
+				<div class="col-sm-10">
+					<input type="number" class="form-control" v-model="equipment.port" placeholder="端口号"/>
+				</div>
+			</div>
+			<div class="form-group">
+				<div class="col-sm-2 control-label">上传地址</div>
+				<div class="col-sm-10">
+					<input type="text" class="form-control" v-model="equipment.ipCenter" placeholder="上传地址"/>
+				</div>
+			</div>
+			<div class="form-group">
+				<div class="col-sm-2 control-label">上传端口</div>
+				<div class="col-sm-10">
+					<input type="text" class="form-control" v-model="equipment.portCenter" placeholder="上传端口"/>
+				</div>
+			</div>
+			<div class="form-group">
+				<div class="col-sm-2 control-label"></div>
+				<input type="button" class="btn btn-primary" @click="saveOrUpdate" value="确定"/>
+				&nbsp;&nbsp;<input type="button" class="btn btn-warning" @click="reload" value="返回"/>
+			</div>
+		</form>
+	</div>
+	
+	<div v-show="showList==4" class="panel panel-default">
+		<div class="panel-heading">{{title}}</div>
+		<form class="form-horizontal">
+			<div class="form-group">
+				<div class="col-sm-2 control-label">序列号</div>
+				<div class="col-sm-10">
+					<input type="text" class="form-control" v-model="equipment.equipReq" readonly="readonly"/>
+				</div>
+			</div>
+			<!-- <div class="form-group">
+				<div class="col-sm-2 control-label">sn码</div>
+				<div class="col-sm-10">
+					<input type="text" class="form-control" v-model="equipment.equipSn" readonly="readonly"/>
+				</div>
+			</div> -->
+			<div class="form-group">
+				<div class="col-sm-2 control-label">网关</div>
+				<div class="col-sm-10">
+					<input type="text" class="form-control" v-model="equipment.gateWay" placeholder="网关"/>
+				</div>
+			</div>
+			<div class="form-group">
+				<div class="col-sm-2 control-label">子网掩码</div>
+				<div class="col-sm-10">
+					<input type="text" class="form-control" v-model="equipment.subnetMask" placeholder="子网掩码"/>
+				</div>
+			</div>
+			<div class="form-group">
+				<div class="col-sm-2 control-label">网络地址</div>
+				<div class="col-sm-10">
+					<input type="text" class="form-control" v-model="equipment.ip" placeholder="ip地址"/>
+				</div>
+			</div>
+			<div class="form-group">
+				<div class="col-sm-2 control-label">网络端口</div>
+				<div class="col-sm-10">
+					<input type="number" class="form-control" v-model="equipment.port" placeholder="端口号"/>
+				</div>
+			</div>
+			<div class="form-group">
+				<div class="col-sm-2 control-label">上传地址</div>
+				<div class="col-sm-10">
+					<input type="text" class="form-control" v-model="equipment.ipCenter" placeholder="上传地址"/>
+				</div>
+			</div>
+			<div class="form-group">
+				<div class="col-sm-2 control-label">上传端口</div>
+				<div class="col-sm-10">
+					<input type="text" class="form-control" v-model="equipment.portCenter" placeholder="上传端口"/>
+				</div>
+			</div>
+			<div class="form-group">
+				<div class="col-sm-2 control-label"></div>
+				<input type="button" class="btn btn-primary" @click="saveEquipBaseInfo" value="确定"/>
+				&nbsp;&nbsp;<input type="button" class="btn btn-warning" @click="backEquipDiv" value="返回"/>
+			</div>
+		</form>
+	</div>
+	
+	<div v-show="showList==2">
+			<div class="grid-btn">
+				<div class="form-group col-sm-2" style="width:150px;height:30px;">
+					<select v-model="paramQuery" class="form-control">
+							<option :value="coupon.id" v-for="coupon in paramQueryList">{{coupon.name}}</option>
+						</select>
+				</div>
+				<a class="btn btn-primary btn-sm" @click="equipQuery"><i
+					class="fa fa-search"></i>&nbsp;搜索</a><a
+					class="btn btn-primary btn-sm" @click="saveDataBase"><i
+					class="fa fa-save"></i>&nbsp;加入数据库</a> 
+					<a
+					class="btn btn-primary btn-sm" @click="modifyEquip"><i
+					class="fa fa-pencil-square-o"></i>&nbsp;修改</a> 
+					<a
+					class="btn btn-warning btn-sm" @click="reload"><i
+					class="fa fa-back"></i>&nbsp;返回</a> 
+					
+					<span style="float:right;font-size:18px;margin-right:20px;">共{{equipTotal}}条</span>
+			</div>
+			<table id="jqGridEquip"></table>
+			<div id="jqGridEquipPager"></div>
+		</div>
+		<div v-show="showList==3" class="panel panel-default">
+			<div class="panel-heading">{{title}}</div>
+			<form class="form-horizontal">
+				<div class="form-group">
+					<div class="col-sm-2 control-label">指令</div>
+					<div class="col-sm-10">
+						<select v-model="operateSelect" class="form-control"
+							@change="selectChange('operate')">
+							<option :value="coupon.id" v-for="coupon in operateList">{{coupon.name}}</option>
+						</select>
+					</div>
+				</div>
+				<div class="form-group">
+					<div class="col-sm-2 control-label"></div>
+					&nbsp;&nbsp;<input type="button" class="btn btn-warning"
+						@click="reload" value="返回" />
+				</div>
+			</form>
+		</div>
+</div>
+
+<!-- 选择部门 -->
+<div id="deptLayer" style="display: none;padding:10px;">
+	<ul id="deptTree" class="ztree"></ul>
+</div>
+
+<div id="saveBaseLayer" style="display: none;padding:10px;">
+	<ul id="roleDeptTree" class="ztree"></ul>
+</div>
+	
+<script src="../../js/modules/equipment/equipment.js"></script>
+</body>
+</html>

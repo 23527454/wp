@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>参数管理</title>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta
+	content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+	name="viewport">
+<link rel="stylesheet" href="../../css/bootstrap.min.css">
+<link rel="stylesheet" href="../../css/font-awesome.min.css">
+<link rel="stylesheet"
+	href="../../plugins/jqgrid/ui.jqgrid-bootstrap.css">
+<link rel="stylesheet"
+	href="../../plugins/ztree/css/metroStyle/metroStyle.css">
+<link rel="stylesheet" href="../../css/bootstrap-table.min.css">
+<link rel="stylesheet" href="../../css/main.css">
+<link rel="stylesheet" href="../../plugins/treegrid/jquery.treegrid.css">
+
+<script src="../../libs/jquery.min.js"></script>
+<script src="../../plugins/layer/layer.js"></script>
+<script src="../../libs/bootstrap.min.js"></script>
+<script src="../../libs/vue.min.js"></script>
+<script src="../../libs/bootstrap-table.min.js"></script>
+<script src="../../plugins/treegrid/jquery.treegrid.min.js"></script>
+<script src="../../plugins/treegrid/jquery.treegrid.bootstrap3.js"></script>
+<script src="../../plugins/treegrid/jquery.treegrid.extension.js"></script>
+<script src="../../plugins/treegrid/tree.table.js"></script>
+<script src="../../plugins/jqgrid/grid.locale-cn.js"></script>
+<script src="../../plugins/jqgrid/jquery.jqGrid.min.js"></script>
+<script src="../../plugins/ztree/jquery.ztree.all.min.js"></script>
+<script src="../../js/common.js"></script>
+<style type="text/css">
+.ui-jqgrid tr.jqgrow td {
+	white-space: normal !important;
+	height: auto;
+}
+
+.glyphicon-backward {
+	color: red
+}
+</style>
+</head>
+<body>
+	<div id="jeefastapp" v-cloak>
+		<div>
+			<div style="float: left; width: 20%; margin-right: 5px;">
+				<div class="grid-btn" style="margin-bottom: 10px;">
+					<div class="form-group col-sm-2">
+						<input type="text" class="form-control" style="width: 125px;"
+							v-model="equipTreeName" @keyup.enter="queryEquipTree"
+							placeholder="机构名或设备名">
+					</div>
+					<div class="form-group col-sm-1" style="margin-left: 75px;">
+						<a class="btn btn-default" @click="queryEquipTree">查询</a>
+					</div>
+				</div>
+
+				<table id="deptTable" data-mobile-responsive="true"
+					data-click-to-select="true">
+					<thead>
+						<tr>
+							<th data-field="selectItem" data-checkbox="true"></th>
+						</tr>
+					</thead>
+				</table>
+
+			</div>
+			<div
+				style="float: left; width: 77%; margin-left: 2px; margin-top: 40px; workflow-x: auto; display: inline-block;">
+				<div class="panel panel-default">
+					<ul id="myTab" class="nav nav-tabs">
+						<li><a href="#workmodel" data-toggle="tab">工作模式</a></li>
+						<li><a href="#timeparams" data-toggle="tab">时间参数</a></li>
+						<li><a href="#alarmparams" data-toggle="tab">报警参数</a></li>
+						<li><a href="#djparams" data-toggle="tab">电机参数</a></li>
+						<li><a href="#readrecord" data-toggle="tab">读取记录</a></li>
+						<li><a href="#readstatus" data-toggle="tab">读取状态</a></li>
+						<li><a href="#equipversion" data-toggle="tab">信息查询</a></li>
+						<li><a href="#home" data-toggle="tab"> 操控设备 </a></li>
+					</ul>
+					<div id="myTabContent" class="tab-content">
+						<div class="tab-pane fade" id="home">
+							<form class="form-horizontal">
+								<!--  <div class="form-group">
+									<div class="col-sm-2 control-label">设备地址</div>
+									<div class="col-sm-3">
+										<input type="text" class="form-control"
+											v-model="equipment.address" readonly="readonly" />
+									</div>
+									<div class="col-sm-2 control-label">设备sn码</div>
+									<div class="col-sm-3">
+										<input type="text" class="form-control"
+											v-model="equipment.equipSn" readonly="readonly" />
+									</div>
+								</div>
+								<div class="form-group">
+									<div class="col-sm-2 control-label">网络地址</div>
+									<div class="col-sm-3">
+										<input type="text" class="form-control" v-model="equipment.ip"
+											placeholder="网络地址" readonly="readonly" />
+									</div>
+									<div class="col-sm-2 control-label">通信端口</div>
+									<div class="col-sm-3">
+										<input type="text" class="form-control"
+											v-model="equipment.port" placeholder="网络端口"
+											readonly="readonly" />
+									</div>
+								</div>
+								<div class="form-group">
+									<div class="col-sm-2 control-label">子网掩码</div>
+									<div class="col-sm-3">
+										<input type="text" class="form-control"
+											v-model="equipment.subnetMask" placeholder="子网掩码"
+											readonly="readonly" />
+									</div>
+									<div class="col-sm-2 control-label">网关地址</div>
+									<div class="col-sm-3">
+										<input type="text" class="form-control"
+											v-model="equipment.gateWay" placeholder="子网掩码"
+											readonly="readonly" />
+									</div>
+								</div>
+								<div class="form-group">
+									<div class="col-sm-2 control-label">上传地址</div>
+									<div class="col-sm-3">
+										<input type="text" class="form-control"
+											v-model="equipment.ipCenter" placeholder="上传地址"
+											readonly="readonly" />
+									</div>
+									<div class="col-sm-2 control-label">上传端口</div>
+									<div class="col-sm-3">
+										<input type="text" class="form-control"
+											v-model="equipment.portCenter" placeholder="上传端口"
+											readonly="readonly" />
+									</div>
+								</div>
+								<div class="form-group">
+									<div class="col-sm-2 control-label">产品序列号</div>
+									<div class="col-sm-4">
+										<input type="text" class="form-control"
+											v-model="equipment.equipReq" readonly="readonly" />
+									</div>
+								</div>-->
+								<div class="form-group">
+									<input type="button" class="btn btn-primary" @click="operateEquip('0')"
+										 style="width:80px" value="左开闸" /> 
+										 <div class="col-sm-1 control-label"></div>
+									<input type="button" class="btn btn-primary" @click="operateEquip('1')"
+										 style="width:80px;margin-left:10px;" value="右开闸" style="margin-left:30px;"/> 
+										 <div class="col-sm-1 control-label"></div>
+									<input type="button" class="btn btn-primary" @click="operateEquip('2')"
+										 style="width:80px;margin-left:10px;" value="关闸" style="margin-left:30px;"/> 
+										 <div class="col-sm-1 control-label"></div>
+									
+								</div>
+								<div class="form-group">
+								<div class="col-sm-2 control-label"></div>
+										<input type="button" class="btn btn-primary" @click="operateEquip('3')"
+										 style="width:80px;margin-left:5px;" value="急停" style="margin-left:30px;"/> 
+										 <input type="button" class="btn btn-primary" @click="operateEquip('4')"
+										 style="width:80px;margin-left:10px;" value="取消急停" style="margin-left:30px;"/> 
+										  <input type="button" class="btn btn-primary" @click="operateEquip('5')"
+										 style="width:80px;margin-left:10px;" value="锁离合" /> 
+								</div>
+								<div class="form-group">
+								<div class="col-sm-2 control-label"></div>
+										 <input type="button" class="btn btn-primary" @click="operateEquip('6')"
+										 style="width:80px;margin-left:5px;" value="开离合" style="margin-left:30px;"/> 
+										 <input type="button" class="btn btn-primary" @click="operateEquip('7')"
+										 style="width:80px;margin-left:10px;" value="手动设零" style="margin-left:30px;"/> 
+										  <input type="button" class="btn btn-primary" @click="operateEquip('8')"
+										 style="width:80px;margin-left:10px;" value="自动找零" style="margin-left:30px;"/> 
+								</div>
+							</form>
+						</div>
+						<div class="tab-pane" id="workmodel">
+							<form class="form-horizontal" style="width: 800px;">
+								<div class="form-group">
+									<div class="col-sm-2 control-label">闸机类型</div>
+									<div class="col-sm-3">
+										<select v-model="equipment.zjType" class="form-control"
+											@change="selectChange('zjType')" :disabled="isReadOnly">
+											<option :value="coupon.id" v-for="coupon in zjTypeList">{{coupon.name}}</option>
+										</select>
+									</div>
+									<!-- </div>
+						<div class="form-group"> -->
+									<div class="col-sm-2 control-label">电机类型</div>
+									<div class="col-sm-3">
+										<select v-model="equipment.djType" class="form-control"
+											@change="selectChange('djType')" :disabled="isReadOnly">
+											<option :value="coupon.id" v-for="coupon in djTypeList">{{coupon.name}}</option>
+										</select>
+									</div>
+								</div>
+								<div class="form-group">
+									<div class="col-sm-2 control-label">闸机模式</div>
+									<div class="col-sm-3">
+										<select v-model="equipment.zjModel" class="form-control"
+											@change="selectChange('zjModel')" :disabled="isReadOnly">
+											<option :value="coupon.id" v-for="coupon in zjModelList">{{coupon.name}}</option>
+										</select>
+									</div>
+									<!-- </div>
+						<div class="form-group"> -->
+									<div class="col-sm-2 control-label">左通行模式</div>
+									<div class="col-sm-3">
+										<select v-model="equipment.leftCrossModel"
+											class="form-control" @change="selectChange('leftCross')"
+											:disabled="isReadOnly">
+											<option :value="coupon.id" v-for="coupon in crossModelList">{{coupon.name}}</option>
+										</select>
+									</div>
+								</div>
+								<div class="form-group">
+									<div class="col-sm-2 control-label">右通行模式</div>
+									<div class="col-sm-3">
+										<select v-model="equipment.rightCrossModel"
+											class="form-control" @change="selectChange('rightCross')"
+											:disabled="isReadOnly">
+											<option :value="coupon.id" v-for="coupon in crossModelList">{{coupon.name}}</option>
+										</select>
+									</div>
+									<!-- </div>
+						<div class="form-group"> -->
+									<div class="col-sm-2 control-label">记忆功能</div>
+									<div class="col-sm-3">
+										<select v-model="equipment.remember" class="form-control"
+											@change="selectChange('remember')" :disabled="isReadOnly">
+											<option :value="coupon.id" v-for="coupon in rememberList">{{coupon.name}}</option>
+										</select>
+									</div>
+								</div>
+								<div class="form-group">
+									<div class="col-sm-2 control-label">反向物品穿行</div>
+									<div class="col-sm-3">
+										<select v-model="equipment.fxwpCross" class="form-control"
+											@change="selectChange('fxwpCross')" :disabled="isReadOnly">
+											<option :value="coupon.id" v-for="coupon in fxCrossList">{{coupon.name}}</option>
+										</select>
+									</div>
+									<!-- </div>
+						<div class="form-group"> -->
+									<div class="col-sm-2 control-label">儿童刷卡通行</div>
+									<div class="col-sm-3">
+										<select v-model="equipment.babyCross" class="form-control"
+											@change="selectChange('babyCross')" :disabled="isReadOnly">
+											<option :value="coupon.id" v-for="coupon in babyCrossList">{{coupon.name}}</option>
+										</select>
+									</div>
+								</div>
+								<div class="form-group">
+									<div class="col-sm-2 control-label">闸机运行模式</div>
+									<div class="col-sm-3">
+										<select v-model="equipment.zjWorkModel" class="form-control"
+											@change="selectChange('zjWorkModel')" :disabled="isReadOnly">
+											<option :value="coupon.id" v-for="coupon in zjWorkModelList">{{coupon.name}}</option>
+										</select>
+									</div>
+									<!-- </div>
+						<div class="form-group"> -->
+									<div class="col-sm-2 control-label">翼闸尾随关闸</div>
+									<div class="col-sm-3">
+										<select v-model="equipment.yzwsgzModel" class="form-control"
+											@change="selectChange('yzwsgz')" :disabled="isReadOnly">
+											<option :value="coupon.id" v-for="coupon in babyCrossList">{{coupon.name}}</option>
+										</select>
+									</div>
+								</div>
+							</form>
+						</div>
+
+						<div class="tab-pane" id="timeparams">
+							<form class="form-horizontal" style="width: 800px;">
+								<div class="form-group">
+									<div class="col-sm-3 control-label">主马达运行速度(秒)</div>
+									<div class="col-sm-2">
+										<input type="text" class="form-control"
+											@change="inputChange('zmdWorkSpeed')"
+											v-model.number="equipment.zmdWorkSpeed"
+											:readonly="isReadOnly" />
+									</div>
+									<!-- </div>
+						<div class="form-group"> -->
+									<div class="col-sm-3 control-label">副马达运行速度(秒)</div>
+									<div class="col-sm-2">
+										<input type="text" class="form-control"
+											@change="inputChange('fmdWorkSpeed')"
+											v-model.number="equipment.fmdWorkSpeed"
+											:readonly="isReadOnly" />
+									</div>
+								</div>
+								<div class="form-group">
+									<div class="col-sm-3 control-label">马达最大运行时间(秒)</div>
+									<div class="col-sm-2">
+										<input type="text" class="form-control"
+											@change="inputChange('mdMaxWorkTime')"
+											v-model="equipment.mdMaxWorkTime" :readonly="isReadOnly" />
+									</div>
+									<!-- </div>
+						<div class="form-group"> -->
+									<div class="col-sm-3 control-label">红外检测时间(毫秒)</div>
+									<div class="col-sm-2">
+										<input type="text" class="form-control"
+											@change="inputChange('hwjcTime')"
+											v-model="equipment.hwjcTime" :readonly="isReadOnly" />
+									</div>
+								</div>
+								<div class="form-group">
+									<div class="col-sm-3 control-label">通行间隔时间(毫秒)</div>
+									<div class="col-sm-2">
+										<input type="text" class="form-control"
+											@change="inputChange('txjgTime')"
+											v-model="equipment.txjgTime" :readonly="isReadOnly" />
+									</div>
+									<!-- </div>
+						<div class="form-group"> -->
+									<div class="col-sm-3 control-label">等待人员进入时间(秒)</div>
+									<div class="col-sm-2">
+										<input type="text" class="form-control"
+											@change="inputChange('ddryjrTime')"
+											v-model="equipment.ddryjrTime" :readonly="isReadOnly" />
+									</div>
+								</div>
+								<div class="form-group">
+									<div class="col-sm-3 control-label">人员滞留时间(秒)</div>
+									<div class="col-sm-2">
+										<input type="text" class="form-control"
+											@change="inputChange('ryzlTime')"
+											v-model="equipment.ryzlTime" :readonly="isReadOnly" />
+									</div>
+									<!-- </div>
+						<div class="form-group"> -->
+									<div class="col-sm-3 control-label">延时关闸时间(毫秒)</div>
+									<div class="col-sm-2">
+										<input type="text" class="form-control"
+											@change="inputChange('ysgzTime')"
+											v-model="equipment.ysgzTime" :readonly="isReadOnly" />
+									</div>
+								</div>
+								<div class="form-group">
+									<div class="col-sm-3 control-label">自由通行间隔时间(毫秒)</div>
+									<div class="col-sm-2">
+										<input type="text" class="form-control"
+											@change="inputChange('zytxjgTime')"
+											v-model="equipment.zytxjgTime" :readonly="isReadOnly" />
+									</div>
+								</div>
+							</form>
+						</div>
+
+						<div class="tab-pane" id="alarmparams">
+							<form class="form-horizontal">
+								<div class="form-group">
+									<div class="col-sm-2 control-label">闯入报警</div>
+									<div class="col-sm-10">
+
+										<select v-model="equipment.crAlarm" class="form-control"
+											@change="selectChange('crAlarm')" :disabled="isReadOnly">
+											<option :value="coupon.id" v-for="coupon in alarmList">{{coupon.name}}</option>
+										</select>
+									</div>
+								</div>
+								<div class="form-group">
+									<div class="col-sm-2 control-label">尾随报警</div>
+									<div class="col-sm-10">
+										<select v-model="equipment.wsAlarm" class="form-control"
+											@change="selectChange('wsAlarm')" :disabled="isReadOnly">
+											<option :value="coupon.id" v-for="coupon in alarmList">{{coupon.name}}</option>
+										</select>
+									</div>
+								</div>
+								<div class="form-group">
+									<div class="col-sm-2 control-label">滞留报警</div>
+									<div class="col-sm-10">
+										<select v-model="equipment.zlAlarm" class="form-control"
+											@change="selectChange('zlAlarm')" :disabled="isReadOnly">
+											<option :value="coupon.id" v-for="coupon in alarmList">{{coupon.name}}</option>
+										</select>
+									</div>
+								</div>
+								<div class="form-group">
+									<div class="col-sm-2 control-label">自检报警</div>
+									<div class="col-sm-10">
+										<select v-model="equipment.zjAlarm" class="form-control"
+											@change="selectChange('zjAlarm')" :disabled="isReadOnly">
+											<option :value="coupon.id" v-for="coupon in alarmList">{{coupon.name}}</option>
+										</select>
+									</div>
+								</div>
+								<div class="form-group">
+									<div class="col-sm-2 control-label">潜回报警</div>
+									<div class="col-sm-10">
+										<select v-model="equipment.qhAlarm" class="form-control"
+											@change="selectChange('qhAlarm')" :disabled="isReadOnly">
+											<option :value="coupon.id" v-for="coupon in alarmList">{{coupon.name}}</option>
+										</select>
+									</div>
+								</div>
+							</form>
+						</div>
+
+						<div class="tab-pane" id="djparams">
+							<form class="form-horizontal" style="width: 800px;">
+								<div class="form-group">
+									<div class="col-sm-2 control-label">挡板材料</div>
+									<div class="col-sm-3">
+										<select v-model="equipment.dbcl" class="form-control"
+											@change="selectChange('dbcl')" :disabled="isReadOnly">
+											<option :value="coupon.id" v-for="coupon in dbclList">{{coupon.name}}</option>
+										</select>
+									</div>
+									<!-- </div>
+						<div class="form-group"> -->
+									<div class="col-sm-2 control-label">主开闸速度</div>
+									<div class="col-sm-3">
+										<input type="text" class="form-control"
+											@change="inputChange('zkzSpeed')"
+											v-model="equipment.zkzSpeed" :readonly="isReadOnly" />
+									</div>
+								</div>
+								<div class="form-group">
+									<div class="col-sm-2 control-label">从开闸速度</div>
+									<div class="col-sm-3">
+										<input type="text" class="form-control"
+											@change="inputChange('ckzSpeed')"
+											v-model="equipment.ckzSpeed" :readonly="isReadOnly" />
+									</div>
+									<!-- </div>
+						<div class="form-group"> -->
+									<div class="col-sm-2 control-label">主关闸速度</div>
+									<div class="col-sm-3">
+										<input type="text" class="form-control"
+											@change="inputChange('zgzSpeed')"
+											v-model="equipment.zgzSpeed" :readonly="isReadOnly" />
+									</div>
+								</div>
+								<div class="form-group">
+									<div class="col-sm-2 control-label">从关闸速度</div>
+									<div class="col-sm-3">
+										<input type="text" class="form-control"
+											@change="inputChange('cgzSpeed')"
+											v-model="equipment.cgzSpeed" :readonly="isReadOnly" />
+									</div>
+									<!-- </div>
+						<div class="form-group"> -->
+									<div class="col-sm-2 control-label">主阻挡电流</div>
+									<div class="col-sm-3">
+										<input type="text" class="form-control"
+											@change="inputChange('zzdElectric')"
+											v-model="equipment.zzdElectric" :readonly="isReadOnly" />
+									</div>
+								</div>
+								<div class="form-group">
+									<div class="col-sm-2 control-label">从阻挡电流</div>
+									<div class="col-sm-3">
+										<input type="text" class="form-control"
+											@change="inputChange('czdElectric')"
+											v-model="equipment.czdElectric" :readonly="isReadOnly" />
+									</div>
+									<!-- </div>
+						<div class="form-group"> -->
+									<div class="col-sm-2 control-label">主开闸时间</div>
+									<div class="col-sm-3">
+										<input type="text" class="form-control"
+											@change="inputChange('zkzTime')" v-model="equipment.zkzTime"
+											:readonly="isReadOnly" />
+									</div>
+								</div>
+								<div class="form-group">
+									<div class="col-sm-2 control-label">从开闸时间</div>
+									<div class="col-sm-3">
+										<input type="text" class="form-control"
+											@change="inputChange('ckzTime')" v-model="equipment.ckzTime"
+											:readonly="isReadOnly" />
+									</div>
+									<!-- </div>
+						<div class="form-group"> -->
+									<div class="col-sm-2 control-label">主关闸时间</div>
+									<div class="col-sm-3">
+										<input type="text" class="form-control"
+											@change="inputChange('zgzTime')" v-model="equipment.zgzTime"
+											:readonly="isReadOnly" />
+									</div>
+								</div>
+								<div class="form-group">
+									<div class="col-sm-2 control-label">从关闸时间</div>
+									<div class="col-sm-3">
+										<input type="text" class="form-control"
+											@change="inputChange('cgzTime')" v-model="equipment.cgzTime"
+											:readonly="isReadOnly" />
+									</div>
+									<!-- </div>
+						<div class="form-group"> -->
+									<div class="col-sm-2 control-label">主开闸角度</div>
+									<div class="col-sm-3">
+										<input type="text" class="form-control"
+											@change="inputChange('zkzAngle')"
+											v-model="equipment.zkzAngle" :readonly="isReadOnly" />
+									</div>
+								</div>
+								<div class="form-group">
+									<div class="col-sm-2 control-label">从开闸角度</div>
+									<div class="col-sm-3">
+										<input type="text" class="form-control"
+											@change="inputChange('ckzAngle')"
+											v-model="equipment.ckzAngle" :readonly="isReadOnly" />
+									</div>
+									<!-- </div>
+						<div class="form-group"> -->
+									<div class="col-sm-2 control-label">强推脉冲数</div>
+									<div class="col-sm-3">
+										<input type="text" class="form-control"
+											@change="inputChange('qtmcs')" v-model="equipment.qtmcs"
+											:readonly="isReadOnly" />
+									</div>
+								</div>
+								<div class="form-group">
+									<div class="col-sm-2 control-label">强推恢复时间</div>
+									<div class="col-sm-3">
+										<input type="text" class="form-control"
+											@change="inputChange('qthfTime')"
+											v-model="equipment.qthfTime" :readonly="isReadOnly" />
+									</div>
+									<!-- </div>
+						<div class="form-group"> -->
+									<div class="col-sm-2 control-label">阻挡模式选择</div>
+									<div class="col-sm-3">
+										<select v-model="equipment.zdModel" class="form-control"
+											@change="selectChange('zdModel')" :disabled="isReadOnly">
+											<option :value="coupon.id" v-for="coupon in zdModelList">{{coupon.name}}</option>
+										</select>
+									</div>
+								</div>
+								<div class="form-group">
+									<div class="col-sm-2 control-label">开闸间隔时间</div>
+									<div class="col-sm-3">
+										<input type="text" class="form-control"
+											@change="inputChange('kzjgTime')"
+											v-model="equipment.kzjgTime" :readonly="isReadOnly" />
+									</div>
+									<!-- </div>
+						<div class="form-group"> -->
+									<div class="col-sm-2 control-label">关闸间隔时间</div>
+									<div class="col-sm-3">
+										<input type="text" class="form-control"
+											@change="inputChange('gzjgTime')"
+											v-model="equipment.gzjgTime" :readonly="isReadOnly" />
+									</div>
+								</div>
+								<div class="form-group">
+									<div class="col-sm-2 control-label">阻挡反弹角度</div>
+									<div class="col-sm-3">
+										<input type="text" class="form-control"
+											@change="inputChange('zdftAngle')"
+											v-model="equipment.zdftAngle" :readonly="isReadOnly" />
+									</div>
+								</div>
+							</form>
+						</div>
+						<div class="tab-pane" id="equipversion">
+							<form class="form-horizontal">
+								<font size="5" weight="bold">版本信息</font>
+								<div class="form-group">
+									<div class="col-sm-2 control-label">版本号</div>
+									<div class="col-sm-10">
+										<input type="text" class="form-control"
+											v-model="equipment.version" readonly="readonly" />
+									</div>
+								</div>
+							</form>
+							<form class="form-horizontal">
+								<font size="5" weight="bold">时钟信息</font>
+								<div class="form-group">
+									<div class="col-sm-2 control-label">当前年份</div>
+									<div class="col-sm-3">
+										<input type="text" class="form-control"
+											v-model="equipment.year" />
+									</div>
+									<div class="col-sm-2 control-label">当前月份</div>
+									<div class="col-sm-3">
+										<input type="text" class="form-control"
+											v-model="equipment.month" />
+									</div>
+								</div>
+								<div class="form-group">
+									<div class="col-sm-2 control-label">当前星期</div>
+									<div class="col-sm-3">
+										<input type="text" class="form-control"
+											v-model="equipment.week" />
+									</div>
+									<div class="col-sm-2 control-label">当前小时</div>
+									<div class="col-sm-3">
+										<input type="text" class="form-control"
+											v-model="equipment.hours" />
+									</div>
+								</div>
+
+								<div class="form-group">
+									<div class="col-sm-2 control-label">当前分钟</div>
+									<div class="col-sm-3">
+										<input type="text" class="form-control"
+											v-model="equipment.minute" />
+									</div>
+									<div class="col-sm-2 control-label">当前秒</div>
+									<div class="col-sm-3">
+										<input type="text" class="form-control"
+											v-model="equipment.second" />
+									</div>
+								</div>
+								<div class="form-group">
+									<div class="col-sm-5 control-label"></div>
+									<input type="button" class="btn btn-primary" @click="synEquipTime"
+										 value="同步时钟" /> 
+								</div>
+							</form>
+
+							<form class="form-horizontal">
+								<font size="5" weight="bold">有效期信息</font>
+								<div class="form-group">
+									<div class="col-sm-2">
+										<input type="text" class="form-control"
+											v-model="equipment.validYear" readonly="readonly"/>
+									</div>
+									<div class="col-sm-1 control-label">年</div>
+									<div class="col-sm-2">
+										<input type="text" class="form-control"
+											v-model="equipment.validMonth" readonly="readonly"/>
+									</div>
+									<div class="col-sm-1 control-label">月</div>
+									<div class="col-sm-2">
+										<input type="text" class="form-control"
+											v-model="equipment.validDay" readonly="readonly"/>
+									</div>
+									<div class="col-sm-1 control-label">日</div>
+								</div>
+								
+								<div class="form-group">
+									<div class="col-sm-5 control-label"></div>
+									<input type="button" class="btn btn-primary" @click="restoreEquip"
+										 value="恢复出厂设置" /> 
+								</div>
+							</form>
+						</div>
+						<div class="tab-pane" id="readrecord">
+							<div v-show="upload==1">
+								<div class="grid-btn">
+									<a class="btn btn-primary btn-sm" @click="queryRecord"><i
+										class="fa fa-search"></i>&nbsp;刷新</a>
+								</div>
+								<table id="readRecordGrid"></table>
+								<div id="readRecordGridPager"></div>
+							</div>
+						</div>
+						<div class="tab-pane" id="readstatus">
+							<div class="grid-btn"></div>
+							<table id="readStatusGrid"></table>
+							<div id="readStatusGridPager"></div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+	</div>
+
+	<!-- 选择部门 -->
+	<div id="deptLayer" style="display: none; padding: 10px;">
+		<ul id="deptTree" class="ztree"></ul>
+	</div>
+	<script type="text/javascript">
+		function zjStatusCell(cellvalue, options, rowObject) {
+			return "(主)" + cellvalue + "<br/>(从)" + rowObject.czjStatus;
+		}
+
+		function treeFormat(rowObject, idValue) {
+			if (rowObject.type == 1) {
+				return '<font color="red">' + rowObject.name + "</font>";
+			} else {
+				return rowObject.name;
+			}
+		}
+
+		function qdStatusCell(cellvalue, options, rowObject) {
+			return "(主)" + cellvalue + "<br/>(从)" + rowObject.zDriverStatus;
+		}
+	</script>
+	<script src="../../js/modules/equipment/equipParamSet.js"></script>
+</body>
+</html>

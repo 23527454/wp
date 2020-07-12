@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.jeefast.system.dao.SysAlarmTypeDao">
+
+	
+	<select id="queryList" resultType="cn.jeefast.system.entity.SysAlarmType">
+		select 
+			alarm_id as alarmId,
+			alarm_name as alarmName
+		 from sys_alarm_type where del_flag=0
+	</select>
+	
+	<select id="queryAlarmIdByUserId" parameterType="java.lang.String" resultType="java.lang.Long">
+		select alarm_id from sys_user_alarmtype where user_id=#{userId}
+	</select>
+	
+	<delete id="deleteByUserId" parameterType="java.lang.String">
+		delete from sys_user_alarmtype where user_id=#{userId}
+	</delete>
+	
+	<insert id="save">
+		insert into sys_user_alarmtype
+		(
+			`alarm_id`, 
+			`user_id`
+		)
+		values
+		<foreach collection="alarmList" item="item" index="index" separator="," >
+		(
+			#{item}, 
+			#{userId}
+		)
+		</foreach>
+	</insert>
+</mapper>

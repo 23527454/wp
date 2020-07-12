@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>系统日志</title>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta
+	content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+	name="viewport">
+<link rel="stylesheet" href="../../css/bootstrap.min.css">
+<link rel="stylesheet" href="../../css/font-awesome.min.css">
+<link rel="stylesheet"
+	href="../../plugins/jqgrid/ui.jqgrid-bootstrap.css">
+<link rel="stylesheet"
+	href="../../plugins/ztree/css/metroStyle/metroStyle.css">
+<link rel="stylesheet" href="../../css/bootstrap-table.min.css">
+<link rel="stylesheet" href="../../css/main.css">
+<link rel="stylesheet" href="../../plugins/treegrid/jquery.treegrid.css">
+<script src="../../libs/jquery.min.js"></script>
+<script src="../../plugins/layer/layer.js"></script>
+<script src="../../libs/bootstrap.min.js"></script>
+<script src="../../libs/vue.min.js"></script>
+<script src="../../plugins/jqgrid/grid.locale-cn.js"></script>
+<script src="../../plugins/jqgrid/jquery.jqGrid.min.js"></script>
+<script src="../../plugins/ztree/jquery.ztree.all.min.js"></script>
+<script src="../../js/common.js"></script>
+<script src="../../libs/bootstrap-table.min.js"></script>
+<script src="../../plugins/treegrid/jquery.treegrid.min.js"></script>
+<script src="../../plugins/treegrid/jquery.treegrid.bootstrap3.js"></script>
+<script src="../../plugins/treegrid/jquery.treegrid.extension.js"></script>
+<script src="../../plugins/treegrid/tree.table.js"></script>
+<script src="../../plugins/jqgrid/grid.locale-cn.js"></script>
+<script src="../../plugins/jqgrid/jquery.jqGrid.min.js"></script>
+<script src="../../plugins/ztree/jquery.ztree.all.min.js"></script>
+</head>
+<body>
+	<div id="jeefastapp" v-cloak>
+	<div>
+		<div style="float: left; width: 20%; margin-right: 5px;">
+				<div class="grid-btn" style="margin-bottom: 10px;">
+					<div class="form-group col-sm-2">
+						<input type="text" class="form-control" style="width: 125px;"
+							v-model="equipTreeName" @keyup.enter="queryEquipTree"
+							placeholder="机构名或设备名">
+					</div>
+					<div class="form-group col-sm-1" style="margin-left: 75px;">
+						<a class="btn btn-default" @click="queryEquipTree">查询</a>
+					</div>
+				</div>
+
+				<table id="deptTable" data-mobile-responsive="true"
+					data-click-to-select="true">
+					<thead>
+						<tr>
+							<th data-field="selectItem" data-checkbox="true"></th>
+						</tr>
+					</thead>
+				</table>
+
+			</div>
+		<div style="float:left;width:77%;margin-left:5px;workflow-x:auto;display:inline-block;margin-top: 40px;">
+			<table id="jqGrid"></table>
+			<div id="jqGridPager"></div>
+		</div>
+	</div>
+</div>
+	<script type="text/javascript">
+		function valueFormatter(cellvalue, options, rowObject) {
+			//备注类型列
+			if (options.pos == 4) {
+				if (cellvalue == 2) {
+					return "通行记录";
+				} else if (cellvalue == 3) {
+					return "异常事件记录";
+				} else if (cellvalue == 4) {
+					return "报警记录";
+				}
+			} else if (options.pos == 5) {
+				if (rowObject.remark == 2) {
+					if (cellvalue == 1) {
+						return "左向刷卡";
+					} else if (cellvalue == 2) {
+						return "右向刷卡";
+					} else if (cellvalue == 3) {
+						return "左向通行";
+					} else if (cellvalue == 4) {
+						return "右向通行";
+					} else if (cellvalue == 5) {
+						return "左向等待超时";
+					} else if (cellvalue == 6) {
+						return "右向等待超时";
+					}
+				} else if (rowObject.remark == 4) {
+					if (cellvalue == 1) {
+						return "左闯入报警";
+					} else if (cellvalue == 2) {
+						return "右闯入报警";
+					} else if (cellvalue == 3) {
+						return "左尾随报警";
+					} else if (cellvalue == 4) {
+						return "右尾随报警";
+					} else if (cellvalue == 5) {
+						return "左滞留报警";
+					} else if (cellvalue == 6) {
+						return "右滞留报警";
+					} else if (cellvalue == 7) {
+						return "左潜回报警";
+					} else if (cellvalue == 8) {
+						return "右潜回报警";
+					} else if (cellvalue == 9) {
+						return "挡板运行阻挡";
+					} else if (cellvalue == 10) {
+						return "暴力闯闸";
+					} else if (cellvalue == 11) {
+						return "停机强推";
+					}
+				} else if (rowObject.remark == 3) {
+					if (cellvalue == 1) {
+						return "主电机运行异常";
+					} else if (cellvalue == 2) {
+						return "副电机运行异常";
+					} else if (cellvalue == 3) {
+						return "红外检测异常";
+					} else if (cellvalue == 4) {
+						return "通讯异常";
+					} else if (cellvalue == 5) {
+						return "驱动器异常";
+					}
+				}
+			} else if (options.pos == 6) {
+				if (rowObject.remark == 3) {
+					if (rowObject.resource == 1 || rowObject.resource == 2) {
+						if (cellvalue == 0) {
+							return "左到位检测异常";
+						} else if (cellvalue == 1) {
+							return "右到位检测异常";
+						} else if (cellvalue == 2) {
+							return "零位检测异常";
+						} else if (cellvalue == 3) {
+							return "HALL检测异常";
+						}
+					} else if (rowObject.resource == 3) {
+						return cellvalue + "号红外异常";
+					} else if (rowObject.resource == 4) {
+						if (cellvalue == 0) {
+							return "主副控制器通讯异常";
+						} else if (cellvalue == 1) {
+							return "控制器与驱动器通讯异常";
+						} else if (cellvalue == 2) {
+							return "主副驱动器通讯异常";
+						}
+					} else if (rowObject.resource == 5) {
+						if (cellvalue == 0) {
+							return "主驱动器运行异常";
+						} else if (cellvalue == 1) {
+							return "从驱动器运行异常";
+						}
+					}
+				} else {
+					return "";
+				}
+			}
+			return cellvalue;
+		}
+	</script>
+	<script src="../../js/modules/equipment/alarmList.js"></script>
+	<script type="text/javascript">
+	function treeFormat(rowObject, idValue) {
+		if (rowObject.type == 1) {
+			return '<font color="red">' + rowObject.name + "</font>";
+		} else {
+			return rowObject.name;
+		}
+	}
+	
+		var curTryNum = 0;
+		var maxTryNum = 10;
+
+		var websocket = null;
+
+		var whoClose = 0;//0代表异常关闭 1代表主动关闭
+		var connect = function(url) {
+			//连接次数加一
+			curTryNum = curTryNum + 1;
+
+			if (!window.WebSocket) {
+				window.WebSocket = window.MozWebSocket;
+			}
+			if (window.WebSocket) {
+				websocket = new WebSocket(url);
+
+				websocket.onopen = function(event) {
+					console.log('链接成功');
+					//连接成功时将当前已重连次数归零
+					curTryNum = 0;
+
+					console.log("心跳检测启动");
+					heartCheck.start();
+
+				};
+				websocket.onclose = function(event) {
+					console.log('onclose');
+					if (whoClose == 0) {
+						if (curTryNum <= maxTryNum) {
+							/* alert("连接关闭，5秒后重新连接……"); */
+							// 5秒后重新连接，实际效果：每5秒重连一次，直到连接成功
+							setTimeout(function() {
+								connect(url);
+							}, 5000);
+						} else {
+							alert("连接实时通知服务器失败！");
+						}
+
+					}
+
+				};
+
+				websocket.onmessage = function(message) {
+					if(message.data=='refresh'){
+						// 无论收到什么信息，说明当前连接正常，将心跳检测的计时器重置
+						var page = $("#jqGrid").jqGrid('getGridParam', 'page');
+						$("#jqGrid").jqGrid('setGridParam', {
+							//postData:{'key': vm.q.key},
+							page : page
+						}).trigger("reloadGrid");
+					}
+						heartCheck.reset();
+				};
+				websocket.onerror = function(event) {
+					//alert("连接出错");
+
+				};
+
+			} else {
+				alert("你的浏览器不支持websocket协议");
+				window.close();
+			}
+
+			//监听窗口关闭事件，窗口关闭前，主动关闭websocket连接，防止连接还没断开就关闭窗口，server端会抛异常
+			window.onbeforeunload = function() {
+				websocket.close();
+			};
+			/**
+			 * 心跳检测
+			 */
+			var heartCheck = {
+				timeout : 5000, //计时器设定为5s
+				timeoutObj : null,
+				serverTimeoutObj : null,
+				//重置
+				reset : function() {
+					clearTimeout(this.timeoutObj);
+					clearTimeout(this.serverTimeoutObj);
+					this.start();
+				},
+				//开始
+				start : function() {
+					var self = this;
+					this.timeoutObj = setTimeout(function() {
+						websocket.send("HeartBeat");
+						console.log("发送心跳");
+					}, this.timeout);
+				}
+			};
+
+		};
+		/**
+		 * 执行入口
+		 */
+		var url = "ws://127.0.0.1:"+localStorage.getItem('websocketPort')+"/?userId="+localStorage.getItem('token');
+		console.log(url);
+		connect(url);
+		//离开页面 主动关闭websocket
+		window.onbeforeunload = function() {
+			whoClose=1;
+			if(websocket){
+				websocket.close();
+			}
+		}
+	</script>
+</body>
+</html>

@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.jeefast.modules.equipment.dao.EquipmentDao">
+
+	<select id="selectPageList" parameterType="map"
+		resultType="cn.jeefast.modules.equipment.entity.Equipment">
+		select
+		e.id,
+		e.dept_id as deptId,
+		d.name as deptName,
+		e.branches_type as branchesType,
+		e.port,
+		e.ip,
+		e.port as oldPort,
+		e.ip as
+		oldIp,
+		e.gateway as gateWay,
+		e.port_center as portCenter,
+		e.ip_center as
+		ipCenter,
+		e.equip_sn as equipSn,
+		e.port_print as portPrint,
+		e.create_time as createTime,
+		e.create_user as createUser,
+		e.equip_req as
+		equipReq,
+		e.other_name as otherName
+		from sys_equipment e
+		left join
+		sys_dept d on e.dept_id = d.dept_id
+		where e.del_flag=0 and
+		e.dept_id in
+		(
+		WITH RECURSIVE
+		cte(dept_id,parentId) AS(
+		SELECT dept_id,parent_id FROM
+		sys_dept WHERE dept_id=#{deptId}
+		UNION ALL
+		SELECT a.dept_id,a.parent_id
+		FROM sys_dept AS a INNER JOIN
+		cte ON a.parent_id=cte.dept_id and
+		del_flag = 0
+		)
+		SELECT dept_id FROM cte
+		)
+	</select>
+
+	<select id="selectAllByDeptId" parameterType="java.lang.String"
+		resultType="cn.jeefast.modules.equipment.entity.Equipment">
+		select
+		e.id,
+		e.dept_id as deptId,
+		d.name as deptName,
+		e.branches_type as branchesType,
+		e.port,
+		e.ip,
+		e.port as oldPort,
+		e.ip as
+		oldIp,
+		e.port_center as portCenter,
+		e.ip_center as ipCenter,
+		e.equip_sn
+		as equipSn,
+		e.port_print as portPrint,
+		e.create_time as createTime,
+		e.create_user as createUser,
+		e.equip_req as equipReq,
+		e.other_name as
+		otherName
+		from sys_equipment e
+		left join sys_dept d on e.dept_id =
+		d.dept_id
+		where e.del_flag=0 and e.dept_id=#{deptId}
+	</select>
+
+	<delete id="deleteBatch">
+		<!-- update sys_equipment set del_flag=1 -->
+		delete from sys_equipment where id in
+		<foreach item="equipmentId" collection="array" open="("
+			separator="," close=")">
+			#{equipmentId}
+		</foreach>
+	</delete>
+
+	<update id="updateBySn"
+		parameterType="cn.jeefast.modules.equipment.entity.Equipment">
+		update sys_equipment
+		<set>
+			ip=#{ip},
+			port=#{port},
+			gateway=#{gateWay},
+			ip_center=#{ipCenter},
+			port_center=#{portCenter},
+			modify_time=#{modifyTime,jdbcType=TIMESTAMP},
+			modify_user=#{modifyUser},
+			address=#{address},
+			dept_id=#{deptId},
+			subnet_mask=#{subnetMask}
+		</set>
+		<where>
+			equip_sn=#{equipSn}
+		</where>
+	</update>
+
+	<select id="queryBySn" parameterType="java.lang.String"
+		resultType="cn.jeefast.modules.equipment.entity.Equipment">
+		select
+		e.id,
+		e.dept_id as deptId,
+		e.branches_type as
+		branchesType,
+		e.port,
+		e.ip,
+		e.gateway as gateWay,
+		e.port_center as
+		portCenter,
+		e.ip_center as ipCenter,
+		e.equip_sn as equipSn,
+		e.port_print
+		as portPrint,
+		e.create_time as createTime,
+		e.create_user as createUser,
+		e.equip_req as equipReq,
+		e.other_name as otherName,
+		e.address,
+		e.subnet_mask as subnetMask
+		from sys_equipment e
+		where e.del_flag=0 and
+		e.equip_sn=#{equipSn}
+	</select>
+
+	<select id="queryAll"
+		resultType="cn.jeefast.modules.equipment.entity.Equipment">
+		select
+		e.id,
+		e.dept_id as deptId,
+		e.port,
+		e.ip,
+		e.gateway as
+		gateWay,
+		e.port_center as portCenter,
+		e.ip_center as ipCenter,
+		e.equip_sn as equipSn,
+		e.port_print as portPrint,
+		e.equip_req as
+		equipReq,
+		e.other_name as otherName
+		from sys_equipment e
+		where
+		e.del_flag=0 order by id
+	</select>
+
+	<select id="queryByDeptIds"
+		resultType="cn.jeefast.modules.equipment.entity.Equipment">
+		select
+		e.id,
+		e.dept_id as deptId,
+		d.name as deptName,
+		e.port,
+		e.ip,
+		e.gateway as
+		gateWay,
+		e.port_center as portCenter,
+		e.ip_center as
+		ipCenter,
+		e.equip_sn as equipSn,
+		e.port_print as portPrint,
+		e.equip_req
+		as
+		equipReq,
+		e.other_name as otherName
+		from sys_equipment e
+		left join
+		sys_dept d on e.dept_id =
+		d.dept_id
+		where
+		e.del_flag=0
+			and e.dept_id in
+			(
+			select distinct d.dept_id
+			from sys_dept d where d.del_flag = 0
+			and
+			d.dept_id
+			in (
+			select distinct dept_id from sys_role_dept where role_id
+			in
+			(select role_id from sys_user_role where user_id=#{userId})
+			)
+			)
+		order
+		by id
+	</select>
+</mapper>

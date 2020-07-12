@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper
+	namespace="cn.jeefast.modules.equipment.dao.AlarmEntityDao">
+
+	<select id="selectPageList" parameterType="map"
+		resultType="cn.jeefast.modules.equipment.entity.AlarmEntity">
+		select
+		e.id ,
+		e.mac,
+		e.date,
+		e.resource,
+		e.exception_info as exceptionInfo,
+		e.remark,
+		q.other_name as equipName,
+		q.equip_req as equipReq
+		from
+		equipment_alarm e
+		left join sys_equipment q
+		on e.mac = q.equip_sn
+		where
+		e.remark in (
+		select alarm_id from sys_user_alarmtype where
+		user_id=#{userId}
+		) and
+		<choose>
+			<when test="equipSn!=null and equipSn.trim()!=''">
+				mac=#{equipSn}
+			</when>
+			<otherwise>
+				mac in (
+				select equip_sn from sys_equipment where del_flag=0 and
+				<choose>
+					<when test="deptId!=null and deptId.trim()!=''">
+						dept_id=#{deptId}
+					</when>
+					<otherwise>
+						dept_id in
+						(
+						select distinct d.dept_id
+						from sys_dept d where d.del_flag = 0
+						and
+						d.dept_id
+						in (
+						select distinct dept_id from sys_role_dept where role_id
+						in
+						(
+						select role_id from sys_user_role where user_id=#{userId}
+						)
+						)
+						)
+					</otherwise>
+				</choose>
+				)
+			</otherwise>
+		</choose>
+
+		order by e.id desc
+	</select>
+
+	<update id="updateReadLog" parameterType="map">
+		update sys_user_alarmread_log set read_status=1,read_time=dateTime()
+		where user_id=#{userId} and read_status=0 and alarm_id in
+		<foreach collection="alarmList" item="item" index="index"
+			separator="," open="(" close=")">
+			#{item.id}
+		</foreach>
+	</update>
+</mapper>
