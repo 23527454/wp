@@ -6,6 +6,7 @@ package com.thinkgem.jeesite.modules.mj.dao;
 import com.thinkgem.jeesite.common.persistence.CrudDao;
 import com.thinkgem.jeesite.common.persistence.annotation.MyBatisDao;
 import com.thinkgem.jeesite.modules.mj.entity.TimezoneInfo;
+import org.apache.ibatis.annotations.Param;
 
 
 /**
@@ -20,4 +21,6 @@ public interface TimezoneInfoDao extends CrudDao<TimezoneInfo> {
 	public TimezoneInfo getByWdAndAid(TimezoneInfo timezoneInfo);
 
 	public String findAIdById(String id);
+
+	public Integer findCountByNum(@Param("id") String id, @Param("num") String num);
 }

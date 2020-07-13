@@ -45,8 +45,6 @@
 <div class="container-fluid">
 	<ul class="nav nav-tabs">
 		<li><a href="${ctx}/mj/accessParaInfo/">时区信息列表</a></li>
-		<li class="active"><a
-				href="${ctx}/mj/accessParaInfo/form?id=${accessParaInfo.id}">时区信息</a></li>
 	</ul>
 	<br />
 	<form:form id="inputForm" modelAttribute="timezoneInfo"

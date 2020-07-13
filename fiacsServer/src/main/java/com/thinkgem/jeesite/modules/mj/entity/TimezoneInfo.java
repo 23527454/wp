@@ -23,7 +23,7 @@ public class TimezoneInfo extends DataEntity<TimezoneInfo> {
 	private AccessParaInfo accessParaInfo;	//归属门禁
 	private String doorPos;		// 门号 1 外门(1 号门) -- 2 内门(2 号门) 3 3 号门 -- 4 4 号门
 	private String timeZoneType;		// 时区类型,1 :人员时区 2: 设备时区
-	private String timeZoneNum;		// 时区号，1 工作时段；2 中心授权；3 高峰时段
+	private String timeZoneNum;		// 时区号
 	private Integer weekNumber;		//星期几
 	private String timeStart1;		// 时段1开始
 	private String timeEnd1;		// 时段1结束

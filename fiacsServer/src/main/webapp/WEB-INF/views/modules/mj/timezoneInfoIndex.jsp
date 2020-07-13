@@ -54,5 +54,6 @@
     }
 </script>
 <script src="${ctxStatic}/common/wsize.min.js" type="text/javascript"></script>
+<script src="${ctxStatic}/jquery-session/jquery-session.js"></script>
 </body>
 </html>

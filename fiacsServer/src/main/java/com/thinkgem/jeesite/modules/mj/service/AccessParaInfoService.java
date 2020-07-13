@@ -24,6 +24,10 @@ public class AccessParaInfoService extends CrudService<AccessParaInfoDao, Access
 	@Autowired
 	private AccessParaInfoDao accessParaInfoDao;
 
+	public Integer findEId(String id){
+		return accessParaInfoDao.findEId(id);
+	}
+
 	public List<AccessParaInfo> findAll(){
 		return accessParaInfoDao.findAll();
 	}

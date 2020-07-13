@@ -57,7 +57,7 @@
 <ul class="nav nav-tabs">
 	<li class="active"><a href="${ctx}/mj/authorization/">授权信息列表</a></li>
 	<shiro:hasPermission name="mj:authorization:edit">
-		<li><a href="${ctx}/mj/authorization/form">授权信息添加</a></li>
+		<li><a href="${ctx}/mj/authorization/form?accessParaInfoId=${accessParaInfoId}">授权信息添加</a></li>
 	</shiro:hasPermission>
 </ul>
 <form:form id="searchForm" modelAttribute="authorization"
@@ -112,17 +112,6 @@
 				<td>
 						${a.staff.workNum}
 				</td>
-				<%--<td>
-						<fmt:formatDate value="${a.staff.createDate}" type="date" pattern="yyyy-MM-dd" />
-				</td>
-				<td>
-					<fmt:formatDate value="${a.validityDate}" type="date" pattern="yyyy-MM-dd" />
-				</td>
-				<td>
-					<c:forEach items="${fns:getDictList('sex_type')}" var="type">
-						<c:if test="${type.value eq a.staff.sex}">${type.label}</c:if>
-					</c:forEach>
-				</td>--%>
 				<td>
 						${a.timezoneInfoNum}
 				</td>
@@ -137,7 +126,7 @@
 					</c:forEach>
 				</td>
 				<shiro:hasPermission name="mj:authorization:edit"><td>
-					<a href="${ctx}/mj/authorization/form?id=${a.id}">修改</a>
+					<a href="${ctx}/mj/authorization/form?id=${a.id}&accessParaInfoId=${accessParaInfoId}">修改</a>
 					<a href="${ctx}/mj/authorization/delete?id=${a.id}">删除</a>
 				</td></shiro:hasPermission>
 			</tr>
