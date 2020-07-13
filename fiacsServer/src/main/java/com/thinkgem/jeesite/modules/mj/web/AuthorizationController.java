@@ -193,11 +193,20 @@ public class AuthorizationController extends BaseController {
 			accessParaInfo=accessParaInfoService.get(accessParaInfoId);
 			authorization.setOffice(officeService.get(authorization.getStaff().getId()));
 
-			if((id==null || id.equals("")) && authorizationService.getCountBySId(authorization.getStaffId(),authorization.getAccessParaInfoId())>=1){
-				addMessage(redirectAttributes, "该用户已经存在");
-				return "redirect:" + Global.getAdminPath() + "/mj/authorization/?repage";
-			}
+			if(id!=null && !id.equals("")){
+				Authorization authorization2=authorizationService.get(id);
+				if(staffId.equals(authorization2.getStaffId()) && accessParaInfoId.equals(authorization2.getAccessParaInfoId())){
 
+				}else if(authorizationService.getCountBySId(authorization.getStaffId(),authorization.getAccessParaInfoId())>=1){
+					addMessage(redirectAttributes, "该用户已经存在");
+					return "redirect:" + Global.getAdminPath() + "/mj/authorization/?repage";
+				}
+			}else{
+				if(authorizationService.getCountBySId(authorization.getStaffId(),authorization.getAccessParaInfoId())>=1){
+					addMessage(redirectAttributes, "该用户已经存在");
+					return "redirect:" + Global.getAdminPath() + "/mj/authorization/?repage";
+				}
+			}
 			authorizationService.save(authorization);
 		}catch (Exception e) {
 			throw new ServiceException("保存数据", e);
