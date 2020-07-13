@@ -27,6 +27,7 @@ spring:
     multipart: 
        max-file-size: 100Mb
 
+#数据库连接
 jdbc: 
    url: jdbc:mysql://127.0.0.1:3306/fiacs?characterEncoding=UTF-8&amp;zeroDateTimeBehavior=convertToNull&amp;useSSL=false
    driver: com.mysql.jdbc.Driver
