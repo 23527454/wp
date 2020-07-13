@@ -40,6 +40,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.http.HttpServletRequest;
@@ -48,9 +49,7 @@ import javax.validation.ConstraintViolationException;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 /**
  * 人员信息管理Controller
@@ -97,6 +96,42 @@ public class StaffController extends BaseController {
 			entity = new Staff();
 		}
 		return entity;
+	}
+
+	@RequestMapping(value = "plan1")
+	public ModelAndView plan1(ModelAndView modelAndView) {
+		modelAndView.setViewName("modules/mj/selStaff");//跳转到这个jsp页面来渲染表格
+		return modelAndView;
+	}
+
+	@RequestMapping(value = "selStaff")
+	@ResponseBody
+	public String selStaff(ModelAndView modelAndView) {
+		List<Staff> list=staffService.findAll();
+		/*DataGridView dgw=new DataGridView(list.size(),list);
+		System.out.println("code:"+dgw.getCode());
+		System.out.println("msg:"+dgw.getMsg());
+		System.out.println("count:"+dgw.getCount());
+		System.out.println("data:"+dgw.getData().toString());
+		Map<String,Object> resultMap = new HashMap<>();
+		//状态码，成功0，失败1
+		resultMap.put("code","0");
+		//提示消息
+		resultMap.put("msg","");
+		//数据（表格填充数据）
+		resultMap.put("data",list);
+		//分页总条数
+		resultMap.put("count",list.size());*/
+		StringBuffer sb=new StringBuffer("");
+		StringBuffer sb2=new StringBuffer("");
+
+		for(Staff s:list){
+			sb2.append("{\"id\":\""+s.getId()+"\",\"name\":\""+s.getName()+"\",\"workNum\":\""+s.getWorkNum()+"\",\"dept\":\""+s.getDept()+"\",\"phone\":\""+s.getPhone()+"\"},");
+		}
+		sb2.deleteCharAt(sb2.length() - 1);
+		sb.append("{\"code\": 0,\"msg\": \"\",\"count\": "+list.size()+",\"data\": ["+sb2.toString()+"]}");
+
+		return sb.toString();
 	}
 
 	@RequiresPermissions("guard:staff:view")
