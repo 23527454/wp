@@ -7,6 +7,7 @@ package com.thinkgem.jeesite.modules.guard.dao;
 import com.thinkgem.jeesite.common.persistence.CrudDao;
 import com.thinkgem.jeesite.common.persistence.annotation.MyBatisDao;
 import com.thinkgem.jeesite.modules.guard.entity.Staff;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 import java.util.Map;
@@ -24,7 +25,7 @@ public interface StaffDao extends CrudDao<Staff> {
 	
 	void updateStaffArea(Map<String,Object> map);
 
-	List<Staff> findAll();
+	List<Staff> findAll(@Param("name") String name, @Param("workNum") String workNum,@Param("pageIndex") Integer pageIndex,@Param("size") Integer size);
 
 	List<Staff> findByOfficeId(String officeId);
 }

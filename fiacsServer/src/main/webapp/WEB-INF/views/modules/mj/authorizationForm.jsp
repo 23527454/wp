@@ -5,6 +5,7 @@
 <head>
     <title>权限信息管理</title>
     <meta name="decorator" content="default"/>
+    <link rel="stylesheet" href="${ctxStatic}/layui/css/layui.css"  media="all">
     <script type="text/javascript">
 
         $(document).ready(
@@ -72,23 +73,25 @@
     <form:form id="inputForm" modelAttribute="authorization"
                action="${ctx}/mj/authorization/save" method="post"
                class="form-horizontal">
-    <c:if test="${authorization.id!=null}">
-        <form:hidden path="id" id="accessParaInfo_id"/>
-    </c:if>
     <sys:message content="${message}"/>
     <div class="form-group">
-
-        <input type="hidden" id="accessParaInfoId" value="${accessParaInfoId}">
+        <form:hidden path="id"/>
+        <input:hidden path="accessParaInfoId" />
         <label class="control-label col-xs-2"><font class="red">*</font>选择员工:</label>
+            <%--<div class="col-xs-2">
+                <form:select path="staffId" class="form-control input-sm required">
+                    <form:options items="${staffs}" itemLabel="name" itemValue="id" htmlEscape="false"/>
+                </form:select>
+                <form:errors path="staffName" cssClass="error"></form:errors>
+            </div>--%>
+
         <div class="col-xs-2">
-            <form:select path="staffId" class="form-control input-sm required">
-                <form:options items="${staffs}" itemLabel="name" itemValue="id" htmlEscape="false"/>
-            </form:select>
-            <form:errors path="staffName" cssClass="error"></form:errors>
+            <form:input path="staffId" htmlEscape="false" maxlength="16"
+                        class="form-control input-sm required digits"/>
         </div>
     </div>
 
-    <div class="form-group">fv
+    <div class="form-group">
         <label class="control-label col-xs-2"><font class="red">*</font>时区号:</label>
         <div class="col-xs-2">
             <form:select path="timezoneInfoNum" cssClass="form-control input-sm">
@@ -138,177 +141,6 @@
         </div>
     </div>
 
-    <%--<c:choose>
-        <c:when test="${isNew}">
-            <div class="form-group">
-                <label class="control-label col-xs-2"><font class="red">*</font>门号:</label>
-                <div class="col-xs-2">
-                    <form:select path="accessParaInfoId" class="form-control input-sm required" >
-                        <form:options items="${accessParaInfos}" itemLabel="doorPos" itemValue="id" htmlEscape="false"/>
-                    </form:select>
-                </div>
-
-                <label class="control-label col-xs-2"><font class="red">*</font>员工名称:</label>
-                <div class="col-xs-2">
-                    <form:select path="staffId" class="form-control input-sm required">
-                        <form:options items="${staffs}" itemLabel="name" itemValue="id" htmlEscape="false"/>
-                    </form:select>
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label class="control-label col-xs-2"><font class="red">*</font>时区号:</label>
-                <div class="col-xs-2">
-                    <select id="timezoneInfoNum" name="timezoneInfoNum" style="width: 100%">
-                        <option value="1">1</option>
-                        <option value="2">2</option>
-                        <option value="3">3</option>
-                        <option value="4">4</option>
-                        <option value="5">5</option>
-                        <option value="6">6</option>
-                        <option value="7">7</option>
-                        <option value="8">8</option>
-                    </select>
-                </div>
-
-                <label class="control-label col-xs-2"><font class="red">*</font>工作日期号:</label>
-                <div class="col-xs-2">
-                    <select id="workDayNum" name="timezoneInfoNum" style="width: 100%">
-                        <option value="1">1</option>
-                        <option value="2">2</option>
-                        <option value="3">3</option>
-                        <option value="4">4</option>
-                        <option value="5">5</option>
-                        <option value="6">6</option>
-                        <option value="7">7</option>
-                        <option value="8">8</option>
-                    </select>
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label class="control-label col-xs-2"><font class="red">*</font>人员门禁分组:</label>
-                <div class="col-xs-2">
-                    <form:select path="staffGroup" cssClass="form-control input-sm">
-                        <form:options items="${fns:getDictList('staff_group')}"
-                                      itemLabel="label" itemValue="value" htmlEscape="false"/>
-                    </form:select>
-                </div>
-
-                <label class="control-label col-xs-2"><font class="red">*</font>是否允许查库:</label>
-                <div class="col-xs-2">
-                    <form:select path="checkPom" cssClass="form-control input-sm">
-                        <form:options items="${fns:getDictList('yes_no')}"
-                                      itemLabel="label" itemValue="value" htmlEscape="false"/>
-                    </form:select>
-                </div>
-            </div>
-            <div class="form-group">
-                <label class="control-label col-xs-2"><font class="red">*</font>门禁有效期:</label>
-                <div class="col-xs-2">
-                    <form:input path="validityDate" onclick="WdatePicker({readOnly:true,isShowToday:false})" htmlEscape="false" maxlength="32"
-                                class="form-control input-sm required netMask" />
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label class="control-label col-xs-2">备注：</label>
-                <div class="col-xs-3">
-                    <form:textarea path="remarks" htmlEscape="false" rows="4"
-                                   maxlength="255" class="input-xxlarge " />
-                </div>
-            </div>
-            &lt;%&ndash;<form:hidden path="id" />&ndash;%&gt;
-        </c:when>
-
-        <c:otherwise>
-            &lt;%&ndash;<form:hidden path="id" />&ndash;%&gt;
-            <div class="form-group">
-                <label class="control-label col-xs-2"><font class="red">*</font>门号:</label>
-                <div class="col-xs-2">
-                    <form:select path="accessParaInfoId" class="form-control input-sm required" >
-                        &lt;%&ndash;<c:forEach items="${accessParaInfos}" var="a" varStatus="varStatus">
-                            <option value="${a.id}" <c:if test="${authorization.accessParaInfoId == a.id}">selected</c:if>>${a.doorPos}</option>
-                        </c:forEach>&ndash;%&gt;
-                        <form:options items="${accessParaInfos}" itemLabel="doorPos" itemValue="id" htmlEscape="false"/>
-                    </form:select>
-                </div>
-
-                <label class="control-label col-xs-2"><font class="red">*</font>员工名称:</label>
-                <div class="col-xs-2">
-                    <form:select path="staffId" class="form-control input-sm required">
-                        &lt;%&ndash;<c:forEach items="${staffs}" var="s" varStatus="varStatus">
-                            <option value="${s.id}" <c:if test="${authorization.staffId == s.id}">selected</c:if>>${s.name}</option>
-                        </c:forEach>&ndash;%&gt;
-                        <form:options items="${staffs}" itemLabel="name" itemValue="id" htmlEscape="false"/>
-                    </form:select>
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label class="control-label col-xs-2"><font class="red">*</font>时区号:</label>
-                <div class="col-xs-2">
-                    <select id="timezoneInfoNum" name="timezoneInfoNum" style="width: 100%">
-                        <option value="1">1</option>
-                        <option value="2">2</option>
-                        <option value="3">3</option>
-                        <option value="4">4</option>
-                        <option value="5">5</option>
-                        <option value="6">6</option>
-                        <option value="7">7</option>
-                        <option value="8">8</option>
-                    </select>
-                </div>
-
-                <label class="control-label col-xs-2"><font class="red">*</font>工作日期号:</label>
-                <div class="col-xs-2">
-                    <select id="workDayNum" name="workDayNum" style="width: 100%">
-                        <option value="1">1</option>
-                        <option value="2">2</option>
-                        <option value="3">3</option>
-                        <option value="4">4</option>
-                        <option value="5">5</option>
-                        <option value="6">6</option>
-                        <option value="7">7</option>
-                        <option value="8">8</option>
-                    </select>
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label class="control-label col-xs-2"><font class="red">*</font>人员门禁分组:</label>
-                <div class="col-xs-2">
-                    <form:select path="staffGroup" cssClass="form-control input-sm">
-                        <form:options items="${fns:getDictList('staff_group')}"
-                                      itemLabel="label" itemValue="value" htmlEscape="false"/>
-                    </form:select>
-                </div>
-
-                <label class="control-label col-xs-2"><font class="red">*</font>是否允许查库:</label>
-                <div class="col-xs-2">
-                    <form:select path="checkPom" cssClass="form-control input-sm">
-                        <form:options items="${fns:getDictList('yes_no')}"
-                                      itemLabel="label" itemValue="value" htmlEscape="false"/>
-                    </form:select>
-                </div>
-            </div>
-            <div class="form-group">
-            <label class="control-label col-xs-2"><font class="red">*</font>门禁有效期:</label>
-            <div class="col-xs-2">
-                <form:input path="validityDate" onclick="WdatePicker({readOnly:true,isShowToday:false})" htmlEscape="false" maxlength="32"
-                            class="form-control input-sm required netMask" />
-            </div>
-        </div>
-
-            <div class="form-group">
-                <label class="control-label col-xs-2">备注：</label>
-                <div class="col-xs-3">
-                    <form:textarea path="remarks" htmlEscape="false" rows="4"
-                                   maxlength="255" class="input-xxlarge " />
-                </div>
-            </div>
-        </c:otherwise>
-    </c:choose>--%>
 </div>
 <div class="form-group">
     <div class="col-xs-offset-2 col-xs-10">
@@ -320,5 +152,20 @@
 </div>
 </form:form>
 </div>
+
+<script type="text/javascript" src="${ctxStatic}/layui/layui.js"></script>
+<script type="text/javascript" src="${ctxStatic}/layui/layui.all.js"></script>
+<script>
+    $("#staffId").click(function(){
+        layer.open({
+            type: 2,
+            title: '员工选择', //将姓名设置为红色
+            shadeClose: true,           //弹出框之外的地方是否可以点击
+            offset: '10%',
+            area: ['60%', '80%'],
+            content: '${ctx}/guard/staff/plan1'
+        });
+    });
+</script>
 </body>
 </html>

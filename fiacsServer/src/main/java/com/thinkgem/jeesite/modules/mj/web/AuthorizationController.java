@@ -7,7 +7,8 @@ import com.thinkgem.jeesite.common.config.Global;
 import com.thinkgem.jeesite.common.persistence.Page;
 import com.thinkgem.jeesite.common.service.ServiceException;
 import com.thinkgem.jeesite.common.web.BaseController;
-import com.thinkgem.jeesite.modules.guard.entity.Staff;
+import com.thinkgem.jeesite.modules.guard.entity.Equipment;
+import com.thinkgem.jeesite.modules.guard.service.EquipmentService;
 import com.thinkgem.jeesite.modules.guard.service.StaffService;
 import com.thinkgem.jeesite.modules.mj.entity.AccessParaInfo;
 import com.thinkgem.jeesite.modules.mj.entity.Authorization;
@@ -31,7 +32,6 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.text.ParseException;
-import java.util.List;
 
 /**
  * power_authorizationController
@@ -52,6 +52,8 @@ public class AuthorizationController extends BaseController {
 	private AccessParaInfoService accessParaInfoService;
 	@Autowired
 	private TimezoneInfoService timezoneInfoService;
+	@Autowired
+	private EquipmentService equipmentService;
 
 	@RequiresPermissions("mj:authorization:view")
 	@RequestMapping(value = { "index" })
@@ -152,9 +154,6 @@ public class AuthorizationController extends BaseController {
 			Authorization authorization2=authorizationService.get(id);
 			model.addAttribute("authorization",authorization2);
 		}else if((authorization!=null && authorization.getAccessParaInfoId()!=null && !authorization.getAccessParaInfoId().equals("")) || (accessParaInfoId!=null && !accessParaInfoId.equals(""))){
-<<<<<<< HEAD
-			model.addAttribute("accessParaInfoId",accessParaInfoId);
-=======
 			//添加
 
 			Authorization authorization2=new Authorization();
@@ -162,18 +161,13 @@ public class AuthorizationController extends BaseController {
 			authorization2.setWorkDayNum("");
 			authorization2.setCheckPom("1");
 			model.addAttribute("authorization",authorization2);
->>>>>>> temp
 		}else{
 			addMessage(redirectAttributes, "请选择一个门！");
 			return "redirect:" + Global.getAdminPath() + "/mj/authorization/?repage";
 		}
 
-		List<Staff> staffs=staffService.findAll();
-		//List<Office> offices=officeService.findAll();
-		/*List<AccessParaInfo> accessParaInfos=accessParaInfoService.findAll();
-		model.addAttribute("accessParaInfos", accessParaInfos);*/
-		model.addAttribute("staffs", staffs);
-		//model.addAttribute("offices", offices);
+		//List<Staff> staffs=staffService.findAll(null,null,null,null);
+		//model.addAttribute("staffs", staffs);
 		model.addAttribute("isNew",isNew);
 		return "modules/mj/authorizationForm";
 	}
@@ -184,51 +178,74 @@ public class AuthorizationController extends BaseController {
 	@RequiresPermissions("mj:authorization:edit")
 	@PostMapping(value = "save")
 	public String save(@Validated Authorization authorization, HttpServletRequest request,BindingResult result, Model model, RedirectAttributes redirectAttributes) throws ParseException {
-		String id=request.getParameter("id");
-		String accessParaInfoId=request.getParameter("accessParaInfoId");
-		String staffId=request.getParameter("staffId");
-		String timezoneInfoNum=request.getParameter("timezoneInfoNum");
-		String workDayNum=request.getParameter("workDayNum");
-		String staffGroup=request.getParameter("staffGroup");
-		String checkPom=request.getParameter("checkPom");
-		String remarks=request.getParameter("remarks");
+		String id = request.getParameter("id");
+		String accessParaInfoId = request.getParameter("accessParaInfoId");
+		String staffId = request.getParameter("staffId");
+		String timezoneInfoNum = request.getParameter("timezoneInfoNum");
+		String workDayNum = request.getParameter("workDayNum");
+		String staffGroup = request.getParameter("staffGroup");
+		String checkPom = request.getParameter("checkPom");
+		String remarks = request.getParameter("remarks");
 
-		AccessParaInfo accessParaInfo=null;
-		try{
-			authorization=new Authorization(timezoneInfoNum,staffId,accessParaInfoId,staffGroup,checkPom,workDayNum);
+		AccessParaInfo accessParaInfo = null;
+		try {
+			authorization = new Authorization(timezoneInfoNum, staffId, accessParaInfoId, staffGroup, checkPom, workDayNum);
 			authorization.setId(id);
 			authorization.setStaff(staffService.get(staffId));
-			authorization.setValidityDate(authorization.getStaff().getEndDate());
-			accessParaInfo=accessParaInfoService.get(accessParaInfoId);
+			accessParaInfo = accessParaInfoService.get(accessParaInfoId);
 			authorization.setOffice(officeService.get(authorization.getStaff().getId()));
 
-			if(authorizationService.getCountBySId(authorization.getStaffId(),authorization.getAccessParaInfoId())>=1){
-				addMessage(redirectAttributes, "该用户已经存在");
-				return "redirect:" + Global.getAdminPath() + "/mj/authorization/?repage";
+			if (id != null && !id.equals("")) {
+				Authorization authorization2 = authorizationService.get(id);
+				if (staffId.equals(authorization2.getStaffId()) && accessParaInfoId.equals(authorization2.getAccessParaInfoId())) {
+
+				} else if (authorizationService.getCountBySId(authorization.getStaffId(), authorization.getAccessParaInfoId()) >= 1) {
+					addMessage(redirectAttributes, "该用户已经存在");
+					return "redirect:" + Global.getAdminPath() + "/mj/authorization/?repage";
+				}
+			} else {
+				if (authorizationService.getCountBySId(authorization.getStaffId(), authorization.getAccessParaInfoId()) >= 1) {
+					addMessage(redirectAttributes, "该用户已经存在");
+					return "redirect:" + Global.getAdminPath() + "/mj/authorization/?repage";
+				}
 			}
-			System.out.println("______________________________________"+accessParaInfoId);
 
 			authorizationService.save(authorization);
-		}catch (Exception e) {
+		} catch (Exception e) {
 			throw new ServiceException("保存数据", e);
 		}
-		TimezoneInfo timezoneInfo=new TimezoneInfo();
-		timezoneInfo.setAccessParaInfo(accessParaInfo);
-		timezoneInfo.setTimeZoneNum(timezoneInfoNum);
+		TimezoneInfo timezoneInfo2 = new TimezoneInfo();
+		timezoneInfo2.setAccessParaInfo(accessParaInfo);
+		timezoneInfo2.setTimeZoneNum(timezoneInfoNum);
 		Integer count=timezoneInfoService.findCountByNum(accessParaInfoId,timezoneInfoNum);
 		if(count<=0){
-			addMessage(redirectAttributes, "保存授权信息成功，请修改默认时区信息！");
+			for(int j=1;j<=7;j++){
+				TimezoneInfo timezoneInfo =new TimezoneInfo();
+				Integer eid=accessParaInfoService.findEId(accessParaInfoId);
+				Equipment equipment=equipmentService.get(eid.toString());
+				timezoneInfo.setEquipment(equipment);
+				timezoneInfo.setAccessParaInfo(accessParaInfo);
+				timezoneInfo.setDoorPos("1");
+				timezoneInfo.setTimeZoneType("1");
+				timezoneInfo.setTimeZoneNum(timezoneInfoNum);
+				timezoneInfo.setWeekNumber(j);
+				timezoneInfo.setTimeStart1("00:00");
+				timezoneInfo.setTimeEnd1("23:59");
+				timezoneInfo.setTimeStart2("00:00");
+				timezoneInfo.setTimeEnd2("00:00");
+				timezoneInfo.setTimeStart3("00:00");
+				timezoneInfo.setTimeEnd3("00:00");
+				timezoneInfo.setTimeStart4("00:00");
+				timezoneInfo.setTimeEnd4("00:00");
+				timezoneInfoService.save(timezoneInfo);
+			}
 
-			return "redirect:" + Global.getAdminPath() + "/mj/timezoneInfo/list?timezoneInfo="+timezoneInfo;
+			addMessage(redirectAttributes, "保存授权信息成功，请修改默认时区信息！");
+			return "redirect:" + Global.getAdminPath() + "/mj/timezoneInfo/list?accessParaInfo.id="+accessParaInfoId+"&timeZoneNum="+timezoneInfoNum;
 		}else{
 			addMessage(redirectAttributes, "保存授权信息成功");
 			return "redirect:" + Global.getAdminPath() + "/mj/authorization/?repage";
 		}
-	}
-
-	private String deleteById(Authorization authorization, Model model) {
-		model.addAttribute("authorization", authorization);
-		return "modules/mj/authorizationForm";
 	}
 
 	/**

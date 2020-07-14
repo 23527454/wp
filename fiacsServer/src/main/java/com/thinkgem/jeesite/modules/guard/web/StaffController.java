@@ -106,22 +106,17 @@ public class StaffController extends BaseController {
 
 	@RequestMapping(value = "selStaff")
 	@ResponseBody
-	public String selStaff(ModelAndView modelAndView) {
-		List<Staff> list=staffService.findAll();
-		/*DataGridView dgw=new DataGridView(list.size(),list);
-		System.out.println("code:"+dgw.getCode());
-		System.out.println("msg:"+dgw.getMsg());
-		System.out.println("count:"+dgw.getCount());
-		System.out.println("data:"+dgw.getData().toString());
-		Map<String,Object> resultMap = new HashMap<>();
-		//状态码，成功0，失败1
-		resultMap.put("code","0");
-		//提示消息
-		resultMap.put("msg","");
-		//数据（表格填充数据）
-		resultMap.put("data",list);
-		//分页总条数
-		resultMap.put("count",list.size());*/
+	public String selStaff(String name,String workNum,Integer pageIndex,Integer size,ModelAndView modelAndView) {
+		if(pageIndex==null){
+			pageIndex=1;
+		}
+		if(size==null){
+			size=10;
+		}
+		pageIndex=(pageIndex-1)*size;
+
+		List<Staff> list=staffService.findAll(name,workNum,pageIndex,size);
+		List<Staff> list2=staffService.findAll(name,workNum,null,null);
 		StringBuffer sb=new StringBuffer("");
 		StringBuffer sb2=new StringBuffer("");
 
@@ -129,7 +124,7 @@ public class StaffController extends BaseController {
 			sb2.append("{\"id\":\""+s.getId()+"\",\"name\":\""+s.getName()+"\",\"workNum\":\""+s.getWorkNum()+"\",\"dept\":\""+s.getDept()+"\",\"phone\":\""+s.getPhone()+"\"},");
 		}
 		sb2.deleteCharAt(sb2.length() - 1);
-		sb.append("{\"code\": 0,\"msg\": \"\",\"count\": "+list.size()+",\"data\": ["+sb2.toString()+"]}");
+		sb.append("{\"code\": 0,\"msg\": \"\",\"count\": "+list2.size()+",\"data\": ["+sb2.toString()+"]}");
 
 		return sb.toString();
 	}

@@ -80,7 +80,7 @@ public class StaffService extends CrudService<StaffDao, Staff> {
 		return staff;
 	}
 
-	public List<Staff> findAll(){return staffDao.findAll();}
+	public List<Staff> findAll(String name,String workNum,Integer pageIndex,Integer size){return staffDao.findAll(name,workNum,pageIndex,size);}
 
 	public List<Staff> findByOfficeId(String officeId){return staffDao.findByOfficeId(officeId);}
 

@@ -333,7 +333,20 @@
 	</update>
 
 	<select id="findAll" resultType="Staff">
-		select * from guard_staff where del_flag='0'
+		select * from guard_staff
+		<where>
+			del_flag='0'
+			<if test="name!=null and name!=''">
+				and name like CONCAT('%', #{name}, '%')
+			</if>
+			<if test="workNum!=null and workNum!=''">
+				and work_num like CONCAT('%', #{workNum}, '%')
+			</if>
+		</where>
+		<if test="pageIndex!=null and size!=null and size!=0">
+			limit #{pageIndex},#{size}
+		</if>
+
 	</select>
 
 	<select id="findByOfficeId" resultType="Staff">
