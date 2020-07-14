@@ -12,67 +12,90 @@
 </head>
 
 <body>
-<form:form id="searchForm"
-           action="${ctx}/guard/staff/selStaff" method="post"
-           class="layui-form" cssStyle="margin: 0px;padding: 0px;padding-top: 10px">
-<div class="layui-inline">
-    <label class="layui-form-label">姓名：</label>
-    <div class="layui-input-inline">
-        <input type="text" id="name" name="name" htmlEscape="false" value="${name}"
-               class="layui-input" />
+<div class="demoTable" style="margin: 0px;padding: 0px;padding-top: 10px">
+    <div class="layui-inline">
+        <label class="layui-form-label">姓名：</label>
+        <div class="layui-input-inline">
+            <input type="text" id="name" name="name" htmlEscape="false" value="${name}"
+                   class="layui-input" />
+        </div>
     </div>
-</div>
-<div class="layui-inline">
-    <label class="layui-form-label">工号：</label>
-    <div class="layui-input-inline">
-        <input type="text" id="workNum" name="workNum" htmlEscape="false" value="${workNum}"
-               class="layui-input" />
+    <div class="layui-inline">
+        <label class="layui-form-label">工号：</label>
+        <div class="layui-input-inline">
+            <input type="text" id="workNum" name="workNum" htmlEscape="false" value="${workNum}"
+                   class="layui-input" />
+        </div>
+    </div>
+    <div class="layui-inline">
+        <div class="layui-input-inline">
+            <input id="btnSubmit" class="layui-btn" type="submit" value="查询" data-type="reload"/>
+        </div>
     </div>
 </div>
 
-<div class="layui-inline">
-    <div class="layui-input-inline">
-        <input id="btnSubmit" class="layui-btn" type="submit" value="查询" />
-    </div>
-</div>
-</form:form>
+<table class="layui-hide" id="LAY_table_user" lay-filter="user"></table>
 
-<table class="layui-table" lay-data="{ url:'${ctx}/guard/staff/selStaff', page:true, id:'idTest',request: {pageName: 'pageIndex',limitName: 'size'}}" lay-filter="demo">
-    <thead>
-    <tr>
-        <th lay-data="{type:'checkbox', fixed: 'left'}"></th>
-        <th lay-data="{field:'id', minWidth:100, sort: true, fixed: true, align:'center'}">ID</th>
-        <th lay-data="{field:'name', minWidth:100, align:'center'}">姓名</th>
-        <th lay-data="{field:'workNum', minWidth:200, sort: true, align:'center'}">工号</th>
-        <th lay-data="{field:'dept', align:'center'}">部门</th>
-        <th lay-data="{field:'phone', align:'center'}">联系电话</th>
-    </tr>
-    </thead>
-</table>
-
-<div class="layui-btn-group demoTable">
-    <button class="layui-btn" data-type="getCheckData">确定</button>
+<div class="layui-btn-group demoTable" style="margin-left: 10px">
+    <button class="layui-btn layui-layer-close layui-layer-close1" data-type="getCheckData">确定</button>
 </div>
+
 
 <script type="text/javascript" src="${ctxStatic}/jquery/jquery-1.9.1.js"></script>
 <script type="text/javascript" src="${ctxStatic}/layui/layui.js"></script>
 <script type="text/javascript" src="${ctxStatic}/layui/layui.all.js"></script>
 <script>
-
-
     layui.use('table', function(){
         var table = layui.table;
-        //监听表格复选框选择
-        table.on('checkbox(demo)', function(obj){
-            console.log(obj)
+
+        //方法级渲染
+        table.render({
+            elem: '#LAY_table_user'
+            ,url: '${ctx}/guard/staff/selStaff'
+            ,cols: [[
+                {checkbox: true, fixed: true}
+                ,{field:'id', minWidth:100, title:'编号', sort: true, fixed: true, align:'center'}
+                ,{field:'name', minWidth:100, title:'姓名', align:'center'}
+                ,{field:'workNum', minWidth:200, title:'工号', sort: true, align:'center'}
+                ,{field:'dept', title:'部门', align:'center'}
+                ,{field:'phone', title:'联系电话', align:'center'}
+            ]]
+            ,id: 'testReload'
+            ,page: true
+            ,request:{pageName: 'pageIndex',limitName: 'size'}
         });
 
-
         var $ = layui.$, active = {
+            reload: function(){
+                var name = $('#name');
+                var workNum = $('#workNum');
+
+                //执行重载
+                table.reload('testReload', {
+                    page: {
+                        curr: 1 //重新从第 1 页开始
+                    }
+                    ,where: {
+                        name: name.val(),
+                        workNum:workNum.val()
+                    }
+                }, 'data');
+            },
             getCheckData: function(){ //获取选中数据
-                var checkStatus = table.checkStatus('idTest')
-                    ,data = checkStatus.data;
-                layer.alert(JSON.stringify(data));
+                var checkStatus = table.checkStatus('testReload'),data = checkStatus.data;
+                if(data.length<1){
+                    layer.alert("请勾选信息！");
+                    return false;
+                }
+                var ids=[];
+                for(var i=0;i<data.length;i++){
+                    ids+=data[i].id+',';
+                }
+                ids=ids.substr(0,ids.length-1);
+                layer.alert(ids);
+                var index = parent.layer.getFrameIndex(window.name); //获取窗口索引
+                parent.layer.close(index);
+                //return ids;
             }
         };
 
@@ -80,7 +103,17 @@
             var type = $(this).data('type');
             active[type] ? active[type].call(this) : '';
         });
-
     });
+
+    /*function close(status){
+        if(status=="yes"){
+            window.parent.location.reload();//刷新父页面
+            var index = parent.layer.getFrameIndex(window.name); //获取窗口索引
+            parent.layer.close(index);
+        }
+        var index = parent.layer.getFrameIndex(window.name); //获取窗口索引
+        parent.layer.close(index);
+    }*/
 </script>
+</body>
 </html>

@@ -129,6 +129,31 @@ public class StaffController extends BaseController {
 		return sb.toString();
 	}
 
+	@RequestMapping(value = "selStaff2")
+	@ResponseBody
+	public String selStaff2(String name,String workNum,Integer pageIndex,Integer size,ModelAndView modelAndView) {
+		if(pageIndex==null){
+			pageIndex=1;
+		}
+		if(size==null){
+			size=10;
+		}
+		pageIndex=(pageIndex-1)*size;
+
+		List<Staff> list=staffService.findAll(name,workNum,pageIndex,size);
+		List<Staff> list2=staffService.findAll(name,workNum,null,null);
+		StringBuffer sb=new StringBuffer("");
+		StringBuffer sb2=new StringBuffer("");
+
+		for(Staff s:list){
+			sb2.append("{\"id\":\""+s.getId()+"\",\"name\":\""+s.getName()+"\",\"workNum\":\""+s.getWorkNum()+"\",\"dept\":\""+s.getDept()+"\",\"phone\":\""+s.getPhone()+"\"},");
+		}
+		sb2.deleteCharAt(sb2.length() - 1);
+		sb.append("{\"code\": 0,\"msg\": \"\",\"count\": "+list2.size()+",\"data\": ["+sb2.toString()+"]}");
+
+		return sb.toString();
+	}
+
 	@RequiresPermissions("guard:staff:view")
 	@RequestMapping(value = { "index" })
 	public String index(Staff staff, Model model) {
