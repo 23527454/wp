@@ -38,17 +38,6 @@
                         });
                     }
                 }
-
-
-                $("#inputForm")
-                    .validate(
-                        {
-                            submitHandler: function (form) {
-                                loading('正在提交，请稍等...');
-                                form.submit();
-                            }
-                        });
-
             });
 
 
@@ -154,7 +143,7 @@
     <div class="form-group">
         <label class="control-label col-xs-2">1:</label>
         <div class="col-xs-4">
-            <form:select path="base1" cssClass="form-control input-sm" cssStyle="width: 30%;display: inline-block;">
+            <form:select path="base1" cssClass="form-control input-sm" cssStyle="width: 30%;display: inline-block;" onchange="checkContent(this);">
                 <form:options items="${fns:getDictList('base_group')}"
                               itemLabel="label" itemValue="value" htmlEscape="false"/>
             </form:select>
@@ -162,7 +151,7 @@
 
         <label class="control-label col-xs-1" style="width: 2px;padding-left:8px;padding-right:8px;">2:</label>
         <div class="col-xs-4">
-            <form:select path="base2" cssClass="form-control input-sm" cssStyle="width: 30%;display: inline-block;">
+            <form:select path="base2" cssClass="form-control input-sm" cssStyle="width: 30%;display: inline-block;" onchange="checkContent(this);">
                 <form:options items="${fns:getDictList('base_group')}"
                               itemLabel="label" itemValue="value" htmlEscape="false"/>
             </form:select>
@@ -171,7 +160,7 @@
     <div class="form-group">
         <label class="control-label col-xs-2">3:</label>
         <div class="col-xs-4">
-            <form:select path="base3" cssClass="form-control input-sm" cssStyle="width: 30%;display: inline-block;">
+            <form:select path="base3" cssClass="form-control input-sm" cssStyle="width: 30%;display: inline-block;" onchange="checkContent(this);">
                 <form:options items="${fns:getDictList('base_group')}"
                               itemLabel="label" itemValue="value" htmlEscape="false"/>
             </form:select>
@@ -179,7 +168,7 @@
 
         <label class="control-label col-xs-1" style="width: 2px;padding-left:8px;padding-right:8px;">4:</label>
         <div class="col-xs-4">
-            <form:select path="base4" cssClass="form-control input-sm" cssStyle="width: 30%;display: inline-block;">
+            <form:select path="base4" cssClass="form-control input-sm" cssStyle="width: 30%;display: inline-block;" onchange="checkContent(this);">
                 <form:options items="${fns:getDictList('base_group')}"
                               itemLabel="label" itemValue="value" htmlEscape="false"/>
             </form:select>
@@ -188,7 +177,7 @@
     <div class="form-group">
         <label class="control-label col-xs-2">5:</label>
         <div class="col-xs-4">
-            <form:select path="base5" cssClass="form-control input-sm" cssStyle="width: 30%;display: inline-block;">
+            <form:select path="base5" cssClass="form-control input-sm" cssStyle="width: 30%;display: inline-block;" onchange="checkContent(this);">
                 <form:options items="${fns:getDictList('base_group')}"
                               itemLabel="label" itemValue="value" htmlEscape="false"/>
             </form:select>
@@ -196,7 +185,7 @@
 
         <label class="control-label col-xs-1" style="width: 2px;padding-left:8px;padding-right:8px;">6:</label>
         <div class="col-xs-4">
-            <form:select path="base6" cssClass="form-control input-sm" cssStyle="width: 30%;display: inline-block;">
+            <form:select path="base6" cssClass="form-control input-sm" cssStyle="width: 30%;display: inline-block;" onchange="checkContent(this);">
                 <form:options items="${fns:getDictList('base_group')}"
                               itemLabel="label" itemValue="value" htmlEscape="false"/>
             </form:select>
@@ -209,7 +198,7 @@
     <div class="form-group">
         <label class="control-label col-xs-2">1:</label>
         <div class="col-xs-4">
-            <form:select path="workTime1" cssClass="form-control input-sm" cssStyle="width: 30%;display: inline-block">
+            <form:select path="workTime1" cssClass="form-control input-sm" cssStyle="width: 30%;display: inline-block" onchange="change2()">
                 <form:options items="${hglist}"
                               itemLabel="label" itemValue="value" htmlEscape="false"/>
             </form:select>
@@ -217,7 +206,7 @@
 
         <label class="control-label col-xs-1" style="width: 2px;padding-left:8px;padding-right:8px;">2:</label>
         <div class="col-xs-4">
-            <form:select path="workTime2" cssClass="form-control input-sm" cssStyle="width: 30%;display: inline-block">
+            <form:select path="workTime2" cssClass="form-control input-sm" cssStyle="width: 30%;display: inline-block" onchange="change2()">
                 <form:options items="${hglist}"
                               itemLabel="label" itemValue="value" htmlEscape="false"/>
             </form:select>
@@ -230,7 +219,7 @@
     <div class="form-group">
         <label class="control-label col-xs-2">1:</label>
         <div class="col-xs-4">
-            <form:select path="netOutAge1" cssClass="form-control input-sm" cssStyle="width: 30%;display: inline-block">
+            <form:select path="netOutAge1" cssClass="form-control input-sm" cssStyle="width: 30%;display: inline-block" onchange="change3()">
                 <form:options items="${hglist}"
                               itemLabel="label" itemValue="value" htmlEscape="false"/>
             </form:select>
@@ -238,7 +227,7 @@
 
         <label class="control-label col-xs-1" style="width: 2px;padding-left:8px;padding-right:8px;">2:</label>
         <div class="col-xs-4">
-            <form:select path="netOutAge2" cssClass="form-control input-sm" cssStyle="width: 30%;display: inline-block">
+            <form:select path="netOutAge2" cssClass="form-control input-sm" cssStyle="width: 30%;display: inline-block" onchange="change3()">
                 <form:options items="${hglist}"
                               itemLabel="label" itemValue="value" htmlEscape="false"/>
             </form:select>
@@ -264,5 +253,142 @@
 </div>
 </form:form>
 </div>
+
+<script>
+    var commit1=true;
+    var commit2=true;
+    var commit3=true;
+
+    function checkContent() {
+        var base1=$("#base1").val();
+        var base2=$("#base2").val();
+        var base3=$("#base3").val();
+        var base4=$("#base4").val();
+        var base5=$("#base5").val();
+        var base6=$("#base6").val();
+        var num1=0;
+        var num2=0;
+        if(base1=='00'){
+            num1=num1-1;
+        }else if(base1!='00'){
+            num2=num2+1;
+        }
+
+        if(base2=='00'){
+            num1=num1-1;
+        }else if(base2!='00'){
+            num2=num2+1;
+        }
+
+        if(base3=='00'){
+            num1=num1-1;
+        }else if(base3!='00'){
+            num2=num2+1;
+        }
+
+        if(base4=='00'){
+            num1=num1-1;
+        }else if(base4!='00'){
+            num2=num2+1;
+        }
+
+        if(base5=='00'){
+            num1=num1-1;
+        }else if(base5!='00'){
+            num2=num2+1;
+        }
+
+        if(base6=='00'){
+            num1=num1-1;
+        }else if(base6!='00'){
+            num2=num2+1;
+        }
+
+
+        if(num2<=0){
+            $("#combNum").val(2);
+        }else{
+            $("#combNum").val(num2);
+        }
+
+        var base=[base1,base2,base3,base4,base5,base6];
+        var base2=[];
+        for(var i=0;i<base.length;i++){
+            if(base[i]!='00'){
+                base2.push(base[i]);
+            }
+        }
+
+        if(mm(base2)){
+            commit1=false;
+            alert("基础组合中不能存在相同权限！");
+        }else{
+            commit1=true;
+        }
+    }
+
+
+    function change2(){
+        var workTime1=$("#workTime1").val();
+        var workTime2=$("#workTime2").val();
+
+
+        var workTime=[workTime1,workTime2];
+        var workTime_bk=[];
+        for(var i=0;i<workTime.length;i++){
+            if(workTime[i]!='00'){
+                workTime_bk.push(workTime[i]);
+            }
+        }
+
+        if(mm(workTime_bk)){
+            commit2=false;
+            alert("非工作时间段组合中不能存在相同权限！");
+        }else{
+            commit2=true;
+        }
+    }
+
+    function change3(){
+        var netOutAge1=$("#netOutAge1").val();
+        var netOutAge2=$("#netOutAge2").val();
+
+
+        var netOutAge=[netOutAge1,netOutAge2];
+        var netOutAge_bk=[];
+        for(var i=0;i<netOutAge.length;i++){
+            if(netOutAge[i]!='00'){
+                netOutAge_bk.push(netOutAge[i]);
+            }
+        }
+
+        if(mm(netOutAge_bk)){
+            commit3=false;
+            alert("TCP断网组合中不能存在相同权限！");
+        }else{
+            commit3=true;
+        }
+    }
+
+    function mm(a){return /(\x0f[^\x0f]+)\x0f[\s\S]*\1/.test("\x0f"+a.join("\x0f\x0f") +"\x0f");}
+
+
+    $("#inputForm")
+        .validate(
+            {
+                submitHandler: function (form) {
+                    if(commit1&&commit2&&commit3){
+                        loading('正在提交，请稍等...');
+                        form.submit();
+                    }else if(!commit1){
+                        alert("基础组合中不能存在相同权限！");
+                    }else if(!commit2){
+                        alert("非工作时间段组合中不能存在相同权限！");
+                    }else if(!commit3){
+                        alert("TCP断网组合中不能存在相同权限！");
+                    }
+                }
+            });
+</script>
 </body>
 </html>

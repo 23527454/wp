@@ -6,6 +6,7 @@ package com.thinkgem.jeesite.modules.mj.dao;
 import com.thinkgem.jeesite.common.persistence.CrudDao;
 import com.thinkgem.jeesite.common.persistence.annotation.MyBatisDao;
 import com.thinkgem.jeesite.modules.mj.entity.AccessParaInfo;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -23,4 +24,6 @@ public interface AccessParaInfoDao extends CrudDao<AccessParaInfo> {
 	public List<AccessParaInfo> findAll();
 
 	List<AccessParaInfo> findListById(String id);
+
+	Integer findEId(@Param("id") String id);
 }
