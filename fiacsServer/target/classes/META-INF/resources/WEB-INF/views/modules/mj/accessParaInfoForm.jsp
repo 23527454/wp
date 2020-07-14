@@ -140,6 +140,13 @@
                               itemLabel="label" itemValue="value" htmlEscape="false"/>
             </form:select>
         </div>
+        <label class="control-label col-xs-1" style="width: 2px;padding-left:8px;padding-right:8px;"></label>
+
+        <label class="control-label col-xs-2"><font class="red">*</font> 组合开门数量：</label>
+        <div class="col-xs-1">
+            <form:input path="combNum" htmlEscape="false" maxlength="16"
+                        class="form-control input-sm required digits" readonly="true"/>
+        </div>
     </div>
     <div class="form-group">
         <label class="control-label col-xs-2"><font class="red">*</font>基本组合:</label><br>

@@ -4,6 +4,7 @@
 <head>
 	<title>门禁时区管理</title>
 	<meta name="decorator" content="default"/>
+	<script src="${ctxStatic}/jquery-session/jquery-session.js"></script>
 	<script type="text/javascript">
 		$(document).ready(function() {
 			$("#btnExport").click(
@@ -29,14 +30,23 @@
 			$("#searchForm").submit();
         	return false;
         }
+
+        /*function toAdd() {
+			var id=$("#aId").val();
+			var timeZoneNum=$("#timeZoneNum").val();
+			alert(timeZoneNum);
+			alert(id);
+			window.location.href="${ctx}/mj/timezoneInfo/form3?accessParaInfoId="+id;
+		}*/
 	</script>
 </head>
 <body>
 	<ul class="nav nav-tabs">
 		<li class="active"><a href="${ctx}/mj/timezoneInfo/">门禁时区列表</a></li>
+		<%--<li class="active"><a href="#" onclick="toAdd();">门禁时区添加</a></li>--%>
 	</ul>
 	<form:form id="searchForm" modelAttribute="timezoneInfo" action="${ctx}/mj/timezoneInfo/" method="post" class="breadcrumb form-search">
-		<form:hidden path="accessParaInfo.id" ></form:hidden>
+		<form:hidden path="accessParaInfo.id" id="aId" ></form:hidden>
 		<ul class="ul-form">
 		<li><label>时区类型：</label>
 			<form:select path="timeZoneType" cssClass="form-control input-sm">

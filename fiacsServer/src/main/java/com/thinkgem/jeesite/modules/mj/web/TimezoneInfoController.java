@@ -7,9 +7,10 @@ import com.thinkgem.jeesite.common.config.Global;
 import com.thinkgem.jeesite.common.service.ServiceException;
 import com.thinkgem.jeesite.common.utils.StringUtils;
 import com.thinkgem.jeesite.common.web.BaseController;
+import com.thinkgem.jeesite.modules.guard.service.EquipmentService;
 import com.thinkgem.jeesite.modules.mj.entity.TimezoneInfo;
-import com.thinkgem.jeesite.modules.mj.service.TimezoneInfoService;
 import com.thinkgem.jeesite.modules.mj.service.AccessParaInfoService;
+import com.thinkgem.jeesite.modules.mj.service.TimezoneInfoService;
 import com.thinkgem.jeesite.modules.sys.entity.Dict;
 import com.thinkgem.jeesite.modules.sys.service.DictService;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
@@ -41,6 +42,8 @@ public class TimezoneInfoController extends BaseController {
 	private AccessParaInfoService accessParaInfoService;
 	@Autowired
 	private DictService dictService;
+	@Autowired
+	private EquipmentService equipmentService;
 	
 	/**
 	 * 获取数据
@@ -108,36 +111,104 @@ public class TimezoneInfoController extends BaseController {
 	}*/
 
 	/**
-	 * 查看编辑表单
+	 * 查看编辑表单，修改时进入
 	 */
 	@RequiresPermissions("mj:timezoneInfo:view")
 	@RequestMapping(value = "form")
 	public String form(TimezoneInfo timezoneInfo, Model model) {
-		timezoneInfo = timezoneInfoService.get(timezoneInfo.getId());
+		if(timezoneInfo.getId()!=null && !timezoneInfo.getId().equals("")){
+			timezoneInfo = timezoneInfoService.get(timezoneInfo.getId());
+		}
 		model.addAttribute("accessDoorTimezone", timezoneInfo);
+
 		return "modules/mj/timezoneInfoForm";
 	}
 
 	/**
-	 * 查看编辑表单2
+	 * 添加时进入
+	 * @param accessParaInfoId
+	 * @param model
+	 * @return
+	 */
+	/*@RequiresPermissions("mj:timezoneInfo:view")
+	@RequestMapping(value = "form3")
+	public String form3(String accessParaInfoId , Model model) {
+
+		System.out.println("______________________________________"+accessParaInfoId);
+
+		TimezoneInfo timezoneInfo=new TimezoneInfo();
+		if(accessParaInfoId!=null && !accessParaInfoId.equals("")) {
+			AccessParaInfo accessParaInfo = accessParaInfoService.get(accessParaInfoId);
+			Equipment equipment = equipmentService.get(accessParaInfo.getEquipment().getId());
+			for (int j = 1; j <= 7; j++) {
+				timezoneInfo.setEquipment(equipment);
+				timezoneInfo.setAccessParaInfo(accessParaInfo);
+				timezoneInfo.setDoorPos(accessParaInfo.getDoorPos());
+				timezoneInfo.setTimeZoneType("1");
+				timezoneInfo.setTimeZoneNum(timezoneInfo.getTimeZoneNum());
+				timezoneInfo.setWeekNumber(j);
+				timezoneInfo.setTimeStart1("00:00");
+				timezoneInfo.setTimeEnd1("23:59");
+				timezoneInfo.setTimeStart2("00:00");
+				timezoneInfo.setTimeEnd2("00:00");
+				timezoneInfo.setTimeStart3("00:00");
+				timezoneInfo.setTimeEnd3("00:00");
+				timezoneInfo.setTimeStart4("00:00");
+				timezoneInfo.setTimeEnd4("00:00");
+			}
+		}
+
+
+		*//*boolean isNew=true;
+		if(timezoneInfo.getId()!=null && !timezoneInfo.getId().equals("")){
+			isNew=false;
+			timezoneInfo = timezoneInfoService.get(timezoneInfo.getId());
+		}else{
+			AccessParaInfo accessParaInfo=accessParaInfoService.get(timezoneInfo.getAccessParaInfo().getId());
+			Equipment equipment=equipmentService.get(accessParaInfo.getEquipment().getId());
+			for(int j=1;j<=7;j++){
+				timezoneInfo.setEquipment(equipment);
+				timezoneInfo.setAccessParaInfo(accessParaInfo);
+				timezoneInfo.setDoorPos(accessParaInfo.getDoorPos());
+				timezoneInfo.setTimeZoneType("1");
+				timezoneInfo.setTimeZoneNum(timezoneInfo.getTimeZoneNum());
+				timezoneInfo.setWeekNumber(j);
+				timezoneInfo.setTimeStart1("00:00");
+				timezoneInfo.setTimeEnd1("23:59");
+				timezoneInfo.setTimeStart2("00:00");
+				timezoneInfo.setTimeEnd2("00:00");
+				timezoneInfo.setTimeStart3("00:00");
+				timezoneInfo.setTimeEnd3("00:00");
+				timezoneInfo.setTimeStart4("00:00");
+				timezoneInfo.setTimeEnd4("00:00");
+				timezoneInfoService.save(timezoneInfo);
+			}
+		}
+		model.addAttribute("isNew",isNew);
+		model.addAttribute("accessDoorTimezone", timezoneInfo);*//*
+
+		return "modules/mj/timezoneInfoForm";
+	}*/
+
+	/**
+	 * 查看编辑表单2,更换了星期进入
 	 */
 	@RequiresPermissions("mj:timezoneInfo:view")
 	@RequestMapping(value = "form2")
 	public String form2(TimezoneInfo timezoneInfo, Model model) {
+		TimezoneInfo timezoneInfo2=null;
 		if(timezoneInfo.getWeekNumber()!=null && timezoneInfo.getId()!=null && !timezoneInfo.getId().equals("")){
 
 			String aid= timezoneInfoService.findAIdById(timezoneInfo.getId());
 
-			System.out.println(timezoneInfo.getWeekNumber());
-			System.out.println(aid);
 			timezoneInfo.setId(aid);
 			//修改时更换了星期
-			timezoneInfo = timezoneInfoService.getByWdAndAid(timezoneInfo);
+			timezoneInfo2 = timezoneInfoService.getByWdAndAid(timezoneInfo);
 		}
 
-		System.out.println(timezoneInfo.toString());
-		model.addAttribute("accessDoorTimezone", timezoneInfo);
-		return "modules/mj/timezoneInfoForm";
+		model.addAttribute("accessDoorTimezone", timezoneInfo2);
+		return "redirect:" + Global.getAdminPath() + "/mj/timezoneInfo/form?id="+timezoneInfo2.getId();
+		//return "modules/mj/timezoneInfoForm";
 	}
 
 	/**

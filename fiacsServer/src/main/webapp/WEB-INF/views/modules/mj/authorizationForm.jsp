@@ -66,7 +66,7 @@
     <ul class="nav nav-tabs">
         <li><a href="${ctx}/mj/authorization/">权限信息列表</a></li>
         <li class="active"><a
-                href="${ctx}/mj/authorization/form?id=${authorization.id}">权限信息${isNew?"添加":"修改"}</a></li>
+                href="#">权限信息${isNew?"添加":"修改"}</a></li>
     </ul>
     <br/>
     <form:form id="inputForm" modelAttribute="authorization"
@@ -77,14 +77,9 @@
     </c:if>
     <sys:message content="${message}"/>
     <div class="form-group">
-        <label class="control-label col-xs-2"><font class="red">*</font>门号:</label>
-        <div class="col-xs-2">
-            <form:select path="accessParaInfoId" class="form-control input-sm required" >
-                <form:options items="${accessParaInfos}" itemLabel="doorPos" itemValue="id" htmlEscape="false"/>
-            </form:select>
-        </div>
 
-        <label class="control-label col-xs-2"><font class="red">*</font>员工名称:</label>
+        <input type="hidden" id="accessParaInfoId" value="${accessParaInfoId}">
+        <label class="control-label col-xs-2"><font class="red">*</font>选择员工:</label>
         <div class="col-xs-2">
             <form:select path="staffId" class="form-control input-sm required">
                 <form:options items="${staffs}" itemLabel="name" itemValue="id" htmlEscape="false"/>
@@ -93,19 +88,13 @@
         </div>
     </div>
 
-    <div class="form-group">
-        <label class="control-label col-xs-2"><font class="red">*未完成</font>时区号:</label>
+    <div class="form-group">fv
+        <label class="control-label col-xs-2"><font class="red">*</font>时区号:</label>
         <div class="col-xs-2">
-            <select id="timezoneInfoNum" name="timezoneInfoNum" style="width: 100%">
-                <option value="1">1</option>
-                <option value="2">2</option>
-                <option value="3">3</option>
-                <option value="4">4</option>
-                <option value="5">5</option>
-                <option value="6">6</option>
-                <option value="7">7</option>
-                <option value="8">8</option>
-            </select>
+            <form:select path="timezoneInfoNum" cssClass="form-control input-sm">
+                <form:options items="${fns:getDictList('time_zone_num')}"
+                              itemLabel="label" itemValue="value" htmlEscape="false"/>
+            </form:select>
         </div>
 
         <label class="control-label col-xs-2"><font class="red">*未完成</font>工作日期号:</label>
@@ -140,13 +129,6 @@
             </form:select>
         </div>
     </div>
-    <%--<div class="form-group">
-        <label class="control-label col-xs-2"><font class="red">*</font>门禁有效期:</label>
-        <div class="col-xs-2">
-            <form:input path="validityDate" onclick="WdatePicker({readOnly:true,isShowToday:false})" htmlEscape="false" maxlength="32"
-                        class="form-control input-sm required netMask" />
-        </div>
-    </div>--%>
 
     <div class="form-group">
         <label class="control-label col-xs-2">备注：</label>

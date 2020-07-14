@@ -22,6 +22,10 @@ public class TimezoneInfoService extends CrudService<TimezoneInfoDao, TimezoneIn
 	@Autowired
 	private TimezoneInfoDao timezoneInfoDao;
 
+	public Integer findCountByNum(String id, String num){
+		return timezoneInfoDao.findCountByNum(id,num);
+	}
+
 	public int deleteByEId(String id){
 		return timezoneInfoDao.deleteByEId(id);
 	}

@@ -8,6 +8,7 @@ import com.thinkgem.jeesite.modules.guard.entity.Staff;
 import com.thinkgem.jeesite.modules.sys.entity.Office;
 
 import java.util.Date;
+import java.util.List;
 
 /**
  * power_authorizationEntity
@@ -22,7 +23,7 @@ public class Authorization extends DataEntity<Authorization> {
 	private Office office;		// 机构ID
 	private String cardNum;		// 卡号
 	private Date validityDate;		// 门禁有效期
-	private Integer timezoneInfoNum;		// 通行时区
+	private String timezoneInfoNum;		// 通行时区
 	private String staffId;
 	private String officeId;
 	private String staffName;
@@ -32,8 +33,17 @@ public class Authorization extends DataEntity<Authorization> {
 	private String checkPom;
 	private String workDayNum;
 
+	private List<TimezoneInfo> timezoneInfos;
 
-	public Authorization( Integer timezoneInfoNum, String staffId, String accessParaInfoId, String staffGroup, String checkPom, String workDayNum) {
+	public List<TimezoneInfo> getTimezoneInfos() {
+		return timezoneInfos;
+	}
+
+	public void setTimezoneInfos(List<TimezoneInfo> timezoneInfos) {
+		this.timezoneInfos = timezoneInfos;
+	}
+
+	public Authorization(String timezoneInfoNum, String staffId, String accessParaInfoId, String staffGroup, String checkPom, String workDayNum) {
 		this.timezoneInfoNum = timezoneInfoNum;
 		this.staffId = staffId;
 		this.accessParaInfoId = accessParaInfoId;
@@ -110,11 +120,11 @@ public class Authorization extends DataEntity<Authorization> {
 		this.validityDate = validityDate;
 	}
 
-	public Integer getTimezoneInfoNum() {
+	public String getTimezoneInfoNum() {
 		return timezoneInfoNum;
 	}
 
-	public void setTimezoneInfoNum(Integer timezoneInfoNum) {
+	public void setTimezoneInfoNum(String timezoneInfoNum) {
 		this.timezoneInfoNum = timezoneInfoNum;
 	}
 

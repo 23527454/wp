@@ -12,6 +12,12 @@
 		ORDER BY ${sqlMap.order.toSql()}
 	</select> -->
 
+	<select id="findCountByNum" resultType="Integer">
+		select count(1)
+		from mj_timezone_info
+		where access_para_info_id=#{id} and time_zone_num=#{num}
+	</select>
+
 	<select id="get" resultType="TimezoneInfo">
 		SELECT *
 		FROM mj_timezone_info
