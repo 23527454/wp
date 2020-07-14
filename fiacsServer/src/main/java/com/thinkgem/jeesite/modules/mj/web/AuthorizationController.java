@@ -15,6 +15,7 @@ import com.thinkgem.jeesite.modules.mj.entity.TimezoneInfo;
 import com.thinkgem.jeesite.modules.mj.service.AccessParaInfoService;
 import com.thinkgem.jeesite.modules.mj.service.AuthorizationService;
 import com.thinkgem.jeesite.modules.mj.service.TimezoneInfoService;
+import com.thinkgem.jeesite.modules.sys.entity.Office;
 import com.thinkgem.jeesite.modules.sys.service.OfficeService;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -100,7 +101,14 @@ public class AuthorizationController extends BaseController {
 			Page<Authorization> page = authorizationService.findPage(new Page<Authorization>(request, response), authorization2);
 			for (int i = 0; i < page.getList().size(); i++) {
 				page.getList().get(i).setStaff(staffService.get(page.getList().get(i).getStaffId()));
-				page.getList().get(i).setOffice(officeService.get(page.getList().get(i).getOfficeId()));
+
+				AccessParaInfo accessParaInfo=accessParaInfoService.get(page.getList().get(i).getAccessParaInfoId());
+				Equipment equipment=equipmentService.get(accessParaInfo.getEquipmentId().toString());
+				Office office=officeService.get(equipment.getOffice().getId());
+
+				page.getList().get(i).setOffice(office);
+
+				System.out.println("office:"+page.getList().get(i).getOffice().getName());
 			}
 			model.addAttribute("page", page);
 		}
@@ -138,11 +146,23 @@ public class AuthorizationController extends BaseController {
 
 		boolean isNew=true;
 		if((authorization!=null && authorization.getId()!=null && !authorization.getId().equals("")) || (id!=null && !id.equals(""))){
+			//修改
+
 			isNew=false;
 			Authorization authorization2=authorizationService.get(id);
 			model.addAttribute("authorization",authorization2);
 		}else if((authorization!=null && authorization.getAccessParaInfoId()!=null && !authorization.getAccessParaInfoId().equals("")) || (accessParaInfoId!=null && !accessParaInfoId.equals(""))){
+<<<<<<< HEAD
 			model.addAttribute("accessParaInfoId",accessParaInfoId);
+=======
+			//添加
+
+			Authorization authorization2=new Authorization();
+			authorization2.setAccessParaInfoId(accessParaInfoId);
+			authorization2.setWorkDayNum("");
+			authorization2.setCheckPom("1");
+			model.addAttribute("authorization",authorization2);
+>>>>>>> temp
 		}else{
 			addMessage(redirectAttributes, "请选择一个门！");
 			return "redirect:" + Global.getAdminPath() + "/mj/authorization/?repage";

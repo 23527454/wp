@@ -35,7 +35,11 @@
 				AND access_para_info_id = #{accessParaInfoId}
 			</if>
 			<if test="staffName!=null and staffName != ''">
-				AND staff_name LIKE CONCAT('%', #{staffName}, '%')
+				AND staff_id in (
+					select id
+					from guard_staff
+					where name like CONCAT('%', #{staffName}, '%')
+				)
 			</if>
 			<if test="workNum!=null and workNum != ''">
 				AND work_num = #{workNum}
@@ -51,11 +55,7 @@
 	<update id="update">
 		UPDATE mj_authorization SET
 		staff_id=#{staff.id},
-		staff_name=#{staff.name},
-		work_num=#{staff.workNum},
 		access_para_info_id=#{accessParaInfoId},
-		office_id=#{office.id},
-		validity_date=#{validityDate},
 		timezone_info_num=#{timezoneInfoNum},
 		staff_group=#{staffGroup},
 		check_pom=#{checkPom},
@@ -68,11 +68,7 @@
 		INSERT INTO mj_authorization
 		VALUES (DEFAULT ,
 		#{staff.id},
-		#{staff.name},
-		#{staff.workNum},
 		#{accessParaInfoId},
-		#{office.id},
-		#{validityDate},
 		#{timezoneInfoNum},
 		#{staffGroup},
 		#{checkPom},
