@@ -10,6 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 
 /**
  * access_workdayService
@@ -22,7 +24,11 @@ public class WorkdayParaInfoService extends CrudService<WorkdayParaInfoDao, Work
 
 	@Autowired
 	private WorkdayParaInfoDao workdayParaInfoDao;
-	
+
+	public List<WorkdayParaInfo> findAllByEIdAndYear(WorkdayParaInfo workdayParaInfo){
+		return workdayParaInfoDao.findAllByEIdAndYear(workdayParaInfo);
+	}
+
 	/**
 	 * 获取单条数据
 	 * @param id

@@ -8,6 +8,8 @@ import com.thinkgem.jeesite.modules.guard.entity.Equipment;
 import org.hibernate.validator.constraints.Length;
 import org.hibernate.validator.constraints.NotBlank;
 
+import java.util.List;
+
 /**
  * access_workdayEntity
  * @author demo
@@ -20,7 +22,16 @@ public class WorkdayParaInfo extends DataEntity<WorkdayParaInfo> {
 	private Equipment equipment;	//设备
 	private String year;		// 年
 	private String month;		// 月
-	private String day;		// 日
+	private String day;		// 日，0休息  1工作
+	private List<String> restDay;		//日，所有的休息日
+
+	public List<String> getRestDay() {
+		return restDay;
+	}
+
+	public void setRestDay(List<String> restDay) {
+		this.restDay = restDay;
+	}
 
 	public Equipment getEquipment() {
 		return equipment;
@@ -59,7 +70,7 @@ public class WorkdayParaInfo extends DataEntity<WorkdayParaInfo> {
 	}
 	
 	@NotBlank(message="日不能为空")
-	@Length(min=0, max=2, message="日长度不能超过 2 个字符")
+	@Length(min=0, max=31, message="日长度不能超过 31 个字符")
 	public String getDay() {
 		return day;
 	}

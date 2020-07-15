@@ -17,4 +17,16 @@
 		FROM mj_workday_para_info
 		WHERE id = #{id} and del_flag = '0'
 	</select>
+
+	<select id="findAllByEIdAndYear" resultType="WorkdayParaInfo">
+		select *
+		from mj_workday_para_info
+		<where>
+			equipment_id=#{equipment.id} and year=#{year} and del_flag='0'
+			<if test="month!=null and month!=''">
+				and month=#{month}
+			</if>
+		</where>
+
+	</select>
 </mapper>

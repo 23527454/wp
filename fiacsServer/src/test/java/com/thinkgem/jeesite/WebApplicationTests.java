@@ -16,6 +16,14 @@ import java.util.Date;
 public class WebApplicationTests {
 
 	@Test
+	public void Test(){
+		Calendar date = Calendar.getInstance();
+
+		String year = String.valueOf(date.get(Calendar.YEAR));
+		System.out.println(year);
+	}
+
+	@Test
 	public void contextLoads() throws ParseException {
 		/*Calendar aCalendar = Calendar.getInstance(Locale.CHINA);
 		int day=aCalendar.getActualMaximum(Calendar.DATE);*/
