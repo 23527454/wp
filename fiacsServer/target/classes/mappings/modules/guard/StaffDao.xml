@@ -332,10 +332,18 @@
 		WHERE id = #{id}
 	</update>
 
+
+	<!--
+
+			-->
 	<select id="findAll" resultType="Staff">
 		select * from guard_staff
 		<where>
-			del_flag='0'
+			del_flag='0' and id not in (
+				select staff_id
+				from mj_authorization
+				where access_para_info_id=#{accessParaInfoId}
+			)
 			<if test="name!=null and name!=''">
 				and name like CONCAT('%', #{name}, '%')
 			</if>

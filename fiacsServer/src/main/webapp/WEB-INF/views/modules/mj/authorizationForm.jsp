@@ -74,23 +74,9 @@
                action="${ctx}/mj/authorization/save" method="post"
                class="form-horizontal">
     <sys:message content="${message}"/>
-    <div class="form-group">
-        <form:hidden path="id"/>
-        <input:hidden path="accessParaInfoId" />
-        <label class="control-label col-xs-2"><font class="red">*</font>选择员工:</label>
-            <%--<div class="col-xs-2">
-                <form:select path="staffId" class="form-control input-sm required">
-                    <form:options items="${staffs}" itemLabel="name" itemValue="id" htmlEscape="false"/>
-                </form:select>
-                <form:errors path="staffName" cssClass="error"></form:errors>
-            </div>--%>
-
-        <div class="col-xs-2">
-            <form:input path="staffId" htmlEscape="false" maxlength="16"
-                        class="form-control input-sm required digits"/>
-        </div>
-    </div>
-
+    <input type="hidden" name="id" id="id" value="${authorization.id}" />
+    <input type="hidden" name="selStaffIds" id="selStaffIds" value="${selStaffIds}" />
+    <input type="hidden" name="accessParaInfoId" id="accessParaInfoId" value="${authorization.accessParaInfoId}" />
     <div class="form-group">
         <label class="control-label col-xs-2"><font class="red">*</font>时区号:</label>
         <div class="col-xs-2">
@@ -156,14 +142,28 @@
 <script type="text/javascript" src="${ctxStatic}/layui/layui.js"></script>
 <script type="text/javascript" src="${ctxStatic}/layui/layui.all.js"></script>
 <script>
-    $("#staffId").click(function(){
+    $("#selStaffNames").click(function(){
+        alert(1);
         layer.open({
             type: 2,
             title: '员工选择', //将姓名设置为红色
             shadeClose: true,           //弹出框之外的地方是否可以点击
             offset: '10%',
             area: ['60%', '80%'],
-            content: '${ctx}/guard/staff/plan1'
+            content: '${ctx}/guard/staff/plan1?accessParaInfoId=${authorization.accessParaInfoId}',
+            //content: '${ctx}/guard/staff/plan1?accessParaInfoId='+${accessParaInfoId},
+            btn: ['确定'],
+            btnAlign: 'l',
+            yes: function(index){
+                //当点击‘确定’按钮的时候，获取弹出层返回的值
+                var res = window["layui-layer-iframe" + index].callbackdata();
+                //打印返回的值，看是否有我们想返回的值。
+                console.log(res);
+                $("#selStaffIds").val(res.selIds);
+                $("#selStaffNames").val(res.selNames);
+                //最后关闭弹出层
+                layer.close(index);
+            }
         });
     });
 </script>

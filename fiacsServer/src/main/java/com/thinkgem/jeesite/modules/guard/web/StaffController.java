@@ -49,7 +49,9 @@ import javax.validation.ConstraintViolationException;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 /**
  * 人员信息管理Controller
@@ -99,14 +101,15 @@ public class StaffController extends BaseController {
 	}
 
 	@RequestMapping(value = "plan1")
-	public ModelAndView plan1(ModelAndView modelAndView) {
+	public ModelAndView plan1(String accessParaInfoId,ModelAndView modelAndView,Model model) {
+		model.addAttribute("accessParaInfoId",accessParaInfoId);
 		modelAndView.setViewName("modules/mj/selStaff");//跳转到这个jsp页面来渲染表格
 		return modelAndView;
 	}
 
 	@RequestMapping(value = "selStaff")
 	@ResponseBody
-	public String selStaff(String name,String workNum,Integer pageIndex,Integer size,ModelAndView modelAndView) {
+	public String selStaff(String name,String workNum,String accessParaInfoId,Integer pageIndex,Integer size,ModelAndView modelAndView) {
 		if(pageIndex==null){
 			pageIndex=1;
 		}
@@ -115,44 +118,22 @@ public class StaffController extends BaseController {
 		}
 		pageIndex=(pageIndex-1)*size;
 
-		List<Staff> list=staffService.findAll(name,workNum,pageIndex,size);
-		List<Staff> list2=staffService.findAll(name,workNum,null,null);
+		List<Staff> list=staffService.findAll(name,workNum, accessParaInfoId,pageIndex,size);
+		List<Staff> list2=staffService.findAll(name,workNum,accessParaInfoId,null,null);
 		StringBuffer sb=new StringBuffer("");
 		StringBuffer sb2=new StringBuffer("");
 
 		for(Staff s:list){
 			sb2.append("{\"id\":\""+s.getId()+"\",\"name\":\""+s.getName()+"\",\"workNum\":\""+s.getWorkNum()+"\",\"dept\":\""+s.getDept()+"\",\"phone\":\""+s.getPhone()+"\"},");
 		}
-		sb2.deleteCharAt(sb2.length() - 1);
+		if(sb2.length()>0){
+			sb2.deleteCharAt(sb2.length() - 1);
+		}
 		sb.append("{\"code\": 0,\"msg\": \"\",\"count\": "+list2.size()+",\"data\": ["+sb2.toString()+"]}");
 
 		return sb.toString();
 	}
 
-	@RequestMapping(value = "selStaff2")
-	@ResponseBody
-	public String selStaff2(String name,String workNum,Integer pageIndex,Integer size,ModelAndView modelAndView) {
-		if(pageIndex==null){
-			pageIndex=1;
-		}
-		if(size==null){
-			size=10;
-		}
-		pageIndex=(pageIndex-1)*size;
-
-		List<Staff> list=staffService.findAll(name,workNum,pageIndex,size);
-		List<Staff> list2=staffService.findAll(name,workNum,null,null);
-		StringBuffer sb=new StringBuffer("");
-		StringBuffer sb2=new StringBuffer("");
-
-		for(Staff s:list){
-			sb2.append("{\"id\":\""+s.getId()+"\",\"name\":\""+s.getName()+"\",\"workNum\":\""+s.getWorkNum()+"\",\"dept\":\""+s.getDept()+"\",\"phone\":\""+s.getPhone()+"\"},");
-		}
-		sb2.deleteCharAt(sb2.length() - 1);
-		sb.append("{\"code\": 0,\"msg\": \"\",\"count\": "+list2.size()+",\"data\": ["+sb2.toString()+"]}");
-
-		return sb.toString();
-	}
 
 	@RequiresPermissions("guard:staff:view")
 	@RequestMapping(value = { "index" })

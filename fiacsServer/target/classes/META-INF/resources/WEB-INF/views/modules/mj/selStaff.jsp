@@ -36,8 +36,70 @@
 
 <table class="layui-hide" id="LAY_table_user" lay-filter="user"></table>
 
+<form class="layui-form" id="addAuthor" action="${ctx}/mj/authorization/save" method="post">
+    <input type="hidden" id="accessParaInfoId" name="accessParaInfoId" value="${accessParaInfoId}"/>
+    <input type="hidden" id="selStaffIds" name="selStaffIds" />
+    <div class="layui-form-item">
+        <div class="layui-inline">
+            <label class="layui-form-label">时区号:</label>
+            <div class="layui-input-inline">
+                <select name="timezoneInfoNum" lay-verify="required">
+                    <c:forEach items="${fns:getDictList('time_zone_num')}" var="dict" varStatus="status">
+                        <option value="${dict.value}">${dict.label}</option>
+                    </c:forEach>
+                </select>
+            </div>
+        </div>
+        <div class="layui-inline">
+            <label class="layui-form-label">工作日期号:</label>
+            <div class="layui-input-inline">
+                <select name="workDayNum" lay-verify="required">
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                    <option value="5">5</option>
+                    <option value="6">6</option>
+                    <option value="7">7</option>
+                    <option value="8">8</option>
+                </select>
+            </div>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <div class="layui-inline">
+            <label class="layui-form-label">人员分组:</label>
+            <div class="layui-input-inline">
+                <select name="staffGroup" lay-verify="required">
+                    <c:forEach items="${fns:getDictList('staff_group')}" var="dict" varStatus="status">
+                        <option value="${dict.value}">${dict.label}</option>
+                    </c:forEach>
+                </select>
+            </div>
+        </div>
+        <div class="layui-inline">
+            <label class="layui-form-label">是否允许查库:</label>
+            <div class="layui-input-inline">
+                <select name="checkPom" lay-verify="required">
+                    <c:forEach items="${fns:getDictList('yes_no')}" var="dict" varStatus="status">
+                        <option value="${dict.value}">${dict.label}</option>
+                    </c:forEach>
+                </select>
+            </div>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <div class="layui-form-item">
+            <label class="layui-form-label">备注信息:</label>
+            <div class="layui-input-block">
+                <textarea name="remarks" lay-verify="required" rows="4" style="width: 98%" maxlength="255" class="layui-textarea"></textarea>
+            </div>
+        </div>
+    </div>
+</form>
+
 <div class="layui-btn-group demoTable" style="margin-left: 10px">
-    <button class="layui-btn layui-layer-close layui-layer-close1" data-type="getCheckData">确定</button>
+    <button class="layui-btn" data-type="getCheckData">确定</button>
 </div>
 
 
@@ -51,7 +113,7 @@
         //方法级渲染
         table.render({
             elem: '#LAY_table_user'
-            ,url: '${ctx}/guard/staff/selStaff'
+            ,url: '${ctx}/guard/staff/selStaff?accessParaInfoId=${accessParaInfoId}'
             ,cols: [[
                 {checkbox: true, fixed: true}
                 ,{field:'id', minWidth:100, title:'编号', sort: true, fixed: true, align:'center'}
@@ -63,6 +125,8 @@
             ,id: 'testReload'
             ,page: true
             ,request:{pageName: 'pageIndex',limitName: 'size'}
+            ,limit: 5
+            ,limits: [5,10,15,20]
         });
 
         var $ = layui.$, active = {
@@ -84,7 +148,7 @@
             getCheckData: function(){ //获取选中数据
                 var checkStatus = table.checkStatus('testReload'),data = checkStatus.data;
                 if(data.length<1){
-                    layer.alert("请勾选信息！");
+                    layer.alert("请勾选人员！");
                     return false;
                 }
                 var ids=[];
@@ -92,10 +156,10 @@
                     ids+=data[i].id+',';
                 }
                 ids=ids.substr(0,ids.length-1);
-                layer.alert(ids);
+                $("#selStaffIds").val(ids.toString());
                 var index = parent.layer.getFrameIndex(window.name); //获取窗口索引
                 parent.layer.close(index);
-                //return ids;
+                $("#addAuthor").submit();
             }
         };
 
@@ -104,16 +168,6 @@
             active[type] ? active[type].call(this) : '';
         });
     });
-
-    /*function close(status){
-        if(status=="yes"){
-            window.parent.location.reload();//刷新父页面
-            var index = parent.layer.getFrameIndex(window.name); //获取窗口索引
-            parent.layer.close(index);
-        }
-        var index = parent.layer.getFrameIndex(window.name); //获取窗口索引
-        parent.layer.close(index);
-    }*/
 </script>
 </body>
 </html>

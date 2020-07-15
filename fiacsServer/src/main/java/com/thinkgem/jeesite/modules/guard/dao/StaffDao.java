@@ -25,7 +25,9 @@ public interface StaffDao extends CrudDao<Staff> {
 	
 	void updateStaffArea(Map<String,Object> map);
 
-	List<Staff> findAll(@Param("name") String name, @Param("workNum") String workNum,@Param("pageIndex") Integer pageIndex,@Param("size") Integer size);
+	//List<Staff> findAll(@Param("name") String name, @Param("workNum") String workNum, @Param("pageIndex") Integer pageIndex,@Param("size") Integer size);
+
+	List<Staff> findAll(@Param("name") String name, @Param("workNum") String workNum, @Param("accessParaInfoId") String accessParaInfoId, @Param("pageIndex") Integer pageIndex, @Param("size") Integer size);
 
 	List<Staff> findByOfficeId(String officeId);
 }

@@ -4,6 +4,7 @@
 <head>
 	<title>授权信息管理</title>
 	<meta name="decorator" content="default" />
+	<link rel="stylesheet" href="${ctxStatic}/layui/css/layui.css"  media="all">
 	<script type="text/javascript">
 		$(document).ready(
 				function() {
@@ -56,9 +57,9 @@
 <body>
 <ul class="nav nav-tabs">
 	<li class="active"><a href="${ctx}/mj/authorization/">授权信息列表</a></li>
-	<shiro:hasPermission name="mj:authorization:edit">
+	<%--<shiro:hasPermission name="mj:authorization:edit">
 		<li><a href="${ctx}/mj/authorization/form?accessParaInfoId=${accessParaInfoId}">授权信息添加</a></li>
-	</shiro:hasPermission>
+	</shiro:hasPermission>--%>
 </ul>
 <form:form id="searchForm" modelAttribute="authorization"
 		   action="${ctx}/mj/authorization/" method="post"
@@ -83,6 +84,9 @@
 	<div class="form-group">
 		<input id="btnSubmit" class="btn btn-primary" type="submit" value="查询" />
 		<input id="btnExport" class="btn btn-primary" type="button" value="导出" />
+		<shiro:hasPermission name="mj:authorization:edit">
+			<input id="btnAdd" class="btn btn-primary" type="button" value="人员添加" />
+		</shiro:hasPermission>
 	</div>
 </form:form>
 <sys:message content="${message}" />
@@ -135,5 +139,45 @@
 	</tbody>
 </table>
 <div class="pagination">${page}</div>
+
+
+
+
+<script type="text/javascript" src="${ctxStatic}/layui/layui.js"></script>
+<script type="text/javascript" src="${ctxStatic}/layui/layui.all.js"></script>
+<script>
+	$("#btnAdd").click(function(){
+		var accessPaaraInfoId=${accessParaInfoId};
+		if(accessPaaraInfoId!=null && accessPaaraInfoId!=""){
+			layer.open({
+				type: 2,
+				title: '员工选择', //将姓名设置为红色
+				shadeClose: true,           //弹出框之外的地方是否可以点击
+				offset: 'auto',
+				area: ['60%', '85%'],
+				content: '${ctx}/guard/staff/plan1?accessParaInfoId=${accessParaInfoId}',
+				/*btn: ['确定'],
+                btnAlign: 'l',
+                yes: function(index){
+                    //当点击‘确定’按钮的时候，获取弹出层返回的值
+                    var res = window["layui-layer-iframe" + index].callbackdata();
+                    //打印返回的值，看是否有我们想返回的值。
+                    console.log(res);
+                    $("#selStaffIds").val(res.selIds);
+                    $("#selStaffNames").val(res.selNames);
+                    //最后关闭弹出层
+                    layer.close(index);
+                }*/
+			});
+		}else{
+			layer.open({
+				title: '温馨提示'
+				,content: '请先选择一个门！'
+			});
+		}
+
+	});
+</script>
+
 </body>
 </html>

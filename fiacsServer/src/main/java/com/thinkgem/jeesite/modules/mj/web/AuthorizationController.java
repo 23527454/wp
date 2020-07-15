@@ -8,6 +8,7 @@ import com.thinkgem.jeesite.common.persistence.Page;
 import com.thinkgem.jeesite.common.service.ServiceException;
 import com.thinkgem.jeesite.common.web.BaseController;
 import com.thinkgem.jeesite.modules.guard.entity.Equipment;
+import com.thinkgem.jeesite.modules.guard.entity.Staff;
 import com.thinkgem.jeesite.modules.guard.service.EquipmentService;
 import com.thinkgem.jeesite.modules.guard.service.StaffService;
 import com.thinkgem.jeesite.modules.mj.entity.AccessParaInfo;
@@ -152,6 +153,10 @@ public class AuthorizationController extends BaseController {
 
 			isNew=false;
 			Authorization authorization2=authorizationService.get(id);
+			Staff staff=staffService.get(authorization2.getStaffId());
+
+			model.addAttribute("selStaffIds",staff.getId());
+			model.addAttribute("selStaffNames",staff.getName());
 			model.addAttribute("authorization",authorization2);
 		}else if((authorization!=null && authorization.getAccessParaInfoId()!=null && !authorization.getAccessParaInfoId().equals("")) || (accessParaInfoId!=null && !accessParaInfoId.equals(""))){
 			//添加
@@ -165,9 +170,6 @@ public class AuthorizationController extends BaseController {
 			addMessage(redirectAttributes, "请选择一个门！");
 			return "redirect:" + Global.getAdminPath() + "/mj/authorization/?repage";
 		}
-
-		//List<Staff> staffs=staffService.findAll(null,null,null,null);
-		//model.addAttribute("staffs", staffs);
 		model.addAttribute("isNew",isNew);
 		return "modules/mj/authorizationForm";
 	}
@@ -180,37 +182,48 @@ public class AuthorizationController extends BaseController {
 	public String save(@Validated Authorization authorization, HttpServletRequest request,BindingResult result, Model model, RedirectAttributes redirectAttributes) throws ParseException {
 		String id = request.getParameter("id");
 		String accessParaInfoId = request.getParameter("accessParaInfoId");
-		String staffId = request.getParameter("staffId");
 		String timezoneInfoNum = request.getParameter("timezoneInfoNum");
 		String workDayNum = request.getParameter("workDayNum");
 		String staffGroup = request.getParameter("staffGroup");
 		String checkPom = request.getParameter("checkPom");
 		String remarks = request.getParameter("remarks");
+		String selStaffIds=request.getParameter("selStaffIds");
+		String[] ids=selStaffIds.split(",");
 
 		AccessParaInfo accessParaInfo = null;
 		try {
-			authorization = new Authorization(timezoneInfoNum, staffId, accessParaInfoId, staffGroup, checkPom, workDayNum);
-			authorization.setId(id);
-			authorization.setStaff(staffService.get(staffId));
-			accessParaInfo = accessParaInfoService.get(accessParaInfoId);
-			authorization.setOffice(officeService.get(authorization.getStaff().getId()));
+			for(String s:ids){
+				authorization = new Authorization(timezoneInfoNum, s, accessParaInfoId, staffGroup, checkPom, workDayNum);
+				authorization.setId(id);
+				authorization.setStaff(staffService.get(s));
+				accessParaInfo = accessParaInfoService.get(accessParaInfoId);
+				authorization.setOffice(officeService.get(authorization.getStaff().getId()));
+				authorization.setRemarks(remarks);
 
-			if (id != null && !id.equals("")) {
-				Authorization authorization2 = authorizationService.get(id);
-				if (staffId.equals(authorization2.getStaffId()) && accessParaInfoId.equals(authorization2.getAccessParaInfoId())) {
+				if (id != null && !id.equals("")) {
+					//修改
+					Authorization authorization2 = authorizationService.get(id);
 
-				} else if (authorizationService.getCountBySId(authorization.getStaffId(), authorization.getAccessParaInfoId()) >= 1) {
-					addMessage(redirectAttributes, "该用户已经存在");
-					return "redirect:" + Global.getAdminPath() + "/mj/authorization/?repage";
+					System.out.println("+++++++++++++++++++++++++++++++++++++++++++++++++++++"+(s.equals(authorization2.getStaffId()) && accessParaInfoId.equals(authorization2.getAccessParaInfoId())));
+
+					if (s.equals(authorization2.getStaffId()) && accessParaInfoId.equals(authorization2.getAccessParaInfoId())) {
+
+					} else if (authorizationService.getCountBySId(authorization.getStaffId(), authorization.getAccessParaInfoId()) >= 1) {
+						addMessage(redirectAttributes, "该用户已经存在");
+						return "redirect:" + Global.getAdminPath() + "/mj/authorization/?repage";
+					}
+				} else {
+					//添加
+					if (authorizationService.getCountBySId(authorization.getStaffId(), authorization.getAccessParaInfoId()) >= 1) {
+						addMessage(redirectAttributes, "该用户已经存在");
+						return "redirect:" + Global.getAdminPath() + "/mj/authorization/?repage";
+					}
 				}
-			} else {
-				if (authorizationService.getCountBySId(authorization.getStaffId(), authorization.getAccessParaInfoId()) >= 1) {
-					addMessage(redirectAttributes, "该用户已经存在");
-					return "redirect:" + Global.getAdminPath() + "/mj/authorization/?repage";
-				}
+
+				authorizationService.save(authorization);
 			}
 
-			authorizationService.save(authorization);
+
 		} catch (Exception e) {
 			throw new ServiceException("保存数据", e);
 		}
