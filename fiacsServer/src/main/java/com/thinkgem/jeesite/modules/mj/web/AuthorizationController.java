@@ -110,8 +110,6 @@ public class AuthorizationController extends BaseController {
 				Office office=officeService.get(equipment.getOffice().getId());
 
 				page.getList().get(i).setOffice(office);
-
-				System.out.println("office:"+page.getList().get(i).getOffice().getName());
 			}
 			model.addAttribute("page", page);
 		}

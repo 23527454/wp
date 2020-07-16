@@ -4,6 +4,7 @@
 package com.thinkgem.jeesite.modules.mj.web;
 
 import com.thinkgem.jeesite.common.config.Global;
+import com.thinkgem.jeesite.common.persistence.Page;
 import com.thinkgem.jeesite.common.web.BaseController;
 import com.thinkgem.jeesite.modules.guard.service.EquipmentService;
 import com.thinkgem.jeesite.modules.mj.entity.WorkdayParaInfo;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.text.ParseException;
 import java.util.*;
 
@@ -54,7 +56,9 @@ public class WorkdayParaInfoController extends BaseController {
 	 */
 	@RequiresPermissions("mj:workdayParaInfo:view")
 	@RequestMapping(value = {"list", ""})
-	public String list(String eId, String mon, HttpServletRequest request, Model model) throws ParseException {
+	public String list(String eId, String mon,Integer pageNo,Integer pageSize, HttpServletRequest request, HttpServletResponse response, Model model) throws ParseException {
+		pageNo=pageNo==null?1:pageNo;
+		pageSize=pageSize==null?15:pageSize;
 		WorkdayParaInfo workdayParaInfo=new WorkdayParaInfo();
 		workdayParaInfo.setMonth(mon);
 		if(eId!=null && !eId.equals("")){
@@ -62,8 +66,10 @@ public class WorkdayParaInfoController extends BaseController {
 			Calendar date = Calendar.getInstance();
 			String year = String.valueOf(date.get(Calendar.YEAR));
 			workdayParaInfo.setYear(year);
-			List<WorkdayParaInfo> list=workdayParaInfoService.findAllByEIdAndYear(workdayParaInfo);
+			List<WorkdayParaInfo> list = workdayParaInfoService.findAllByEIdAndYear(workdayParaInfo);
+			//List<WorkdayParaInfo> list=workdayParaInfoService.findAllByEIdAndYear(workdayParaInfo);
 			List<Map<String, String>> restDay = new ArrayList<Map<String, String>>();
+			int count=0;
 			//遍历月
 			for(int i=0;i<list.size();i++){
 				//0,1 格式,转换为数组进行遍历，获取真实的日
@@ -76,6 +82,7 @@ public class WorkdayParaInfoController extends BaseController {
 					//获得完整的日期
 					String str=year+"-"+list.get(i).getMonth()+"-"+(j+1);
 					if(String.valueOf(a[j]).equals("0")){
+						count++;
 						Map<String,String> map = new HashMap();
 						map.put("date",str);
 						map.put("restIndex",String.valueOf(j+1));
@@ -84,26 +91,30 @@ public class WorkdayParaInfoController extends BaseController {
 					}
 				}
 			}
+			List<Map<String, String>> tempRestDay = new ArrayList<Map<String, String>>();
+			int num=0;
+			for(int i=(pageNo-1)*pageSize;i<restDay.size();i++){
+				System.out.println("++++++++++++++++++++++++++++++++++++++++++++++i:"+i);
+				Map<String,String> map = restDay.get(i);
+				tempRestDay.add(map);
+				num++;
+				if(num==pageSize){
+					break;
+				}
+			}
+			System.out.println(tempRestDay.toString());
+			Page page=new Page(pageNo,pageSize,restDay.size(),tempRestDay);
+			page.initialize();
 
-			model.addAttribute("restDay", restDay);
+			model.addAttribute("page", page);
+			//model.addAttribute("restDay", restDay);
 		}
 
 		model.addAttribute("eId", eId);
 		model.addAttribute("mon", mon);
 		return "modules/mj/workdayParaInfoList";
 	}
-	
-	/**
-	 * 查询列表数据
-	 */
-	/*@RequiresPermissions("mj:workdayParaInfo:view")
-	@RequestMapping(value = "listData")
-	@ResponseBody
-	public Page<AccessWorkday> listData(AccessWorkday accessWorkday, HttpServletRequest request, HttpServletResponse response) {
-		accessWorkday.setPage(new Page<>(request, response));
-		Page<AccessWorkday> page = accessWorkdayService.findPage(accessWorkday);
-		return page;
-	}*/
+
 
 	/**
 	 * 查看编辑表单
@@ -125,6 +136,7 @@ public class WorkdayParaInfoController extends BaseController {
 		accessWorkdayService.save(accessWorkday);
 		return renderResult(Global.TRUE, text("保存access_workday成功！"));
 	}*/
+
 	
 	/**
 	 * 删除数据
@@ -132,14 +144,16 @@ public class WorkdayParaInfoController extends BaseController {
 	@RequiresPermissions("mj:workdayParaInfo:edit")
 	@RequestMapping(value = "delete")
 	@Transactional
-	public String delete(String ids, Integer restIndex,RedirectAttributes redirectAttributes) {
+	public String delete(String ids,RedirectAttributes redirectAttributes) {
 		String[] arr=ids.split(",");
 		StringBuilder sb=new StringBuilder("");
 		try{
 			for(int i=0;i<arr.length;i++){
-				WorkdayParaInfo workdayParaInfo=workdayParaInfoService.get(arr[i]);
+				sb=new StringBuilder("");
+				String[] info=arr[i].split("-");
+				WorkdayParaInfo workdayParaInfo=workdayParaInfoService.get(info[0]);
 				sb.append(workdayParaInfo.getDay());
-				sb.replace(restIndex-1,restIndex,"1");
+				sb.replace(Integer.parseInt(info[1])-1,Integer.parseInt(info[1]),"1");
 				workdayParaInfo.setDay(sb.toString());
 				int result=workdayParaInfoService.modifyRestDayById(workdayParaInfo);
 				if (result!=1){

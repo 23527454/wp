@@ -5,7 +5,9 @@
 <head>
 	<title>工作日管理</title>
 	<meta name="decorator" content="default"/>
+	<link rel="stylesheet" href="${ctxStatic}/layui/css/layui.css"  media="all">
 	<script src="${ctxStatic}/jquery-session/jquery-session.js"></script>
+	<script type="text/javascript" src="${ctxStatic}/layui/layui.all.js"></script>
 	<script type="text/javascript">
 		$(document).ready(function() {
 			$("#btnExport").click(
@@ -39,8 +41,17 @@
 
 			$("input[name='restIndex']").on('click',function() {
 				var $restIndex = $("input[name='restIndex']");
-				$("#all").prop("checked" , $restIndex.length == $subs.filter(":checked").length ? true :false);
+				$("#all").prop("checked" , $restIndex.length == $restIndex.filter(":checked").length ? true :false);
 			}); 
+
+			$("#delSel").on('click',function() {
+				var pid_array = new Array();
+				$('input[id="restIndex"]:checked').each(function(){
+					pid_array.push($(this).val());//向数组中添加元素
+				});
+				var pids=pid_array.join(",");
+				window.location.href="${ctx}/mj/workdayParaInfo/delete?ids="+pids;
+			});
 		});
 
 
@@ -52,6 +63,9 @@
 </ul>
 <form:form id="searchForm" modelAttribute="workdayParaInfo" action="${ctx}/mj/workdayParaInfo/" method="post" class="breadcrumb form-search">
 	<input type="hidden" name="eId" value="${eId}">
+	<input id="pageNo" name="pageNo" type="hidden" value="${page.pageNo}" />
+	<input id="pageSize" name="pageSize" type="hidden"
+		   value="${page.pageSize}" />
 	<ul class="ul-form">
 		<li><label>月份：</label>
 			<select name="mon" style="width: 100px">
@@ -89,9 +103,9 @@
 	</tr>
 	</thead>
 	<tbody>
-	<c:forEach items="${restDay}" var="day"  varStatus="varStatus">
+	<c:forEach items="${page.list}" var="day"  varStatus="varStatus">
 		<tr>
-            <td><input type="checkbox" name="restIndex" value="${day.restIndex}" /></td>
+            <td><input type="checkbox"id="restIndex" name="restIndex" value="${day.id}-${day.restIndex}" /></td>
 			<td>
 					${varStatus.count}
 			</td>
@@ -99,16 +113,13 @@
 					${day.date}
 			</td>
 			<shiro:hasPermission name="mj:workdayParaInfo:edit"><td>
-				<a href="${ctx}/mj/workdayParaInfo/delete?ids=${day.id}&restIndex=${day.restIndex}">删除</a>
+				<a href="${ctx}/mj/workdayParaInfo/delete?ids=${day.id}-${day.restIndex}">删除</a>
 			</td></shiro:hasPermission>
 		</tr>
-		<c:forEach items="${month.restDay}" var="day" varStatus="dayStatus">
-
-		</c:forEach>
 
 	</c:forEach>
 	</tbody>
 </table>
-<%--<div class="pagination">${page}</div>--%>
+<div class="pagination">${page}</div>
 </body>
 </html>

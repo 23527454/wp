@@ -3,6 +3,7 @@
  */
 package com.thinkgem.jeesite.modules.mj.service;
 
+import com.thinkgem.jeesite.common.persistence.Page;
 import com.thinkgem.jeesite.common.service.CrudService;
 import com.thinkgem.jeesite.modules.mj.dao.WorkdayParaInfoDao;
 import com.thinkgem.jeesite.modules.mj.entity.WorkdayParaInfo;
@@ -37,6 +38,12 @@ public class WorkdayParaInfoService extends CrudService<WorkdayParaInfoDao, Work
 		return workdayParaInfoDao.deleteAllByEId(eId);
 	}
 
+	public Page<WorkdayParaInfo> findPage(Page<WorkdayParaInfo> page, WorkdayParaInfo workdayParaInfo) {
+
+		Page<WorkdayParaInfo> workdayParaInfoPage = super.findPage(page, workdayParaInfo);
+
+		return workdayParaInfoPage;
+	}
 
 	/**
 	 * 获取单条数据
