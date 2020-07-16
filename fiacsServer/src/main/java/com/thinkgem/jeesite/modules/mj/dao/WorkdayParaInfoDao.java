@@ -6,6 +6,7 @@ package com.thinkgem.jeesite.modules.mj.dao;
 import com.thinkgem.jeesite.common.persistence.CrudDao;
 import com.thinkgem.jeesite.common.persistence.annotation.MyBatisDao;
 import com.thinkgem.jeesite.modules.mj.entity.WorkdayParaInfo;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -18,5 +19,7 @@ import java.util.List;
 public interface WorkdayParaInfoDao extends CrudDao<WorkdayParaInfo> {
     public List<WorkdayParaInfo> findAllByEIdAndYear(WorkdayParaInfo workdayParaInfo);
 
-    //public List<WorkdayParaInfo> findRestDayByEIdAndYear(@Param("eid") String eid,@Param("year") String year);
+    public Integer modifyRestDayById(WorkdayParaInfo workdayParaInfo);
+
+    public Integer deleteAllByEId(@Param("eId") String eId);
 }

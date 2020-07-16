@@ -13,12 +13,12 @@ import com.thinkgem.jeesite.common.utils.Reflections;
 import com.thinkgem.jeesite.common.utils.StringUtils;
 import com.thinkgem.jeesite.common.utils.excel.ExportExcel;
 import com.thinkgem.jeesite.common.web.BaseController;
-import com.thinkgem.jeesite.modules.mj.entity.*;
-import com.thinkgem.jeesite.modules.mj.service.*;
 import com.thinkgem.jeesite.modules.guard.dao.LineNodesDao;
 import com.thinkgem.jeesite.modules.guard.entity.Equipment;
 import com.thinkgem.jeesite.modules.guard.entity.LineNodes;
 import com.thinkgem.jeesite.modules.guard.service.EquipmentService;
+import com.thinkgem.jeesite.modules.mj.entity.*;
+import com.thinkgem.jeesite.modules.mj.service.*;
 import com.thinkgem.jeesite.modules.sys.entity.Office;
 import com.thinkgem.jeesite.modules.sys.entity.User;
 import com.thinkgem.jeesite.modules.sys.service.OfficeService;
@@ -39,10 +39,9 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 /**
  * 设备信息Controller
@@ -72,6 +71,8 @@ public class EquipmentController extends BaseController {
 	private DefenseParaInfoService defenseParaInfoService;
 	@Autowired
 	private AuthorizationService authorizationService;
+	@Autowired
+	private WorkdayParaInfoService workdayParaInfoService;
 
 	@ModelAttribute
 	public Equipment get(@RequestParam(required = false) String id) {
@@ -284,6 +285,7 @@ public class EquipmentController extends BaseController {
 				timezoneInfoService.deleteByEId(equipment.getId());
 				securityParaInfoService.deleteByEId(equipment.getId());
 				defenseParaInfoService.deleteByEId(equipment.getId());
+				workdayParaInfoService.deleteAllByEId(equipment.getId());
 				int num=equipment.getAccessType()==0?1:equipment.getAccessType()==1?2:4;
 				for(int i=1;i<=num;i++){
 					AccessParaInfo accessParaInfo=new AccessParaInfo();
@@ -338,6 +340,38 @@ public class EquipmentController extends BaseController {
 				DefenseParaInfo defenseParaInfo =new DefenseParaInfo(1,1,"1",1,005,"00:00","23:59","00:00","00:00","00:00","00:00","00:00","00:00");
 				defenseParaInfo.setEquipment(equipment);
 				defenseParaInfoService.save(defenseParaInfo);
+
+				//添加工作日表信息
+				StringBuffer sb=new StringBuffer("");
+				DateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+				Calendar c2 = Calendar.getInstance();
+				String year = String.valueOf(c2.get(Calendar.YEAR));
+				Date date = new Date();
+				for(int i=0;i<12;i++){
+					sb=new StringBuffer("");
+					String str=year+"-"+(i+1)+"-"+1;
+					Calendar c = Calendar.getInstance();
+					date = format.parse(str);
+					c.setTime(date);
+					int day=c.getActualMaximum(Calendar.DAY_OF_MONTH);
+					for(int j=0;j<day;j++){
+						str=year+"-"+(i+1)+"-"+(j+1);
+						date=format.parse(str);
+						c.setTime(date);
+
+						if(c.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY || c.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY){
+							sb.append("0");
+						} else{
+							sb.append("1");
+						}
+					}
+					WorkdayParaInfo workdayParaInfo=new WorkdayParaInfo();
+					workdayParaInfo.setEquipment(equipment);
+					workdayParaInfo.setYear(year);
+					workdayParaInfo.setMonth((i+1)+"");
+					workdayParaInfo.setDay(sb.toString());
+					workdayParaInfoService.save(workdayParaInfo);
+				}
 			}
 
 		} catch (Exception e) {
@@ -346,7 +380,7 @@ public class EquipmentController extends BaseController {
 		addMessage(redirectAttributes, "保存设备信息成功");
 		return "redirect:" + Global.getAdminPath() + "/guard/equipment/?repage";
 	}
-	
+
 	@RequiresPermissions("guard:equipment:edit")
 	@RequestMapping(value = "saveSetting")
 	public String saveSetting(Equipment equipment,BindingResult result,  Model model, RedirectAttributes redirectAttributes) {

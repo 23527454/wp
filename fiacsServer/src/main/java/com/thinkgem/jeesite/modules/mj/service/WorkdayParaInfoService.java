@@ -29,6 +29,15 @@ public class WorkdayParaInfoService extends CrudService<WorkdayParaInfoDao, Work
 		return workdayParaInfoDao.findAllByEIdAndYear(workdayParaInfo);
 	}
 
+	public Integer modifyRestDayById(WorkdayParaInfo workdayParaInfo){
+		return workdayParaInfoDao.modifyRestDayById(workdayParaInfo);
+	}
+
+	public Integer deleteAllByEId(String eId){
+		return workdayParaInfoDao.deleteAllByEId(eId);
+	}
+
+
 	/**
 	 * 获取单条数据
 	 * @param id

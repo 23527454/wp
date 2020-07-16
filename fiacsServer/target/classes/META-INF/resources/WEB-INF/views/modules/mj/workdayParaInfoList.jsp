@@ -31,6 +31,19 @@
 			$("#searchForm").submit();
 			return false;
 		}
+
+		$(function() {
+			$("#all").on('click',function() {
+				$("input[name='restIndex']").prop("checked", this.checked);
+			});
+
+			$("input[name='restIndex']").on('click',function() {
+				var $restIndex = $("input[name='restIndex']");
+				$("#all").prop("checked" , $restIndex.length == $subs.filter(":checked").length ? true :false);
+			}); 
+		});
+
+
 	</script>
 </head>
 <body>
@@ -60,7 +73,8 @@
 		<li class="btns"><input id="btnSubmit" class="btn btn-primary" type="submit" value="查询"/></li>
 		<li class="btns"><input id="btnExport" class="btn btn-primary" type="button" value="导出" /></li>
 		<shiro:hasPermission name="mj:workdayParaInfo:edit">
-			<input id="btnAdd" class="btn btn-primary" type="button" value="假期添加" />
+            <input id="btnAdd" class="btn btn-primary" type="button" value="假期添加" />
+            <input id="delSel" class="btn btn-primary" type="button" value="删除选中" />
 		</shiro:hasPermission>
 	</ul>
 </form:form>
@@ -68,6 +82,7 @@
 <table id="contentTable" class="table table-striped table-bordered table-condensed">
 	<thead>
 	<tr>
+        <th style="width: 10%"><input type="checkbox" id="all" />全选</th>
 		<th>序号</th>
 		<th>日期</th>
 		<shiro:hasPermission name="mj:workdayParaInfo:edit"><th>操作</th></shiro:hasPermission>
@@ -76,6 +91,7 @@
 	<tbody>
 	<c:forEach items="${restDay}" var="day"  varStatus="varStatus">
 		<tr>
+            <td><input type="checkbox" name="restIndex" value="${day.restIndex}" /></td>
 			<td>
 					${varStatus.count}
 			</td>
@@ -83,7 +99,7 @@
 					${day.date}
 			</td>
 			<shiro:hasPermission name="mj:workdayParaInfo:edit"><td>
-				<a href="${ctx}/mj/workdayParaInfo/form?id=${day.id}&num=${dayStatus.count}">修改</a>
+				<a href="${ctx}/mj/workdayParaInfo/delete?ids=${day.id}&restIndex=${day.restIndex}">删除</a>
 			</td></shiro:hasPermission>
 		</tr>
 		<c:forEach items="${month.restDay}" var="day" varStatus="dayStatus">

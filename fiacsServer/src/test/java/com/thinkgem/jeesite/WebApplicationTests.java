@@ -24,6 +24,36 @@ public class WebApplicationTests {
 	}
 
 	@Test
+	public void Test2() throws ParseException {
+		StringBuffer sb=new StringBuffer("");
+		DateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+		Calendar c2 = Calendar.getInstance();
+		String year = String.valueOf(c2.get(Calendar.YEAR));
+		Date date = new Date();
+		for(int i=0;i<12;i++){
+			sb=new StringBuffer("");
+			String str=year+"-"+(i+1)+"-"+1;
+			Calendar c = Calendar.getInstance();
+			date = format.parse(str);
+			c.setTime(date);
+			int day=c.getActualMaximum(Calendar.DAY_OF_MONTH);
+			for(int j=0;j<day;j++){
+				str=year+"-"+(i+1)+"-"+(j+1);
+				date=format.parse(str);
+				c.setTime(date);
+
+				if(c.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY || c.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY){
+					sb.append("0");
+				} else{
+					sb.append("1");
+				}
+			}
+
+			System.out.println("\n本月的工作日信息："+sb.toString());
+		}
+	}
+
+	@Test
 	public void contextLoads() throws ParseException {
 		/*Calendar aCalendar = Calendar.getInstance(Locale.CHINA);
 		int day=aCalendar.getActualMaximum(Calendar.DATE);*/

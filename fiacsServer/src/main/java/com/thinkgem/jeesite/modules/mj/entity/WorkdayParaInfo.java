@@ -24,6 +24,15 @@ public class WorkdayParaInfo extends DataEntity<WorkdayParaInfo> {
 	private String month;		// 月
 	private String day;		// 日，0休息  1工作
 	private List<String> restDay;		//日，所有的休息日
+	private Integer restIndex;			//休息日的下标，1开始，最大31，对应这个月的第几天
+
+	public Integer getRestIndex() {
+		return restIndex;
+	}
+
+	public void setRestIndex(Integer restIndex) {
+		this.restIndex = restIndex;
+	}
 
 	public List<String> getRestDay() {
 		return restDay;
@@ -42,7 +51,7 @@ public class WorkdayParaInfo extends DataEntity<WorkdayParaInfo> {
 	}
 
 	public WorkdayParaInfo() {
-		this(null);
+		super();
 	}
 
 	public WorkdayParaInfo(String id){

@@ -29,4 +29,30 @@
 		</where>
 
 	</select>
+
+	<update id="modifyRestDayById">
+		update mj_workday_para_info
+		set day=#{day}
+		where id=#{id}
+	</update>
+
+	<delete id="deleteAllByEId">
+		delete from mj_workday_para_info
+		where equipment_id=#{eId}
+	</delete>
+
+	<insert id="insert">
+		INSERT INTO mj_workday_para_info
+		VALUES (DEFAULT,
+		#{equipment.id},
+		#{year},
+		#{month},
+		#{day},
+		#{createBy.id},
+		#{createDate},
+		#{updateBy.id},
+		#{updateDate},
+		#{remarks},
+		DEFAULT)
+	</insert>
 </mapper>
