@@ -474,7 +474,11 @@ var warkNumber = 1;
 
 		$("#inputForm").submit();
 	}
-	
+
+	function copy() {
+		alert("join.................");
+
+	}
 	
 	　//图像加载出错时的处理
 	function errorImg(img) {
@@ -642,8 +646,11 @@ var warkNumber = 1;
 	<div class="row">
 		<div style="margin-left:10px;margin-top:10px;">
             <shiro:hasPermission name="guard:staff:edit">
-                <input id="btnSubmit" class="btn btn-primary" type="button"
-                    value="保 存" onclick="sub()" />&nbsp;</shiro:hasPermission>
+				<input id="btnSubmit" class="btn btn-primary" type="button"
+					   value="保 存" onclick="sub()" />&nbsp;
+				<input id="btnSubmit" class="btn btn-primary" type="button"
+					   value="复 制" onclick="copy()" />&nbsp;
+			</shiro:hasPermission>
             <input id="btnCancel" class="btn" type="button" value="返 回"
                 onclick="history.go(-1)" />
                 <span class="bg-warning" style="float:right;">提示：此界面所有数据都需要点击“<b>保存</b>”按钮才会执行保存.</span	>
@@ -779,7 +786,8 @@ var warkNumber = 1;
 					<div class="form-group">
 						<label class="control-label col-xs-4"><font class="red">*</font>人员状态：</label>
 						<div class="col-xs-5">
-							<input
+							<input type="hidden" id="staffStatus" name="">
+							<input id="staffStatus"
 								value="${fns:getDictLabel(staff.status, 'person_status', '')}"
 								htmlEscape="false" maxlength="64" class="form-control input-sm required"
 								style="width: 160px;" readonly="true" style="width:158px;"/>

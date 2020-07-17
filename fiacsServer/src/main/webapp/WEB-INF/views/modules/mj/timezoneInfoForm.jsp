@@ -111,13 +111,48 @@
 		<div class="form-group">
 			<div class="col-xs-offset-2 col-xs-10">
 				<shiro:hasPermission name="mj:timezoneInfo:edit">
-					<input id="btnSubmit" class="btn btn-primary" type="submit"
-						   value="保 存"/>&nbsp;</shiro:hasPermission>
+					<input id="btnSubmit" class="btn btn-primary" type="submit" value="保 存"/>
+					<input id="btnCopy" class="btn btn-primary" type="button" value="复 制"/>
+				</shiro:hasPermission>
 				<a id="btnCancel" href="${ctx}/mj/timezoneInfo/" class="btn btn-default" >返回</a>
 			</div>
 		</div>
 	</form:form>
 </div>
+
+<script>
+	$(function () {
+		$("#btnCopy").on('click',function () {
+			/*
+			var formData = {};
+			var t = $('#inputForm').serializeArray();
+			$.each(t, function() {
+				if(this.name!="weekNumber"){
+					formData[this.name] = this.value;
+				}
+			});
+			var str=JSON.stringify(formData);
+			var json=JSON.parse(str);
+			console.log(str)
+			var id=json.id;
+			var timeStart1=json.timeStart1;
+			var timeStart2=json.timeStart2;
+			var timeStart3=json.timeStart3;
+			var timeStart4=json.timeStart4;
+			var timeStart1=json.timeStart1;
+			var timeEnd1=json.timeEnd1;
+			var timeEnd2=json.timeEnd2;
+			var timeEnd3=json.timeEnd3;
+			var timeEnd4=json.timeEnd4;
+			var remarks=json.remarks;
+			*/
+			$("#inputForm").attr("action","${ctx}/mj/timezoneInfo/copy");
+			$("#inputForm").submit();
+			$("#inputForm").attr("action","${ctx}/mj/timezoneInfo/save");
+		})
+	});
+</script>
+
 
 <style>
 	/*日历插件样式表*/

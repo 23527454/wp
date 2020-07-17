@@ -171,6 +171,34 @@ public class WorkdayParaInfoController extends BaseController {
 		return "modules/mj/workdayParaInfoList";
 	}
 
+	/**
+	 * 导出工作日数据
+	 *
+	 * @param workdayParaInfo
+	 * @param request
+	 * @param response
+	 * @param redirectAttributes
+	 * @return
+	 */
+	/*@RequiresPermissions("mj:workdayParaInfo:view")
+	@RequestMapping(value = "export", method = RequestMethod.POST)
+	public String exportFile(WorkdayParaInfo workdayParaInfo, HttpServletRequest request, HttpServletResponse response,
+							 RedirectAttributes redirectAttributes) {
+		try {
+			String fileName = "工作日信息" + DateUtils.getDate("yyyyMMddHHmmss") + ".xlsx";
+			List<WorkdayParaInfo> list=workdayParaInfoService.findList(workdayParaInfo);
+			for(int i=0;i<list.size();i++){
+				Equipment equipment=equipmentService.get(String.valueOf(list.get(i).getEquipment().getId()));
+				list.get(i).setEquipment(equipment);
+			}
+			new ExportExcel("工作日信息", WorkdayParaInfo.class).setDataList(list).write(response, fileName).dispose();
+			return null;
+		} catch (Exception e) {
+			addMessage(redirectAttributes, "导出工作日信息失败！失败信息：" + e.getMessage());
+		}
+		return "redirect:" + adminPath + "/mj/workdayParaInfo/list?repage";
+	}*/
+
 
 	/**
 	 * 查看编辑表单

@@ -5,8 +5,12 @@ package com.thinkgem.jeesite.modules.mj.web;
 
 import com.thinkgem.jeesite.common.config.Global;
 import com.thinkgem.jeesite.common.service.ServiceException;
+import com.thinkgem.jeesite.common.utils.DateUtils;
 import com.thinkgem.jeesite.common.utils.StringUtils;
+import com.thinkgem.jeesite.common.utils.excel.ExportExcel;
 import com.thinkgem.jeesite.common.web.BaseController;
+import com.thinkgem.jeesite.modules.guard.entity.Equipment;
+import com.thinkgem.jeesite.modules.guard.service.EquipmentService;
 import com.thinkgem.jeesite.modules.mj.entity.AccessParaInfo;
 import com.thinkgem.jeesite.modules.mj.service.AccessParaInfoService;
 import com.thinkgem.jeesite.modules.sys.entity.Dict;
@@ -17,10 +21,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.http.HttpServletRequest;
@@ -40,6 +41,8 @@ public class AccessParaInfoController extends BaseController {
 	private AccessParaInfoService accessParaInfoService;
 	@Autowired
 	private DictService dictService;
+	@Autowired
+	private EquipmentService equipmentService;
 
 	/**
 	 * 获取数据
@@ -60,19 +63,47 @@ public class AccessParaInfoController extends BaseController {
 	public String index(AccessParaInfo accessParaInfo, Model model) {
 		return "modules/mj/accessParalnfoIndex";
 	}
-	
+
+	/**
+	 * 导出门禁参数数据
+	 *
+	 * @param accessParaInfo
+	 * @param request
+	 * @param response
+	 * @param redirectAttributes
+	 * @return
+	 */
+	@RequiresPermissions("mj:accessParaInfo:view")
+	@RequestMapping(value = "export", method = RequestMethod.POST)
+	public String exportFile(AccessParaInfo accessParaInfo, HttpServletRequest request, HttpServletResponse response,
+							 RedirectAttributes redirectAttributes) {
+		try {
+			String fileName = "门禁参数信息" + DateUtils.getDate("yyyyMMddHHmmss") + ".xlsx";
+			List<AccessParaInfo> list=accessParaInfoService.findList(accessParaInfo);
+			for(int i=0;i<list.size();i++){
+				Equipment equipment=equipmentService.get(String.valueOf(list.get(i).getEquipmentId()));
+				list.get(i).setEquipment(equipment);
+			}
+			new ExportExcel("门禁参数信息", AccessParaInfo.class).setDataList(list).write(response, fileName).dispose();
+			return null;
+		} catch (Exception e) {
+			addMessage(redirectAttributes, "导出门禁参数信息失败！失败信息：" + e.getMessage());
+		}
+		return "redirect:" + adminPath + "/mj/accessParaInfo/list?repage";
+	}
+
 	/**
 	 * 查询列表
 	 */
 	@RequiresPermissions("mj:accessParaInfo:view")
 	@RequestMapping(value = {"list", ""})
 	public String list(AccessParaInfo accessParaInfo, HttpServletRequest request, HttpServletResponse response, Model model) {
-		AccessParaInfo accessParaInfo2 = null;
+
 		if(accessParaInfo!=null && accessParaInfo.getId()!=null && !accessParaInfo.getId().equals("")){
-			accessParaInfo2=accessParaInfoService.get(accessParaInfo.getId());
+			accessParaInfo=accessParaInfoService.get(accessParaInfo.getId());
 		}
 
-		model.addAttribute("accessParaInfo",accessParaInfo2);
+		model.addAttribute("accessParaInfo",accessParaInfo);
 		return "modules/mj/accessParaInfoList";
 	}
 	

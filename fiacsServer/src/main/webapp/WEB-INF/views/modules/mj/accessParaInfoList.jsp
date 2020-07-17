@@ -1,3 +1,4 @@
+<%@ taglib prefix="input" uri="http://www.springframework.org/tags/form" %>
 <%@ page contentType="text/html;charset=UTF-8" %>
 <%@ include file="/WEB-INF/views/include/taglib.jsp"%>
 <html>
@@ -12,10 +13,10 @@
 								v, h, f) {
 							if (v == "ok") {
 								$("#searchForm").attr("action",
-										"${ctx}/guard/equipment/export");
+										"${ctx}/mj/accessParaInfo/export");
 								$("#searchForm").submit();
 								$("#searchForm").attr("action",
-										"${ctx}/guard/equipment/list");
+										"${ctx}/mj/accessParaInfo/list");
 							}
 						}, {
 							buttonsFocus : 1
@@ -40,6 +41,9 @@
 		<input id="btnExport" class="btn btn-primary" style="margin: 10px 0 0 10%" type="button" value="导出" />
 	</div>
 	<sys:message content="${message}"/>
+	<form:form id="searchForm" modelAttribute="accessParaInfo" action="${ctx}/mj/accessParaInfo/" method="post" class="breadcrumb form-search">
+		<input:hidden path="id" />
+	</form:form>
 	<table id="contentTable" class="table table-striped table-bordered table-condensed">
 		<thead>
 			<tr>

@@ -4,6 +4,7 @@
 package com.thinkgem.jeesite.modules.mj.entity;
 
 import com.thinkgem.jeesite.common.persistence.DataEntity;
+import com.thinkgem.jeesite.common.utils.excel.annotation.ExcelField;
 import com.thinkgem.jeesite.modules.guard.entity.Equipment;
 import org.hibernate.validator.constraints.Length;
 import org.hibernate.validator.constraints.NotBlank;
@@ -42,6 +43,11 @@ public class WorkdayParaInfo extends DataEntity<WorkdayParaInfo> {
 		this.restDay = restDay;
 	}
 
+	@ExcelField(title = "网点名称", align = 2, sort = 1)
+	public String getEquipmentControlPos(){
+		return equipment.getControlPos();
+	}
+
 	public Equipment getEquipment() {
 		return equipment;
 	}
@@ -60,6 +66,7 @@ public class WorkdayParaInfo extends DataEntity<WorkdayParaInfo> {
 	
 	@NotBlank(message="年不能为空")
 	@Length(min=0, max=4, message="年长度不能超过 4 个字符")
+	@ExcelField(title = "年", align = 2, sort = 2)
 	public String getYear() {
 		return year;
 	}
@@ -70,6 +77,7 @@ public class WorkdayParaInfo extends DataEntity<WorkdayParaInfo> {
 	
 	@NotBlank(message="月不能为空")
 	@Length(min=0, max=2, message="月长度不能超过 2 个字符")
+	@ExcelField(title = "月", align = 2, sort = 3)
 	public String getMonth() {
 		return month;
 	}
@@ -77,7 +85,28 @@ public class WorkdayParaInfo extends DataEntity<WorkdayParaInfo> {
 	public void setMonth(String month) {
 		this.month = month;
 	}
-	
+
+	@ExcelField(title = "日", align = 2, sort = 4)
+	public String getDay2(){
+		for(int i=1;i<=day.length();i++){
+			return String.valueOf(i);
+		}
+		return "";
+	}
+
+
+	@ExcelField(title = "状态", align = 2, sort = 5)
+	public String getStatus(){
+		for(int i=1;i<=day.length();i++){
+			if(day.substring(i-1,i).equals("1")){
+				return "工作";
+			}else{
+				return "休息";
+			}
+		}
+		return "";
+	}
+
 	@NotBlank(message="日不能为空")
 	@Length(min=0, max=31, message="日长度不能超过 31 个字符")
 	public String getDay() {

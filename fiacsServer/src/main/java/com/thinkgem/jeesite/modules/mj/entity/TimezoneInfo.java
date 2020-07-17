@@ -4,6 +4,7 @@
 package com.thinkgem.jeesite.modules.mj.entity;
 
 import com.thinkgem.jeesite.common.persistence.DataEntity;
+import com.thinkgem.jeesite.common.utils.excel.annotation.ExcelField;
 import com.thinkgem.jeesite.modules.guard.entity.Equipment;
 import org.hibernate.validator.constraints.Length;
 import org.hibernate.validator.constraints.NotBlank;
@@ -75,7 +76,19 @@ public class TimezoneInfo extends DataEntity<TimezoneInfo> {
 	public void setEquipment(Equipment equipment) {
 		this.equipment = equipment;
 	}
-	
+
+	@ExcelField(title = "网点名称", align = 2, sort = 1)
+	public String getEquipmentControlPos(){
+		return equipment.getControlPos();
+	}
+
+	@ExcelField(title = "门控类型", align = 2, sort = 2,dictType = "site_type")
+	public String getEquipmentSiteType(){
+		return equipment.getSiteType();
+	}
+
+
+	@ExcelField(title = "门号", align = 2, sort = 10, dictType = "door_pos")
 	public String getDoorPos() {
 		return doorPos;
 	}
@@ -83,7 +96,8 @@ public class TimezoneInfo extends DataEntity<TimezoneInfo> {
 	public void setDoorPos(String doorPos) {
 		this.doorPos = doorPos;
 	}
-	
+
+	@ExcelField(title = "时区号", align = 2, sort = 15, dictType = "time_zone_type")
 	public String getTimeZoneType() {
 		return timeZoneType;
 	}
@@ -91,7 +105,8 @@ public class TimezoneInfo extends DataEntity<TimezoneInfo> {
 	public void setTimeZoneType(String timeZoneType) {
 		this.timeZoneType = timeZoneType;
 	}
-	
+
+	@ExcelField(title = "时区号", align = 2, sort = 20, dictType = "time_zone_num")
 	public String getTimeZoneNum() {
 		return timeZoneNum;
 	}
@@ -102,6 +117,7 @@ public class TimezoneInfo extends DataEntity<TimezoneInfo> {
 	
 	@NotBlank(message="时段1开始不能为空")
 	@Length(min=0, max=5, message="时段1开始长度不能超过 5 个字符")
+	@ExcelField(title = "时段1开始时间", align = 2, sort = 25)
 	public String getTimeStart1() {
 		return timeStart1;
 	}
@@ -112,6 +128,7 @@ public class TimezoneInfo extends DataEntity<TimezoneInfo> {
 	
 	@NotBlank(message="时段1结束不能为空")
 	@Length(min=0, max=5, message="时段1结束长度不能超过 5 个字符")
+	@ExcelField(title = "时段1开始时间", align = 2, sort = 30)
 	public String getTimeEnd1() {
 		return timeEnd1;
 	}
@@ -122,6 +139,7 @@ public class TimezoneInfo extends DataEntity<TimezoneInfo> {
 	
 	@NotBlank(message="时段2开始不能为空")
 	@Length(min=0, max=5, message="时段2开始长度不能超过 5 个字符")
+	@ExcelField(title = "时段2开始时间", align = 2, sort = 35)
 	public String getTimeStart2() {
 		return timeStart2;
 	}
@@ -132,6 +150,7 @@ public class TimezoneInfo extends DataEntity<TimezoneInfo> {
 	
 	@NotBlank(message="时段2结束不能为空")
 	@Length(min=0, max=5, message="时段2结束长度不能超过 5 个字符")
+	@ExcelField(title = "时段2结束时间", align = 2, sort = 40)
 	public String getTimeEnd2() {
 		return timeEnd2;
 	}
@@ -142,6 +161,7 @@ public class TimezoneInfo extends DataEntity<TimezoneInfo> {
 	
 	@NotBlank(message="时段3开始不能为空")
 	@Length(min=0, max=5, message="时段3开始长度不能超过 5 个字符")
+	@ExcelField(title = "时段3开始时间", align = 2, sort = 45)
 	public String getTimeStart3() {
 		return timeStart3;
 	}
@@ -152,6 +172,7 @@ public class TimezoneInfo extends DataEntity<TimezoneInfo> {
 	
 	@NotBlank(message="时段3结束不能为空")
 	@Length(min=0, max=5, message="时段3结束长度不能超过 5 个字符")
+	@ExcelField(title = "时段3结束时间", align = 2, sort = 50)
 	public String getTimeEnd3() {
 		return timeEnd3;
 	}
@@ -162,6 +183,7 @@ public class TimezoneInfo extends DataEntity<TimezoneInfo> {
 	
 	@NotBlank(message="时段4开始不能为空")
 	@Length(min=0, max=5, message="时段4开始长度不能超过 5 个字符")
+	@ExcelField(title = "时段4开始时间", align = 2, sort = 55)
 	public String getTimeStart4() {
 		return timeStart4;
 	}
@@ -172,6 +194,7 @@ public class TimezoneInfo extends DataEntity<TimezoneInfo> {
 	
 	@NotBlank(message="时段4结束不能为空")
 	@Length(min=0, max=5, message="时段4结束长度不能超过 5 个字符")
+	@ExcelField(title = "时段4结束时间", align = 2, sort = 60)
 	public String getTimeEnd4() {
 		return timeEnd4;
 	}

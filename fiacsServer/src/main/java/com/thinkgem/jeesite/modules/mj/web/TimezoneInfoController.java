@@ -5,8 +5,11 @@ package com.thinkgem.jeesite.modules.mj.web;
 
 import com.thinkgem.jeesite.common.config.Global;
 import com.thinkgem.jeesite.common.service.ServiceException;
+import com.thinkgem.jeesite.common.utils.DateUtils;
 import com.thinkgem.jeesite.common.utils.StringUtils;
+import com.thinkgem.jeesite.common.utils.excel.ExportExcel;
 import com.thinkgem.jeesite.common.web.BaseController;
+import com.thinkgem.jeesite.modules.guard.entity.Equipment;
 import com.thinkgem.jeesite.modules.guard.service.EquipmentService;
 import com.thinkgem.jeesite.modules.mj.entity.TimezoneInfo;
 import com.thinkgem.jeesite.modules.mj.service.AccessParaInfoService;
@@ -19,12 +22,12 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import java.util.List;
 
 /**
@@ -67,6 +70,34 @@ public class TimezoneInfoController extends BaseController {
 	}
 
 	/**
+	 * 导出门禁时区数据
+	 *
+	 * @param timezoneInfo
+	 * @param request
+	 * @param response
+	 * @param redirectAttributes
+	 * @return
+	 */
+	@RequiresPermissions("mj:timezoneInfo:view")
+	@RequestMapping(value = "export", method = RequestMethod.POST)
+	public String exportFile(TimezoneInfo timezoneInfo, HttpServletRequest request, HttpServletResponse response,
+							 RedirectAttributes redirectAttributes) {
+		try {
+			String fileName = "时区信息" + DateUtils.getDate("yyyyMMddHHmmss") + ".xlsx";
+			List<TimezoneInfo> list=timezoneInfoService.findList(timezoneInfo);
+			for(int i=0;i<list.size();i++){
+				Equipment equipment=equipmentService.get(String.valueOf(list.get(i).getEquipmentId()));
+				list.get(i).setEquipment(equipment);
+			}
+			new ExportExcel("时区信息", TimezoneInfo.class).setDataList(list).write(response, fileName).dispose();
+			return null;
+		} catch (Exception e) {
+			addMessage(redirectAttributes, "导出时区信息失败！失败信息：" + e.getMessage());
+		}
+		return "redirect:" + adminPath + "/mj/timezoneInfo/list?repage";
+	}
+
+	/**
 	 * 查询列表
 	 */
 	@RequiresPermissions("mj:timezoneInfo:view")
@@ -97,98 +128,37 @@ public class TimezoneInfoController extends BaseController {
 		model.addAttribute("list", list);
 		return "modules/mj/timezoneInfoList";
 	}
-	
-	/**
-	 * 查询列表数据
-	 */
-	/*@RequiresPermissions("mj:timezoneInfo:view")
-	@RequestMapping(value = "listData")
-	@ResponseBody
-	public Page<AccessDoorTimezone> listData(AccessDoorTimezone accessDoorTimezone, HttpServletRequest request, HttpServletResponse response) {
-		accessDoorTimezone.setPage(new Page<>(request, response));
-		Page<AccessDoorTimezone> page = accessDoorTimezoneService.findPage(accessDoorTimezone);
-		return page;
-	}*/
 
 	/**
 	 * 查看编辑表单，修改时进入
 	 */
 	@RequiresPermissions("mj:timezoneInfo:view")
 	@RequestMapping(value = "form")
-	public String form(TimezoneInfo timezoneInfo, Model model) {
-		if(timezoneInfo.getId()!=null && !timezoneInfo.getId().equals("")){
+	public String form(TimezoneInfo timezoneInfo, HttpServletRequest request, Model model) {
+		/*HttpSession session = request.getSession();
+
+		if (timezoneInfo.getId() != null && !timezoneInfo.getId().equals("")) {
+			timezoneInfo = timezoneInfoService.get(timezoneInfo.getId());
+		}
+		if(session.getAttribute("timezoneInfo")!=null){
+			TimezoneInfo timezoneInfo2=(TimezoneInfo)session.getAttribute("timezoneInfo");
+			timezoneInfo.setTimeStart1(timezoneInfo2.getTimeStart1());
+			timezoneInfo.setTimeStart2(timezoneInfo2.getTimeStart2());
+			timezoneInfo.setTimeStart3(timezoneInfo2.getTimeStart3());
+			timezoneInfo.setTimeStart4(timezoneInfo2.getTimeStart4());
+			timezoneInfo.setTimeEnd1(timezoneInfo2.getTimeEnd1());
+			timezoneInfo.setTimeEnd2(timezoneInfo2.getTimeEnd2());
+			timezoneInfo.setTimeEnd3(timezoneInfo2.getTimeEnd3());
+			timezoneInfo.setTimeEnd4(timezoneInfo2.getTimeEnd4());
+		}
+*/
+		if (timezoneInfo.getId() != null && !timezoneInfo.getId().equals("")) {
 			timezoneInfo = timezoneInfoService.get(timezoneInfo.getId());
 		}
 		model.addAttribute("accessDoorTimezone", timezoneInfo);
 
 		return "modules/mj/timezoneInfoForm";
 	}
-
-	/**
-	 * 添加时进入
-	 * @param accessParaInfoId
-	 * @param model
-	 * @return
-	 */
-	/*@RequiresPermissions("mj:timezoneInfo:view")
-	@RequestMapping(value = "form3")
-	public String form3(String accessParaInfoId , Model model) {
-
-		System.out.println("______________________________________"+accessParaInfoId);
-
-		TimezoneInfo timezoneInfo=new TimezoneInfo();
-		if(accessParaInfoId!=null && !accessParaInfoId.equals("")) {
-			AccessParaInfo accessParaInfo = accessParaInfoService.get(accessParaInfoId);
-			Equipment equipment = equipmentService.get(accessParaInfo.getEquipment().getId());
-			for (int j = 1; j <= 7; j++) {
-				timezoneInfo.setEquipment(equipment);
-				timezoneInfo.setAccessParaInfo(accessParaInfo);
-				timezoneInfo.setDoorPos(accessParaInfo.getDoorPos());
-				timezoneInfo.setTimeZoneType("1");
-				timezoneInfo.setTimeZoneNum(timezoneInfo.getTimeZoneNum());
-				timezoneInfo.setWeekNumber(j);
-				timezoneInfo.setTimeStart1("00:00");
-				timezoneInfo.setTimeEnd1("23:59");
-				timezoneInfo.setTimeStart2("00:00");
-				timezoneInfo.setTimeEnd2("00:00");
-				timezoneInfo.setTimeStart3("00:00");
-				timezoneInfo.setTimeEnd3("00:00");
-				timezoneInfo.setTimeStart4("00:00");
-				timezoneInfo.setTimeEnd4("00:00");
-			}
-		}
-
-
-		*//*boolean isNew=true;
-		if(timezoneInfo.getId()!=null && !timezoneInfo.getId().equals("")){
-			isNew=false;
-			timezoneInfo = timezoneInfoService.get(timezoneInfo.getId());
-		}else{
-			AccessParaInfo accessParaInfo=accessParaInfoService.get(timezoneInfo.getAccessParaInfo().getId());
-			Equipment equipment=equipmentService.get(accessParaInfo.getEquipment().getId());
-			for(int j=1;j<=7;j++){
-				timezoneInfo.setEquipment(equipment);
-				timezoneInfo.setAccessParaInfo(accessParaInfo);
-				timezoneInfo.setDoorPos(accessParaInfo.getDoorPos());
-				timezoneInfo.setTimeZoneType("1");
-				timezoneInfo.setTimeZoneNum(timezoneInfo.getTimeZoneNum());
-				timezoneInfo.setWeekNumber(j);
-				timezoneInfo.setTimeStart1("00:00");
-				timezoneInfo.setTimeEnd1("23:59");
-				timezoneInfo.setTimeStart2("00:00");
-				timezoneInfo.setTimeEnd2("00:00");
-				timezoneInfo.setTimeStart3("00:00");
-				timezoneInfo.setTimeEnd3("00:00");
-				timezoneInfo.setTimeStart4("00:00");
-				timezoneInfo.setTimeEnd4("00:00");
-				timezoneInfoService.save(timezoneInfo);
-			}
-		}
-		model.addAttribute("isNew",isNew);
-		model.addAttribute("accessDoorTimezone", timezoneInfo);*//*
-
-		return "modules/mj/timezoneInfoForm";
-	}*/
 
 	/**
 	 * 查看编辑表单2,更换了星期进入
@@ -209,6 +179,15 @@ public class TimezoneInfoController extends BaseController {
 		model.addAttribute("accessDoorTimezone", timezoneInfo2);
 		return "redirect:" + Global.getAdminPath() + "/mj/timezoneInfo/form?id="+timezoneInfo2.getId();
 		//return "modules/mj/timezoneInfoForm";
+	}
+
+	@RequiresPermissions("mj:timezoneInfo:edit")
+	@PostMapping(value = "copy")
+	public String copy(TimezoneInfo timezoneInfo, HttpServletRequest request, BindingResult result, Model model, RedirectAttributes redirectAttributes) {
+		HttpSession session=request.getSession();
+		session.setAttribute("timezoneInfo",timezoneInfo);
+		addMessage(redirectAttributes, "复制时区信息成功");
+		return "redirect:" + Global.getAdminPath() + "/mj/timezoneInfo/";
 	}
 
 	/**

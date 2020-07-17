@@ -5,6 +5,7 @@ package com.thinkgem.jeesite.modules.mj.entity;
 
 
 import com.thinkgem.jeesite.common.persistence.DataEntity;
+import com.thinkgem.jeesite.common.utils.excel.annotation.ExcelField;
 import com.thinkgem.jeesite.modules.guard.entity.Equipment;
 import org.hibernate.validator.constraints.Length;
 
@@ -150,6 +151,11 @@ public class AccessParaInfo extends DataEntity<AccessParaInfo> {
 		super(id);
 	}
 
+	@ExcelField(title = "网点名称", align = 2, sort = 1)
+	public String getEquipmentControlPos(){
+		return equipment.getControlPos();
+	}
+
 	@NotNull(message = "所属设备不能为空")
 	public Equipment getEquipment() {
 		return equipment;
@@ -160,6 +166,7 @@ public class AccessParaInfo extends DataEntity<AccessParaInfo> {
 	}
 
 	@Length(min=1, max=100)
+	@ExcelField(title = "门号", align = 2, sort = 2, dictType = "door_pos")
 	public String getDoorPos() {
 		return doorPos;
 	}
@@ -169,6 +176,7 @@ public class AccessParaInfo extends DataEntity<AccessParaInfo> {
 	}
 	
 	@NotNull(message="门继电器动作时间不能为空")
+	@ExcelField(title = "门继电器动作时间（秒）", align = 2, sort = 10)
 	public Integer getDoorRelayTime() {
 		return doorRelayTime;
 	}
@@ -178,6 +186,7 @@ public class AccessParaInfo extends DataEntity<AccessParaInfo> {
 	}
 	
 	@NotNull(message="门开延时报警时间不能为空")
+	@ExcelField(title = "门开延时报警时间（秒）", align = 2, sort = 13)
 	public Long getDoorDelayTime() {
 		return doorDelayTime;
 	}
@@ -187,6 +196,7 @@ public class AccessParaInfo extends DataEntity<AccessParaInfo> {
 	}
 
 	@NotNull(message="入库操作时间不能为空")
+	@ExcelField(title = "入库操作时间（分）", align = 2, sort = 15)
 	public Long getEnterOperaTime() {
 		return enterOperaTime;
 	}
@@ -196,6 +206,7 @@ public class AccessParaInfo extends DataEntity<AccessParaInfo> {
 	}
 
 	@NotNull(message="查库操作时间不能为空")
+	@ExcelField(title = "查库操作时间（分）", align = 2, sort = 17)
 	public Long getCheckOperaTime() {
 		return checkOperaTime;
 	}
@@ -205,6 +216,7 @@ public class AccessParaInfo extends DataEntity<AccessParaInfo> {
 	}
 	
 	@NotNull(message="提醒出库时间不能为空")
+	@ExcelField(title = "提醒出库时间（分）", align = 2, sort = 19)
 	public Long getOutTipsTime() {
 		return outTipsTime;
 	}
@@ -214,6 +226,7 @@ public class AccessParaInfo extends DataEntity<AccessParaInfo> {
 	}
 	
 	@NotNull(message="验证人员之间间隔时间不能为空")
+	@ExcelField(title = "验证人员之间间隔时间（分）", align = 2, sort = 22)
 	public Long getAlarmIntervalTime() {
 		return alarmIntervalTime;
 	}
@@ -223,6 +236,7 @@ public class AccessParaInfo extends DataEntity<AccessParaInfo> {
 	}
 	
 	@NotNull(message="远程授权等待超时时间不能为空")
+	@ExcelField(title = "远程授权等待超时时间（分）", align = 2, sort = 25)
 	public Long getRemoteOverTime() {
 		return remoteOverTime;
 	}
@@ -230,9 +244,10 @@ public class AccessParaInfo extends DataEntity<AccessParaInfo> {
 	public void setRemoteOverTime(Long remoteOverTime) {
 		this.remoteOverTime = remoteOverTime;
 	}
-	
+
 	//验证方式 1 指纹 2 人脸 3 密码 4 人脸+指纹 5 指纹+密码 6 人脸或指纹或密码不能为空
 	@Length(min=1, max=100)
+	@ExcelField(title = "门号", align = 2, sort = 27, dictType = "door_open_type")
 	public String getAuthType() {
 		return authType;
 	}
@@ -251,6 +266,7 @@ public class AccessParaInfo extends DataEntity<AccessParaInfo> {
 	}
 	
 	@NotNull(message="组合开门数量不能为空")
+	@ExcelField(title = "组合开门数量", align = 2, sort = 30)
 	public Integer getCombNum() {
 		return combNum;
 	}

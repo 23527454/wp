@@ -4,6 +4,7 @@
 package com.thinkgem.jeesite.modules.mj.entity;
 
 import com.thinkgem.jeesite.common.persistence.DataEntity;
+import com.thinkgem.jeesite.common.utils.excel.annotation.ExcelField;
 import com.thinkgem.jeesite.modules.guard.entity.Equipment;
 import org.hibernate.validator.constraints.Length;
 import org.hibernate.validator.constraints.NotBlank;
@@ -69,6 +70,11 @@ public class DefenseParaInfo extends DataEntity<DefenseParaInfo> {
 		this.timeEnd4 = timeEnd4;
 	}
 
+	@ExcelField(title = "网点名称", align = 2, sort = 1)
+	public String getEquipmentControlPos(){
+		return equipment.getControlPos();
+	}
+
 	@NotNull(message = "所属设备不能为空")
 	public Equipment getEquipment() {
 		return equipment;
@@ -79,6 +85,7 @@ public class DefenseParaInfo extends DataEntity<DefenseParaInfo> {
 	}
 
 	@NotNull(message="防区号不能为空")
+	@ExcelField(title = "防区号", align = 2, sort = 10)
 	public Integer getDefensePos() {
 		return defensePos;
 	}
@@ -88,6 +95,7 @@ public class DefenseParaInfo extends DataEntity<DefenseParaInfo> {
 	}
 	
 	@NotNull(message="防区类型不能为空")
+	@ExcelField(title = "防区类型", align = 2, sort = 13)
 	public Integer getDefenseAreaType() {
 		return defenseAreaType;
 	}
@@ -97,6 +105,7 @@ public class DefenseParaInfo extends DataEntity<DefenseParaInfo> {
 	}
 	
 	@NotBlank(message="防区旁路不能为空")
+	@ExcelField(title = "防区旁路", align = 2, sort = 15,dictType = "yes_no")
 	public String getDefenseAreaBypass() {
 		return defenseAreaBypass;
 	}
@@ -106,6 +115,7 @@ public class DefenseParaInfo extends DataEntity<DefenseParaInfo> {
 	}
 	
 	@NotNull(message="防区属性不能为空")
+	@ExcelField(title = "防区属性", align = 2, sort = 18,dictType = "yes_no")
 	public Integer getDefenseAreaAttr() {
 		return defenseAreaAttr;
 	}
@@ -115,6 +125,7 @@ public class DefenseParaInfo extends DataEntity<DefenseParaInfo> {
 	}
 	
 	@NotNull(message="报警延时时间不能为空")
+	@ExcelField(title = "报警延时时间", align = 2, sort = 20)
 	public Integer getAlarmDelayTime() {
 		return alarmDelayTime;
 	}
@@ -124,6 +135,7 @@ public class DefenseParaInfo extends DataEntity<DefenseParaInfo> {
 	}
 	
 	@NotBlank(message="时段一开始不能为空")
+	@ExcelField(title = "时段一起始时间", align = 2, sort = 23)
 	@Length(min=0, max=5, message="时段一开始长度不能超过 5 个字符")
 	public String getTimeStart1() {
 		return timeStart1;
@@ -134,6 +146,7 @@ public class DefenseParaInfo extends DataEntity<DefenseParaInfo> {
 	}
 	
 	@NotBlank(message="时段一结束不能为空")
+	@ExcelField(title = "时段一结束时间", align = 2, sort = 24)
 	@Length(min=0, max=5, message="时段一结束长度不能超过 5 个字符")
 	public String getTimeEnd1() {
 		return timeEnd1;
@@ -145,6 +158,7 @@ public class DefenseParaInfo extends DataEntity<DefenseParaInfo> {
 	
 	@NotBlank(message="时段二开始不能为空")
 	@Length(min=0, max=5, message="时段二开始长度不能超过 5 个字符")
+	@ExcelField(title = "时段二起始时间", align = 2, sort = 26)
 	public String getTimeStart2() {
 		return timeStart2;
 	}
@@ -155,6 +169,7 @@ public class DefenseParaInfo extends DataEntity<DefenseParaInfo> {
 	
 	@NotBlank(message="时段二结束不能为空")
 	@Length(min=0, max=5, message="时段二结束长度不能超过 5 个字符")
+	@ExcelField(title = "时段二结束时间", align = 2, sort = 27)
 	public String getTimeEnd2() {
 		return timeEnd2;
 	}
@@ -165,6 +180,7 @@ public class DefenseParaInfo extends DataEntity<DefenseParaInfo> {
 	
 	@NotBlank(message="时段三开始不能为空")
 	@Length(min=0, max=5, message="时段三开始长度不能超过 5 个字符")
+	@ExcelField(title = "时段三起始时间", align = 2, sort = 29)
 	public String getTimeStart3() {
 		return timeStart3;
 	}
@@ -175,6 +191,7 @@ public class DefenseParaInfo extends DataEntity<DefenseParaInfo> {
 	
 	@NotBlank(message="时段三结束不能为空")
 	@Length(min=0, max=5, message="时段三结束长度不能超过 5 个字符")
+	@ExcelField(title = "时段三结束时间", align = 2, sort = 30)
 	public String getTimeEnd3() {
 		return timeEnd3;
 	}
@@ -185,6 +202,7 @@ public class DefenseParaInfo extends DataEntity<DefenseParaInfo> {
 	
 	@NotBlank(message="时段四开始不能为空")
 	@Length(min=0, max=5, message="时段四开始长度不能超过 5 个字符")
+	@ExcelField(title = "时段四起始时间", align = 2, sort = 32)
 	public String getTimeStart4() {
 		return timeStart4;
 	}
@@ -195,6 +213,7 @@ public class DefenseParaInfo extends DataEntity<DefenseParaInfo> {
 	
 	@NotBlank(message="时段四结束不能为空")
 	@Length(min=0, max=5, message="时段四结束长度不能超过 5 个字符")
+	@ExcelField(title = "时段四结束时间", align = 2, sort = 23)
 	public String getTimeEnd4() {
 		return timeEnd4;
 	}

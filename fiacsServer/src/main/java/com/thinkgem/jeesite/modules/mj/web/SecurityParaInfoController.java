@@ -6,8 +6,12 @@ package com.thinkgem.jeesite.modules.mj.web;
 
 import com.thinkgem.jeesite.common.config.Global;
 import com.thinkgem.jeesite.common.service.ServiceException;
+import com.thinkgem.jeesite.common.utils.DateUtils;
 import com.thinkgem.jeesite.common.utils.StringUtils;
+import com.thinkgem.jeesite.common.utils.excel.ExportExcel;
 import com.thinkgem.jeesite.common.web.BaseController;
+import com.thinkgem.jeesite.modules.guard.entity.Equipment;
+import com.thinkgem.jeesite.modules.guard.service.EquipmentService;
 import com.thinkgem.jeesite.modules.mj.entity.SecurityParaInfo;
 import com.thinkgem.jeesite.modules.mj.service.SecurityParaInfoService;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
@@ -16,12 +20,11 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
 /**
@@ -35,6 +38,8 @@ public class SecurityParaInfoController extends BaseController {
 
 	@Autowired
 	private SecurityParaInfoService securityParaInfoService;
+	@Autowired
+	private EquipmentService equipmentService;
 	
 	/**
 	 * 获取数据
@@ -56,7 +61,35 @@ public class SecurityParaInfoController extends BaseController {
 	public String index(SecurityParaInfo securityParaInfo, Model model) {
 		return "modules/mj/securityParaInfoIndex";
 	}
-	
+
+	/**
+	 * 导出门禁参数数据
+	 *
+	 * @param eid
+	 * @param request
+	 * @param response
+	 * @param redirectAttributes
+	 * @return
+	 */
+	@RequiresPermissions("mj:securityParaInfo:view")
+	@RequestMapping(value = "export", method = RequestMethod.POST)
+	public String exportFile(String eid, HttpServletRequest request, HttpServletResponse response,
+							 RedirectAttributes redirectAttributes) {
+		try {
+			String fileName = "防盗参数信息" + DateUtils.getDate("yyyyMMddHHmmss") + ".xlsx";
+			List<SecurityParaInfo> list=securityParaInfoService.getByEId(eid);
+			for(int i=0;i<list.size();i++){
+				Equipment equipment=equipmentService.get(eid);
+				list.get(i).setEquipment(equipment);
+			}
+			new ExportExcel("防盗参数信息", SecurityParaInfo.class).setDataList(list).write(response, fileName).dispose();
+			return null;
+		} catch (Exception e) {
+			addMessage(redirectAttributes, "导出门禁参数信息失败！失败信息：" + e.getMessage());
+		}
+		return "redirect:" + adminPath + "/mj/securityParaInfo/list?equipment.id="+eid;
+	}
+
 	/**
 	 * 查询列表
 	 */
@@ -67,6 +100,7 @@ public class SecurityParaInfoController extends BaseController {
 			List<SecurityParaInfo> list= securityParaInfoService.getByEId(securityParaInfo.getEquipment().getId());
 
 			model.addAttribute("list", list);
+			model.addAttribute("eid",securityParaInfo.getEquipment().getId());
 		}
 		return "modules/mj/securityParaInfoList";
 	}

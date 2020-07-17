@@ -30,6 +30,9 @@
 		SELECT *
 		FROM mj_access_para_info a
 		<where>
+			<if test="id != null and id != ''">
+				AND id =#{id}
+			</if>
 			<if test="doorPos != null and doorPos != ''">
 				AND door_pos =#{doorPos}
 			</if>

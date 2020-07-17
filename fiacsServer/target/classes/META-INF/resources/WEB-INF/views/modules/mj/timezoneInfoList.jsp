@@ -13,10 +13,10 @@
 								v, h, f) {
 							if (v == "ok") {
 								$("#searchForm").attr("action",
-										"${ctx}/guard/equipment/export");
+										"${ctx}/mj/timezoneInfo/export");
 								$("#searchForm").submit();
 								$("#searchForm").attr("action",
-										"${ctx}/guard/equipment/list");
+										"${ctx}/mj/timezoneInfo/list");
 							}
 						}, {
 							buttonsFocus : 1
@@ -117,54 +117,7 @@
 				</td></shiro:hasPermission>
 			</tr>
 		</c:forEach>
-		<%--<c:if test="${accessParaInfo!=null}">
-			<tr>
-				<td>
-						${accessParaInfo.doorRelayTime}
-				</td>
-				<td>
-						${accessParaInfo.doorDelayTime}
-				</td>
-				<td>
-						${accessParaInfo.enterOperaTime}
-				</td>
-				<td>
-						${accessParaInfo.checkOperaTime}
-				</td>
-				<td>
-						${accessParaInfo.authType == 1?'指纹':accessParaInfo.authType == 2?'人脸':accessParaInfo.authType == 3?'密码':accessParaInfo.authType == 4?'人脸+指纹':accessParaInfo.authType == 5?'指纹+密码':'人脸或指纹或密码'}
-				</td>
-				<shiro:hasPermission name="mj:timezoneInfo:edit"><td>
-					<a href="${ctx}/mj/timezoneInfo/form?id=${timezoneInfo.id}">修改</a>
-				</td></shiro:hasPermission>
-			</tr>
-		</c:if>--%>
 
-		<%--<c:forEach items="${list}" var="accessParaInfo">
-			<tr>
-				<td><a href="${ctx}/mj/accessParaInfo/form?id=${accessParaInfo.id}">
-					${accessParaInfo.doorPos eq '1'?'1号门':accessParaInfo.doorPos eq '2'?'2号门':accessParaInfo.doorPos eq '3'?'3号门':'4号门'}
-				</a></td>
-				<td>
-					${accessParaInfo.doorRelayTime}
-				</td>
-				<td>
-					${accessParaInfo.doorDelayTime}
-				</td>
-				<td>
-					${accessParaInfo.enterOperaTime}
-				</td>
-				<td>
-						${accessParaInfo.checkOperaTime}
-				</td>
-				<td>
-						${accessParaInfo.authType == 1?'指纹':accessParaInfo.authType == 2?'人脸':accessParaInfo.authType == 3?'密码':accessParaInfo.authType == 4?'人脸+指纹':accessParaInfo.authType == 5?'指纹+密码':'人脸或指纹或密码'}
-				</td>
-				<shiro:hasPermission name="mj:accessParaInfo:edit"><td>
-    				<a href="${ctx}/mj/accessParaInfo/form?id=${accessParaInfo.id}">修改</a>
-				</td></shiro:hasPermission>
-			</tr>
-		</c:forEach>--%>
 		</tbody>
 	</table>
 	<%--<div class="pagination">${page}</div>--%>

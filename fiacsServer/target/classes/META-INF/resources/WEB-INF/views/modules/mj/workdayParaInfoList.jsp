@@ -12,14 +12,14 @@
 		$(document).ready(function() {
 			$("#btnExport").click(
 					function() {
-						top.$.jBox.confirm("确认要导出门禁时区数据吗？", "系统提示", function(
+						top.$.jBox.confirm("确认要导出工作日数据吗？", "系统提示", function(
 								v, h, f) {
 							if (v == "ok") {
 								$("#searchForm").attr("action",
-										"${ctx}/guard/equipment/export");
+										"${ctx}/mj/workdayParaInfo/export");
 								$("#searchForm").submit();
 								$("#searchForm").attr("action",
-										"${ctx}/guard/equipment/list");
+										"${ctx}/mj/workdayParaInfo/list");
 							}
 						}, {
 							buttonsFocus : 1
@@ -112,7 +112,7 @@
 			</select>
 		</li>
 		<li class="btns"><input id="btnSubmit" class="btn btn-primary" type="submit" value="查询"/></li>
-		<li class="btns"><input id="btnExport" class="btn btn-primary" type="button" value="导出" /></li>
+		<%--<li class="btns"><input id="btnExport" class="btn btn-primary" type="button" value="导出" /></li>--%>
 		<shiro:hasPermission name="mj:workdayParaInfo:edit">
             <input id="btnAdd" class="btn btn-primary" type="button" value="假期添加" />
             <input id="delSel" class="btn btn-primary" type="button" value="删除选中" />

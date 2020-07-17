@@ -1,3 +1,4 @@
+<%@ taglib prefix="input" uri="http://www.springframework.org/tags/form" %>
 <%@ page contentType="text/html;charset=UTF-8" %>
 <%@ include file="/WEB-INF/views/include/taglib.jsp"%>
 <html>
@@ -8,14 +9,14 @@
 		$(document).ready(function() {
 			$("#btnExport").click(
 					function() {
-						top.$.jBox.confirm("确认要导出门禁参数数据吗？", "系统提示", function(
+						top.$.jBox.confirm("确认要导出防区参数数据吗？", "系统提示", function(
 								v, h, f) {
 							if (v == "ok") {
 								$("#searchForm").attr("action",
-										"${ctx}/guard/equipment/export");
+										"${ctx}/mj/defenseParaInfo/export");
 								$("#searchForm").submit();
 								$("#searchForm").attr("action",
-										"${ctx}/guard/equipment/list");
+										"${ctx}/mj/defenseParaInfo/list");
 							}
 						}, {
 							buttonsFocus : 1
@@ -40,6 +41,9 @@
 	<input id="btnExport" class="btn btn-primary" style="margin: 10px 0 0 10%" type="button" value="导出" />
 </div>
 <sys:message content="${message}"/>
+<form:form id="searchForm" action="${ctx}/mj/defenseParaInfo/" method="post" class="breadcrumb form-search">
+	<input type="hidden" name="eid" value="${eid}" />
+</form:form>
 <table id="contentTable" class="table table-striped table-bordered table-condensed">
 	<thead>
 	<tr>
