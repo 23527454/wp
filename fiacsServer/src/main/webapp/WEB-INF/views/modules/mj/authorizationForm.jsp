@@ -143,7 +143,6 @@
 <script type="text/javascript" src="${ctxStatic}/layui/layui.all.js"></script>
 <script>
     $("#selStaffNames").click(function(){
-        alert(1);
         layer.open({
             type: 2,
             title: '员工选择', //将姓名设置为红色
@@ -151,7 +150,6 @@
             offset: '10%',
             area: ['60%', '80%'],
             content: '${ctx}/guard/staff/plan1?accessParaInfoId=${authorization.accessParaInfoId}',
-            //content: '${ctx}/guard/staff/plan1?accessParaInfoId='+${accessParaInfoId},
             btn: ['确定'],
             btnAlign: 'l',
             yes: function(index){

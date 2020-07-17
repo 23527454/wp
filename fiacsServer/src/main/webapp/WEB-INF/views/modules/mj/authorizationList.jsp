@@ -155,7 +155,7 @@
 				shadeClose: true,           //弹出框之外的地方是否可以点击
 				offset: 'auto',
 				area: ['60%', '85%'],
-				content: '${ctx}/guard/staff/showAddPage?accessParaInfoId=${accessParaInfoId}'
+				content: '${ctx}/guard/staff/plan1?accessParaInfoId=${accessParaInfoId}'
 				/*btn: ['确定'],
                 btnAlign: 'l',
                 yes: function(index){
