@@ -6,6 +6,7 @@ package com.thinkgem.jeesite.modules.mj.web;
 import com.thinkgem.jeesite.common.config.Global;
 import com.thinkgem.jeesite.common.persistence.Page;
 import com.thinkgem.jeesite.common.web.BaseController;
+import com.thinkgem.jeesite.modules.guard.entity.Equipment;
 import com.thinkgem.jeesite.modules.guard.service.EquipmentService;
 import com.thinkgem.jeesite.modules.mj.entity.WorkdayParaInfo;
 import com.thinkgem.jeesite.modules.mj.service.WorkdayParaInfoService;
@@ -15,12 +16,16 @@ import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.text.DateFormat;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
@@ -50,7 +55,60 @@ public class WorkdayParaInfoController extends BaseController {
 	public WorkdayParaInfo get(String id) {
 		return workdayParaInfoService.get(id);
 	}
-	
+
+	@RequiresPermissions("mj:workdayParaInfo:edit")
+	@RequestMapping(value = "plan1")
+	public ModelAndView plan1(String eId, ModelAndView modelAndView, Model model) {
+		model.addAttribute("eId",eId);
+		modelAndView.setViewName("modules/mj/workdayParaInfoForm");//跳转到这个jsp页面来渲染表格
+		return modelAndView;
+	}
+
+
+	@RequiresPermissions("mj:workdayParaInfo:edit")
+	@PostMapping(value = "insertDefault")
+	@Transactional
+	public String insertDefault(String eId, ModelAndView modelAndView, Model model,RedirectAttributes redirectAttributes){
+		workdayParaInfoService.deleteAllByEId(eId);
+		try{
+			//添加工作日表信息
+			StringBuffer sb=new StringBuffer("");
+			DateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+			Calendar c2 = Calendar.getInstance();
+			String year = String.valueOf(c2.get(Calendar.YEAR));
+			Date date = new Date();
+			for(int i=0;i<12;i++){
+				sb=new StringBuffer("");
+				String str=year+"-"+(i+1)+"-"+1;
+				Calendar c = Calendar.getInstance();
+				date = format.parse(str);
+				c.setTime(date);
+				int day=c.getActualMaximum(Calendar.DAY_OF_MONTH);
+				for(int j=0;j<day;j++){
+					str=year+"-"+(i+1)+"-"+(j+1);
+					date=format.parse(str);
+					c.setTime(date);
+
+					if(c.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY || c.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY){
+						sb.append("0");
+					} else{
+						sb.append("1");
+					}
+				}
+				WorkdayParaInfo workdayParaInfo=new WorkdayParaInfo();
+				workdayParaInfo.setEquipment(equipmentService.get(eId));
+				workdayParaInfo.setYear(year);
+				workdayParaInfo.setMonth((i+1)+"");
+				workdayParaInfo.setDay(sb.toString());
+				workdayParaInfoService.save(workdayParaInfo);
+			}
+			addMessage(redirectAttributes, "恢复默认成功！");
+		}catch (Exception e){
+			addMessage(redirectAttributes, "恢复默认失败！");
+		}
+			return "redirect:" + Global.getAdminPath() + "/mj/workdayParaInfo/?repage";
+	}
+
 	/**
 	 * 查询列表
 	 */
@@ -94,7 +152,6 @@ public class WorkdayParaInfoController extends BaseController {
 			List<Map<String, String>> tempRestDay = new ArrayList<Map<String, String>>();
 			int num=0;
 			for(int i=(pageNo-1)*pageSize;i<restDay.size();i++){
-				System.out.println("++++++++++++++++++++++++++++++++++++++++++++++i:"+i);
 				Map<String,String> map = restDay.get(i);
 				tempRestDay.add(map);
 				num++;
@@ -102,7 +159,6 @@ public class WorkdayParaInfoController extends BaseController {
 					break;
 				}
 			}
-			System.out.println(tempRestDay.toString());
 			Page page=new Page(pageNo,pageSize,restDay.size(),tempRestDay);
 			page.initialize();
 
@@ -129,13 +185,114 @@ public class WorkdayParaInfoController extends BaseController {
 	/**
 	 * 保存数据
 	 */
-	/*@RequiresPermissions("mj:workdayParaInfo:edit")
+	@RequiresPermissions("mj:workdayParaInfo:edit")
 	@PostMapping(value = "save")
-	@ResponseBody
-	public String save(@Validated AccessWorkday accessWorkday) {
-		accessWorkdayService.save(accessWorkday);
-		return renderResult(Global.TRUE, text("保存access_workday成功！"));
-	}*/
+	@Transactional
+	public String save(String eId, String start,String end,Model model, RedirectAttributes redirectAttributes) throws ParseException {
+		DateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+		Calendar c = Calendar.getInstance();
+		Date startTime = format.parse(start);
+		Date endTime = format.parse(end);
+		String year = String.valueOf(c.get(Calendar.YEAR));
+
+		c.setTime(startTime);
+		//起始月
+		int sm=c.get(Calendar.MONTH)+1;
+		//起始日
+		int sd=c.get(Calendar.DAY_OF_MONTH);
+		int sday=c.getActualMaximum(Calendar.DAY_OF_MONTH);
+
+		c.setTime(endTime);
+		//结束月
+		int em=c.get(Calendar.MONTH)+1;
+		//结束日
+		int ed=c.get(Calendar.DAY_OF_MONTH);
+
+		//获取起始月的数据
+		WorkdayParaInfo workdayParaInfo=new WorkdayParaInfo();
+		Equipment equipment=equipmentService.get(eId);
+		workdayParaInfo.setEquipment(equipment);
+		workdayParaInfo.setYear(year);
+		workdayParaInfo.setMonth(String.valueOf(sm));
+		workdayParaInfo=workdayParaInfoService.findByEIdAndDate(workdayParaInfo);
+		//获得数据库中的day
+		StringBuilder ssb=new StringBuilder(workdayParaInfo.getDay());
+
+		//判断起始月和结束月相差多少
+		if(em>sm){
+			//判断相差几个月
+			int num2=em-sm;
+			for(int i=0;i<num2;i++){
+				//结束月比起始月大
+				ssb=new StringBuilder("");
+				String str2="";
+				//判断当前相差是否为1个月，如起始：3，结束：4
+				if(num2-i==1){
+					//如果只相差1个月，遍历开始时间这一个月的剩余时间，0-结束日
+					for(int j=sd;j<=sday;j++){
+						str2+="0";
+					}
+					ssb=new StringBuilder(workdayParaInfo.getDay());
+					//替换
+					ssb.replace(sd-1,sday,str2);
+					//保存到数据库
+					workdayParaInfo.setDay(ssb.toString());
+					workdayParaInfoService.modifyRestDayById(workdayParaInfo);
+					str2="";
+
+					//如果只相差1个月，遍历结束时间这一个月的剩余时间，0-结束日
+					for(int j=0;j<ed;j++){
+						str2+="0";
+					}
+					Equipment equipment2=equipmentService.get(eId);
+					workdayParaInfo.setEquipment(equipment);
+					workdayParaInfo.setYear(year);
+					workdayParaInfo.setMonth(String.valueOf(sm+(i+1)));
+					workdayParaInfo=workdayParaInfoService.findByEIdAndDate(workdayParaInfo);
+					ssb=new StringBuilder(workdayParaInfo.getDay());
+					//替换
+					ssb.replace(0,ed,str2);
+					//保存到数据库
+					workdayParaInfo.setDay(ssb.toString());
+					workdayParaInfoService.modifyRestDayById(workdayParaInfo);
+				}else{
+					Date date2=format.parse(year+"-"+(sm+(i+1))+"-"+1);
+					Calendar c2 = Calendar.getInstance();
+					c2.setTime(date2);
+					int eday=c2.getActualMaximum(Calendar.DAY_OF_MONTH);
+					for(int j=0;j<eday;j++){
+						str2+="0";
+					}
+					Equipment equipment2=equipmentService.get(eId);
+					workdayParaInfo.setEquipment(equipment);
+					workdayParaInfo.setYear(year);
+					workdayParaInfo.setMonth(String.valueOf(sm+(i+1)));
+					workdayParaInfo=workdayParaInfoService.findByEIdAndDate(workdayParaInfo);
+					ssb=new StringBuilder(workdayParaInfo.getDay());
+					//替换
+					ssb.replace(0,eday,str2);
+					//保存到数据库
+					workdayParaInfo.setDay(ssb.toString());
+					workdayParaInfoService.modifyRestDayById(workdayParaInfo);
+				}
+			}
+		}else{
+			//结束月等于起始月
+			//计算相差天数：结束时间-(起始时间-1)
+			int num=ed-(sd-1);
+			String str="";
+			//根据相差天数进行循环修改值
+			for(int i=0;i<num;i++){
+				str+="0";
+			}
+			//替换day，起始时间-1，结束时间
+			ssb.replace(sd-1,ed,str);
+			//保存到数据库
+			workdayParaInfo.setDay(ssb.toString());
+			workdayParaInfoService.modifyRestDayById(workdayParaInfo);
+		}
+		return "redirect:" + Global.getAdminPath() + "/mj/workdayParaInfo/?repage";
+	}
 
 	
 	/**

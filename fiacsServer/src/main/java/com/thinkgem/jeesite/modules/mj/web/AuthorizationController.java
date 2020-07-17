@@ -202,8 +202,6 @@ public class AuthorizationController extends BaseController {
 					//修改
 					Authorization authorization2 = authorizationService.get(id);
 
-					System.out.println("+++++++++++++++++++++++++++++++++++++++++++++++++++++"+(s.equals(authorization2.getStaffId()) && accessParaInfoId.equals(authorization2.getAccessParaInfoId())));
-
 					if (s.equals(authorization2.getStaffId()) && accessParaInfoId.equals(authorization2.getAccessParaInfoId())) {
 
 					} else if (authorizationService.getCountBySId(authorization.getStaffId(), authorization.getAccessParaInfoId()) >= 1) {

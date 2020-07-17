@@ -50,9 +50,36 @@
 					pid_array.push($(this).val());//向数组中添加元素
 				});
 				var pids=pid_array.join(",");
-				window.location.href="${ctx}/mj/workdayParaInfo/delete?ids="+pids;
+				if(pids==""){
+					layer.open({
+						title: '温馨提示'
+						,content: '请先选择一条数据！'
+					});
+				}else{
+					window.location.href="${ctx}/mj/workdayParaInfo/delete?ids="+pids;
+				}
+			});
+
+			$("#btnAdd").on('click',function(){
+				var eId=${eId};
+				if(eId!=null && eId!=""){
+					layer.open({
+						type: 2,
+						title: '假期添加', //将姓名设置为红色
+						shadeClose: true,           //弹出框之外的地方是否可以点击
+						offset: 'auto',
+						area: ['25%', '50%'],
+						content: '${ctx}/mj/workdayParaInfo/plan1?eId=${eId}',
+					});
+				}else{
+					layer.open({
+						title: '温馨提示'
+						,content: '请先选择一个设备！'
+					});
+				}
 			});
 		});
+
 
 
 	</script>
@@ -62,7 +89,7 @@
 	<li class="active"><a href="${ctx}/mj/workdayParaInfo/">工作日列表</a></li>
 </ul>
 <form:form id="searchForm" modelAttribute="workdayParaInfo" action="${ctx}/mj/workdayParaInfo/" method="post" class="breadcrumb form-search">
-	<input type="hidden" name="eId" value="${eId}">
+	<input type="hidden" id="eId" name="eId" value="${eId}">
 	<input id="pageNo" name="pageNo" type="hidden" value="${page.pageNo}" />
 	<input id="pageSize" name="pageSize" type="hidden"
 		   value="${page.pageSize}" />

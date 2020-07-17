@@ -100,6 +100,7 @@ public class StaffController extends BaseController {
 		return entity;
 	}
 
+	@RequiresPermissions("guard:staff:edit")
 	@RequestMapping(value = "plan1")
 	public ModelAndView plan1(String accessParaInfoId,ModelAndView modelAndView,Model model) {
 		model.addAttribute("accessParaInfoId",accessParaInfoId);
@@ -107,6 +108,7 @@ public class StaffController extends BaseController {
 		return modelAndView;
 	}
 
+	@RequiresPermissions("guard:staff:edit")
 	@RequestMapping(value = "selStaff")
 	@ResponseBody
 	public String selStaff(String name,String workNum,String accessParaInfoId,Integer pageIndex,Integer size,ModelAndView modelAndView) {

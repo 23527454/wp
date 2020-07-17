@@ -30,6 +30,10 @@ public class WorkdayParaInfoService extends CrudService<WorkdayParaInfoDao, Work
 		return workdayParaInfoDao.findAllByEIdAndYear(workdayParaInfo);
 	}
 
+	public WorkdayParaInfo findByEIdAndDate(WorkdayParaInfo workdayParaInfo){
+		return workdayParaInfoDao.findByEIdAndDate(workdayParaInfo);
+	}
+
 	public Integer modifyRestDayById(WorkdayParaInfo workdayParaInfo){
 		return workdayParaInfoDao.modifyRestDayById(workdayParaInfo);
 	}

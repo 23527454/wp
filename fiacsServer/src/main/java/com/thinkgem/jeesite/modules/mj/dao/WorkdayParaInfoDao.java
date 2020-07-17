@@ -22,4 +22,6 @@ public interface WorkdayParaInfoDao extends CrudDao<WorkdayParaInfo> {
     public Integer modifyRestDayById(WorkdayParaInfo workdayParaInfo);
 
     public Integer deleteAllByEId(@Param("eId") String eId);
+
+    public WorkdayParaInfo findByEIdAndDate(WorkdayParaInfo workdayParaInfo);
 }
