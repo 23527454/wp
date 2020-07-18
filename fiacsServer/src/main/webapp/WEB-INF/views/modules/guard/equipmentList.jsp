@@ -18,8 +18,8 @@
 							
 						});
 				
-				var el2 = document.getElementById('door');
-				el2.setAttribute("href", "${ctx}/guard/equipment/paramSetting?equ_office_id="+office_id+"&equ_office_type="+office_type+"&r="+Math.random());
+				/*var el2 = document.getElementById('door');
+				el2.setAttribute("href", "${ctx}/guard/equipment/paramSetting?equ_office_id="+office_id+"&equ_office_type="+office_type+"&r="+Math.random());*/
 				
 				$("#door").click(
 						function() {
@@ -29,6 +29,7 @@
 				
 				$("#btnExport").click(
 						function() {
+							alert(1);
 							top.$.jBox.confirm("确认要导出设备数据吗？", "系统提示", function(
 									v, h, f) {
 								if (v == "ok") {

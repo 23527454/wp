@@ -4,6 +4,7 @@
 package com.thinkgem.jeesite.modules.mj.entity;
 
 import com.thinkgem.jeesite.common.persistence.DataEntity;
+import com.thinkgem.jeesite.common.utils.excel.annotation.ExcelField;
 import com.thinkgem.jeesite.modules.guard.entity.Staff;
 import com.thinkgem.jeesite.modules.sys.entity.Office;
 
@@ -21,6 +22,7 @@ public class Authorization extends DataEntity<Authorization> {
 	private static final long serialVersionUID = 1L;
 	private Staff staff;		// 用户ID
 	private Office office;		// 机构ID
+	private AccessParaInfo accessParaInfo;		// 门禁ID
 	private String cardNum;		// 卡号
 	private Date validityDate;		// 门禁有效期
 	private String timezoneInfoNum;		// 通行时区
@@ -64,6 +66,40 @@ public class Authorization extends DataEntity<Authorization> {
 		this.office = office;
 	}
 
+	public AccessParaInfo getAccessParaInfo() {
+		return accessParaInfo;
+	}
+
+	public void setAccessParaInfo(AccessParaInfo accessParaInfo) {
+		this.accessParaInfo = accessParaInfo;
+	}
+
+	@ExcelField(title = "网点名称", align = 2, sort = 1)
+	public String getOfficeName(){
+		return office.getName();
+	}
+
+	@ExcelField(title = "设备名称", align = 2, sort = 2,dictType = "site_type")
+	public String getEquipmentName(){
+		return accessParaInfo.getEquipment().getSiteType();
+	}
+
+	@ExcelField(title = "门号", align = 2, sort = 3,dictType = "door_pos")
+	public String getDoorPos(){
+		return accessParaInfo.getDoorPos();
+	}
+
+	@ExcelField(title = "员工工号", align = 2, sort = 4)
+	public String getStaffWorkNum(){
+		return staff.getWorkNum();
+	}
+
+	@ExcelField(title = "员工姓名", align = 2, sort = 5)
+	public String getStaffName2(){
+		return staff.getName();
+	}
+
+	@ExcelField(title = "人员分组",align = 2,sort = 10,dictType = "staff_group")
 	public String getStaffGroup() {
 		return staffGroup;
 	}
@@ -72,6 +108,7 @@ public class Authorization extends DataEntity<Authorization> {
 		this.staffGroup = staffGroup;
 	}
 
+	@ExcelField(title = "是否允许查库",align = 2,sort = 13,dictType = "yes_no")
 	public String getCheckPom() {
 		return checkPom;
 	}
@@ -120,6 +157,7 @@ public class Authorization extends DataEntity<Authorization> {
 		this.validityDate = validityDate;
 	}
 
+	@ExcelField(title = "通信时区",align = 2,sort = 15,dictType = "time_zone_num")
 	public String getTimezoneInfoNum() {
 		return timezoneInfoNum;
 	}

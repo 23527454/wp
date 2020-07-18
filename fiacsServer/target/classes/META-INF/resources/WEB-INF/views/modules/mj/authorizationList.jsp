@@ -8,7 +8,7 @@
 	<script type="text/javascript">
 		$(document).ready(
 				function() {
-					var office_id = parent.$("#office_id").val();
+					/*var office_id = parent.$("#office_id").val();
 					var office_type = parent.$("#office_type").val();
 					var el = document.getElementById('add');
 					el.setAttribute("href", "${ctx}/guard/equipment/form?equ_office_id="+office_id+"&equ_office_type="+office_type+"&r="+Math.random());
@@ -20,18 +20,23 @@
 							function() {
 								el.setAttribute("href", "${ctx}/guard/equipment/paramSetting?equ_office_id="+office_id+"&equ_office_type="+office_type+"&r="+Math.random());
 
-							});
+							});*/
 
 					$("#btnExport").click(
 							function() {
-								top.$.jBox.confirm("确认要导出设备数据吗？", "系统提示", function(
+								var aId=$("#accessParaInfoId").val();
+								if(aId==null || aId==""){
+									alert("请先选择一个门！");
+									return false;
+								}
+								top.$.jBox.confirm("确认要导出门禁权限数据吗？", "系统提示", function(
 										v, h, f) {
 									if (v == "ok") {
 										$("#searchForm").attr("action",
-												"${ctx}/guard/equipment/export");
+												"${ctx}/mj/authorization/export");
 										$("#searchForm").submit();
 										$("#searchForm").attr("action",
-												"${ctx}/guard/equipment/list");
+												"${ctx}/mj/authorization/list");
 									}
 								}, {
 									buttonsFocus : 1

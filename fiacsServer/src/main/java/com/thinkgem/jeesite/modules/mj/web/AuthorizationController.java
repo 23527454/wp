@@ -6,6 +6,8 @@ package com.thinkgem.jeesite.modules.mj.web;
 import com.thinkgem.jeesite.common.config.Global;
 import com.thinkgem.jeesite.common.persistence.Page;
 import com.thinkgem.jeesite.common.service.ServiceException;
+import com.thinkgem.jeesite.common.utils.DateUtils;
+import com.thinkgem.jeesite.common.utils.excel.ExportExcel;
 import com.thinkgem.jeesite.common.web.BaseController;
 import com.thinkgem.jeesite.modules.guard.entity.Equipment;
 import com.thinkgem.jeesite.modules.guard.entity.Staff;
@@ -28,11 +30,13 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.text.ParseException;
+import java.util.List;
 
 /**
  * power_authorizationController
@@ -70,16 +74,58 @@ public class AuthorizationController extends BaseController {
 	public Authorization get(String id) {
 		return authorizationService.get(id);
 	}
-	
+
+	/**
+	 * 导出门禁权限数据
+	 *
+	 * @param authorization
+	 * @param request
+	 * @param response
+	 * @param redirectAttributes
+	 * @return
+	 */
+	@RequiresPermissions("mj:authorization:view")
+	@RequestMapping(value = "export", method = RequestMethod.POST)
+	public String exportFile(Authorization authorization, String accessParaInfoId,String name,String workNum, HttpServletRequest request, HttpServletResponse response,
+							 RedirectAttributes redirectAttributes) {
+		Authorization authorization2 = new Authorization();
+		if(accessParaInfoId!=null && !accessParaInfoId.equals("")){
+			authorization2.setAccessParaInfoId(accessParaInfoId);
+		}
+		if(name!=null && !name.equals("")){
+			authorization2.setStaffName(name);
+		}
+		if(workNum!=null && !workNum.equals("")){
+			authorization2.setWorkNum(workNum);
+		}
+		try {
+			String fileName = "门禁权限信息" + DateUtils.getDate("yyyyMMddHHmmss") + ".xlsx";
+			List<Authorization> list = authorizationService.findList(authorization2);
+			for (int i = 0; i < list.size(); i++) {
+				list.get(i).setStaff(staffService.get(list.get(i).getStaffId()));
+
+				AccessParaInfo accessParaInfo=accessParaInfoService.get(list.get(i).getAccessParaInfoId());
+				Equipment equipment=equipmentService.get(accessParaInfo.getEquipmentId().toString());
+				Office office=officeService.get(equipment.getOffice().getId());
+
+				list.get(i).setOffice(office);
+				list.get(i).setAccessParaInfo(accessParaInfo);
+				list.get(i).getAccessParaInfo().setEquipment(equipment);
+			}
+			new ExportExcel("门禁权限信息", Authorization.class).setDataList(list).write(response, fileName).dispose();
+			return null;
+		} catch (Exception e) {
+			addMessage(redirectAttributes, "导出门禁权限信息失败！失败信息：" + e.getMessage());
+		}
+		return "redirect:" + adminPath + "/mj/authorization/list?authorization="+authorization;
+	}
+
 	/**
 	 * 查询列表
 	 */
 	@RequiresPermissions("mj:authorization:view")
 	@RequestMapping(value = {"list", ""})
 	public String list(Authorization authorization, String accessParaInfoId,String name,String workNum,HttpServletRequest request, HttpServletResponse response, Model model) {
-		/*String accessParaInfoId=request.getParameter("accessParaInfoId");
-		String name=request.getParameter("name");
-		String weekNum=request.getParameter("weekNum");*/
 		boolean isOK=false;
 
 		if(authorization!=null){
@@ -93,11 +139,9 @@ public class AuthorizationController extends BaseController {
 			authorization2.setAccessParaInfoId(accessParaInfoId);
 		}
 		if(name!=null && !name.equals("")){
-			isOK=true;
 			authorization2.setStaffName(name);
 		}
 		if(workNum!=null && !workNum.equals("")){
-			isOK=true;
 			authorization2.setWorkNum(workNum);
 		}
 		if(isOK){
