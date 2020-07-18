@@ -792,15 +792,14 @@ select {
 							pattern="yyyy-MM-dd HH:mm:ss" /></td>
 					<td>${item.phone}</td>
 					<shiro:hasPermission name="guard:staff:edit">
-						<td><a href="${ctx}/guard/staff/form?id=${item.id}">修改</a> <a
-							href="${ctx}/guard/staff/delete?id=${item.id}&selectedCompanyId=${item.company.id}&selectedOfficeId=${item.office.id}"
-							onclick="return confirmx('确认要删除该人员信息吗？', this.href)">删除</a> <shiro:hasPermission
-								name="guard:staff:audit">
+						<td><a href="${ctx}/guard/staff/form?id=${item.id}">修改</a>
+							<a href="${ctx}/guard/staff/delete?id=${item.id}&selectedCompanyId=${item.company.id}&selectedOfficeId=${item.office.id}" onclick="return confirmx('确认要删除该人员信息吗？', this.href)">删除</a>
+							<shiro:hasPermission name="guard:staff:audit">
 								<c:if test="${item.status == 0}">
 								    <c:if test="${item.staffType == '2'}">
 									    <a href="javascript:void(0);"
-										onclick="validMainenace('${ctx}/guard/staff/audit?status=1&id=${item.id}&selectedCompanyId=${item.company.id}&selectedOfficeId=${item.office.id}',${item.id},${item.staffType})"
-										style="color: red">审核</a>
+										   onclick="validMainenace('${ctx}/guard/staff/audit?status=1&id=${item.id}&selectedCompanyId=${item.company.id}&selectedOfficeId=${item.office.id}',${item.id},${item.staffType})"
+										   style="color: red">审核</a>
 									</c:if>
 									 <c:if test="${item.staffType != '2'}">
                                         <a href="${ctx}/guard/staff/audit?status=1&id=${item.id}&selectedCompanyId=${item.company.id}&selectedOfficeId=${item.office.id}"
@@ -808,13 +807,15 @@ select {
                                         style="color: red">审核</a>
                                     </c:if>
 								</c:if>
-							</shiro:hasPermission> <shiro:hasPermission name="guard:staff:approval">
+							</shiro:hasPermission>
+							<shiro:hasPermission name="guard:staff:approval">
 								<c:if test="${item.status == 1}">
 									<a href="${ctx}/guard/staff/approval?status=2&id=${item.id}&selectedCompanyId=${staff.company.id}&selectedOfficeId=${staff.office.id}"
 										onclick="return confirmx('确认该人员审批通过', this.href)"
 										style="color: red">审批</a>
 								</c:if>
-							</shiro:hasPermission> <c:if test="${(item.status == 2 || item.status == 3)&& item.staffType != '2'}">
+							</shiro:hasPermission>
+							<c:if test="${(item.status == 2 || item.status == 3)&& item.staffType != '2'}">
 								<a href="${ctx}/guard/staff/download?id=${item.id}&selectedCompanyId=${staff.company.id}&selectedOfficeId=${staff.office.id}"
 									onclick="return confirmx('是否同步该人员', this.href)">同步</a>
 							</c:if></td>

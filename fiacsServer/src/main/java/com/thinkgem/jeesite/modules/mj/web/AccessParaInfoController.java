@@ -9,10 +9,13 @@ import com.thinkgem.jeesite.common.utils.DateUtils;
 import com.thinkgem.jeesite.common.utils.StringUtils;
 import com.thinkgem.jeesite.common.utils.excel.ExportExcel;
 import com.thinkgem.jeesite.common.web.BaseController;
+import com.thinkgem.jeesite.modules.guard.entity.DownloadEntity;
 import com.thinkgem.jeesite.modules.guard.entity.Equipment;
 import com.thinkgem.jeesite.modules.guard.service.EquipmentService;
 import com.thinkgem.jeesite.modules.mj.entity.AccessParaInfo;
+import com.thinkgem.jeesite.modules.mj.entity.DownloadAccessParaInfo;
 import com.thinkgem.jeesite.modules.mj.service.AccessParaInfoService;
+import com.thinkgem.jeesite.modules.mj.service.DownloadAccessParaInfoService;
 import com.thinkgem.jeesite.modules.sys.entity.Dict;
 import com.thinkgem.jeesite.modules.sys.service.DictService;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
@@ -26,6 +29,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -43,6 +47,8 @@ public class AccessParaInfoController extends BaseController {
 	private DictService dictService;
 	@Autowired
 	private EquipmentService equipmentService;
+	@Autowired
+	private DownloadAccessParaInfoService downloadAccessParaInfoService;
 
 	/**
 	 * 获取数据
@@ -92,6 +98,31 @@ public class AccessParaInfoController extends BaseController {
 		return "redirect:" + adminPath + "/mj/accessParaInfo/list?repage";
 	}
 
+	@RequiresPermissions("mj:accessParaInfo:edit")
+	@RequestMapping(value = "download")
+	public String download(AccessParaInfo accessParaInfo,String officeId,HttpServletRequest request,Model model,RedirectAttributes redirectAttributes) {
+		accessParaInfo=accessParaInfoService.get(accessParaInfo.getId());
+
+		DownloadAccessParaInfo downloadAccessParaInfo=new DownloadAccessParaInfo();
+		downloadAccessParaInfo.setAccessParaInfoId(accessParaInfo.getId());
+		downloadAccessParaInfo.setEquipmentId(String.valueOf(accessParaInfo.getEquipmentId()));
+		downloadAccessParaInfo.setIsDownload("0");
+		downloadAccessParaInfo.setRegisterTime(DateUtils.formatDateTime(new Date()));
+		downloadAccessParaInfo.setDownloadType(DownloadEntity.DOWNLOAD_TYPE_ADD);
+		downloadAccessParaInfoService.save(downloadAccessParaInfo);
+
+		addMessage(redirectAttributes, "门禁同步成功");
+		return backListPage(officeId, model);
+	}
+
+	private String backListPage(String officeId,Model model) {
+		model.addAttribute("officeId", officeId);
+		if(!StringUtils.isBlank(officeId)){
+			return "redirect:" + Global.getAdminPath() + "/mj/accessParaInfo/list?id="+officeId;
+		}
+		return "redirect:" + Global.getAdminPath() + "/mj/accessParaInfo/?repage";
+	}
+
 	/**
 	 * 查询列表
 	 */
@@ -101,6 +132,8 @@ public class AccessParaInfoController extends BaseController {
 
 		if(accessParaInfo!=null && accessParaInfo.getId()!=null && !accessParaInfo.getId().equals("")){
 			accessParaInfo=accessParaInfoService.get(accessParaInfo.getId());
+			Equipment equipment=equipmentService.get(String.valueOf(accessParaInfo.getEquipmentId()));
+			model.addAttribute("officeId",equipment.getOffice().getId());
 		}
 
 		model.addAttribute("accessParaInfo",accessParaInfo);

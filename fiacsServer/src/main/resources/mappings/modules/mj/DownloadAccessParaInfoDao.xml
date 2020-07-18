@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.mj.dao.DownloadAccessParaInfoDao">
+
+	<sql id="downloadAccessParaInfoColumns">
+		a.id AS "id",
+		a.access_para_info_id AS "accessParaInfoId",
+		eq.id AS "equipmentId",
+		a.register_time AS "registerTime",
+		a.download_time AS "downloadTime",
+		a.is_download AS "isDownload",
+		a.download_type AS "downloadType",
+		a4.door_pos AS "accessParaInfo.doorPos",
+		eq.site_type AS "equipment.siteType",
+		o3.name AS "office.name",
+		o3.id AS "office.id"
+	</sql>
+
+	<sql id="downloadAccessParaInfoJoins">
+		inner JOIN mj_access_para_info a4 ON a4.id = a.access_para_info_id
+		inner JOIN guard_equipment eq on eq.id = a.equipment_id
+		inner JOIN sys_office o3 ON o3.id = eq.office_id
+	</sql>
+
+	<select id="get" resultType="DownloadAccessParaInfo">
+		SELECT
+		<include refid="downloadAccessParaInfoColumns" />
+		FROM mj_download_access_para_info a
+		<include refid="downloadAccessParaInfoJoins" />
+		WHERE a.id = #{id}
+	</select>
+
+	<select id="findList" resultType="DownloadAccessParaInfo">
+		SELECT
+		<include refid="downloadAccessParaInfoColumns" />
+		FROM mj_download_access_para_info a
+
+		<include refid="downloadAccessParaInfoJoins" />
+		<where>
+			1=1 AND o3.id in
+			<foreach collection="officeIds"  item="item" index="index"
+					 open="(" separator="," close=")">
+				${item}
+			</foreach>
+			<if test="downloadTime != null and downloadTime != ''">
+				AND (a.download_time >= #{downloadTime} or
+				a.download_time is NULL )
+			</if>
+			<if test="downloadTimeTwo != null and downloadTimeTwo != ''">
+				AND (#{downloadTimeTwo} >= a.download_time or
+				a.download_time is NULL )
+			</if>
+		</where>
+		<choose>
+			<when
+				test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				order by a.register_time desc
+			</otherwise>
+		</choose>
+	</select>
+
+	<select id="findAllList" resultType="DownloadAccessParaInfo">
+		SELECT
+		<include refid="downloadAccessParaInfoColumns" />
+		FROM mj_download_access_para_info a
+		<include refid="downloadAccessParaInfoJoins" />
+		<where>
+
+		</where>
+		<choose>
+			<when
+				test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				order by a.register_time desc
+			</otherwise>
+		</choose>
+	</select>
+
+	<select id="countByEntity" resultType="int">
+		select count(1) from mj_download_access_para_info where
+		access_para_info_id=#{accessParaInfoId} AND equipment_id= #{DownloadAccessParaInfo} AND download_type=#{downloadType}
+		AND is_download=#{isDownload} 
+	</select>
+	<insert id="insert" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO
+		mj_download_access_para_info(
+		access_para_info_id,
+		equipment_id,
+		register_time,
+		download_time,
+		is_download,
+		download_type
+		) VALUES (
+		#{accessParaInfoId},
+		#{equipmentId},
+		#{registerTime},
+		#{downloadTime},
+		#{isDownload},
+		#{downloadType}
+		)
+	</insert>
+
+	<update id="update">
+		UPDATE mj_download_access_para_info SET
+		access_para_info_id =
+		#{accessParaInfoId}
+		WHERE id = #{id}
+	</update>
+
+	<update id="delete">
+		<!-- UPDATE mj_download_access_para_info SET download_type ='2' WHERE id = #{id} -->
+
+		DELETE FROM mj_download_access_para_info
+		WHERE id = #{id}
+	</update>
+	<update id="delete1">
+		<!-- UPDATE mj_download_access_para_info SET download_type ='2' WHERE id = #{id} -->
+
+		DELETE FROM mj_download_access_para_info
+		WHERE access_para_info_id = #{accessParaInfoId} and
+		is_download=#{isDownload}
+		<if test="equipmentId!=null and equipmentId!=''">
+			and equipment_id=#{equipmentId}
+		</if>
+	</update>
+
+</mapper>

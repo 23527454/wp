@@ -23,6 +23,22 @@
 						});
 						top.$('.jbox-body .jbox-icon').css('top', '55px');
 					});
+			$("#btnDownload").click(
+					function() {
+						top.$.jBox.confirm("确认要同步该门禁吗？", "系统提示", function(
+								v, h, f) {
+							if (v == "ok") {
+								$("#searchForm").attr("action",
+										"${ctx}/mj/accessParaInfo/download");
+								$("#searchForm").submit();
+								$("#searchForm").attr("action",
+										"${ctx}/mj/accessParaInfo/list");
+							}
+						}, {
+							buttonsFocus : 1
+						});
+						top.$('.jbox-body .jbox-icon').css('top', '55px');
+					});
 		});
 		function page(n,s){
 			$("#pageNo").val(n);
@@ -77,6 +93,7 @@
 				</td>
 				<shiro:hasPermission name="mj:accessParaInfo:edit"><td>
 					<a href="${ctx}/mj/accessParaInfo/form?id=${accessParaInfo.id}">修改</a>
+					<a href="${ctx}/mj/accessParaInfo/download?id=${accessParaInfo.id}&officeId=${officeId}" id="btnDownload">同步</a>
 				</td></shiro:hasPermission>
 			</tr>
 		</c:if>

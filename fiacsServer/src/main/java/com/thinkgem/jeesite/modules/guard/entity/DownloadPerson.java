@@ -3,11 +3,9 @@
  */
 package com.thinkgem.jeesite.modules.guard.entity;
 
-import java.util.List;
-
-import org.hibernate.validator.constraints.Length;
-
 import com.thinkgem.jeesite.modules.sys.entity.Office;
+
+import java.util.List;
 
 /**
  * 人员同步信息Entity
@@ -20,11 +18,10 @@ public class DownloadPerson extends DownloadEntity<DownloadPerson> {
 	private String personId;		// 人员ID
 	private String equipId;		// 设备ID
 	private String downloadTimeTwo;
-	
 	private Staff staff;
 	private Office office;
 	private List<String> officeIds;
-	
+
 	public List<String> getOfficeIds() {
 		return officeIds;
 	}
