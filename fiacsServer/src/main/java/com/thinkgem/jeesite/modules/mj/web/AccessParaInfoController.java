@@ -109,7 +109,9 @@ public class AccessParaInfoController extends BaseController {
 		downloadAccessParaInfo.setIsDownload("0");
 		downloadAccessParaInfo.setRegisterTime(DateUtils.formatDateTime(new Date()));
 		downloadAccessParaInfo.setDownloadType(DownloadEntity.DOWNLOAD_TYPE_ADD);
-		downloadAccessParaInfoService.save(downloadAccessParaInfo);
+		if(downloadAccessParaInfoService.countByEntity(downloadAccessParaInfo)==0){
+			downloadAccessParaInfoService.save(downloadAccessParaInfo);
+		}
 
 		addMessage(redirectAttributes, "门禁同步成功");
 		return backListPage(officeId, model);

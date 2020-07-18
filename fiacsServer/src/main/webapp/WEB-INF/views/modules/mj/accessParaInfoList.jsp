@@ -28,11 +28,7 @@
 						top.$.jBox.confirm("确认要同步该门禁吗？", "系统提示", function(
 								v, h, f) {
 							if (v == "ok") {
-								$("#searchForm").attr("action",
-										"${ctx}/mj/accessParaInfo/download");
-								$("#searchForm").submit();
-								$("#searchForm").attr("action",
-										"${ctx}/mj/accessParaInfo/list");
+								window.location.href="${ctx}/mj/accessParaInfo/download?id=${accessParaInfo.id}&officeId=${officeId}";
 							}
 						}, {
 							buttonsFocus : 1
@@ -72,7 +68,7 @@
 			</tr>
 		</thead>
 		<tbody>
-		<c:if test="${accessParaInfo!=null}">
+		<c:if test="${accessParaInfo!=null && accessParaInfo.id!=null}">
 			<tr>
 				<td>
 						${accessParaInfo.doorRelayTime}
@@ -93,7 +89,7 @@
 				</td>
 				<shiro:hasPermission name="mj:accessParaInfo:edit"><td>
 					<a href="${ctx}/mj/accessParaInfo/form?id=${accessParaInfo.id}">修改</a>
-					<a href="${ctx}/mj/accessParaInfo/download?id=${accessParaInfo.id}&officeId=${officeId}" id="btnDownload">同步</a>
+					<a href="#" id="btnDownload">同步</a>
 				</td></shiro:hasPermission>
 			</tr>
 		</c:if>

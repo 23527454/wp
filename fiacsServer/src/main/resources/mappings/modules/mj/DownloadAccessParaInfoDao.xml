@@ -83,7 +83,8 @@
 
 	<select id="countByEntity" resultType="int">
 		select count(1) from mj_download_access_para_info where
-		access_para_info_id=#{accessParaInfoId} AND equipment_id= #{DownloadAccessParaInfo} AND download_type=#{downloadType}
+		access_para_info_id=#{accessParaInfoId} AND equipment_id= #{equipmentId}
+		AND download_type=#{downloadType}
 		AND is_download=#{isDownload} 
 	</select>
 	<insert id="insert" useGeneratedKeys="true" keyProperty="id">
