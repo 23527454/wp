@@ -35,6 +35,15 @@ public class TimezoneInfo extends DataEntity<TimezoneInfo> {
 	private String timeStart4;		// 时段4开始
 	private String timeEnd4;		// 时段4结束
 	private Integer equipmentId;
+	private String accessParaInfoId;
+
+	public String getAccessParaInfoId() {
+		return accessParaInfoId;
+	}
+
+	public void setAccessParaInfoId(String accessParaInfoId) {
+		this.accessParaInfoId = accessParaInfoId;
+	}
 
 	public AccessParaInfo getAccessParaInfo() {
 		return accessParaInfo;

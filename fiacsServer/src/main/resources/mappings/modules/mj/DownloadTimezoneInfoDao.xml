@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.mj.dao.DownloadTimezoneInfoDao">
+
+	<sql id="downloadTimezoneInfoColumns">
+		a.id AS "id",
+		t.id AS "timezoneInfoId",
+		a.access_para_info_id AS "accessParaInfoId",
+		a4.door_pos AS "accessParaInfo.doorPos",
+		eq.id AS "equipment.id",
+		a.register_time AS "registerTime",
+		a.download_time AS "downloadTime",
+		a.is_download AS "isDownload",
+		a.download_type AS "downloadType",
+		eq.site_type AS "equipment.siteType",
+		o3.name AS "office.name",
+		o3.id AS "office.id"
+	</sql>
+
+	<sql id="downloadTimezoneInfoJoins">
+		inner JOIN mj_access_para_info a4 ON a4.id = a.access_para_info_id
+		inner JOIN guard_equipment eq on eq.id = a4.equipment_id
+		inner JOIN sys_office o3 ON o3.id = eq.office_id
+		inner JOIN mj_timezone_info t ON t.id = a.timezone_info_id
+	</sql>
+
+	<select id="get" resultType="DownloadTimezoneInfo">
+		SELECT
+		<include refid="downloadTimezoneInfoColumns" />
+		FROM mj_download_timezone_info a
+		<include refid="downloadTimezoneInfoJoins" />
+		WHERE a.id = #{id}
+	</select>
+
+	<select id="findList" resultType="DownloadTimezoneInfo">
+		SELECT
+		<include refid="downloadTimezoneInfoColumns" />
+		FROM mj_download_timezone_info a
+
+		<include refid="downloadTimezoneInfoJoins" />
+		<where>
+			1=1 AND o3.id in
+			<foreach collection="officeIds"  item="item" index="index"
+					 open="(" separator="," close=")">
+				${item}
+			</foreach>
+			<if test="office != null and  office.id !=null and office.name !=''">
+				<!-- AND a.equip_id =#{office.id} -->
+				AND o3.id =#{office.id}
+			</if>
+			<if test="downloadTime != null and downloadTime != ''">
+				AND (a.download_time >= #{downloadTime} or
+				a.download_time is NULL )
+			</if>
+			<if test="downloadTimeTwo != null and downloadTimeTwo != ''">
+				AND (#{downloadTimeTwo} >= a.download_time or
+				a.download_time is NULL )
+			</if>
+		</where>
+		<choose>
+			<when
+				test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				order by a.register_time desc
+			</otherwise>
+		</choose>
+	</select>
+
+	<select id="findAllList" resultType="DownloadTimezoneInfo">
+		SELECT
+		<include refid="downloadTimezoneInfoColumns" />
+		FROM mj_download_timezone_info a
+		<include refid="downloadTimezoneInfoJoins" />
+		<where>
+
+		</where>
+		<choose>
+			<when
+				test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				order by a.register_time desc
+			</otherwise>
+		</choose>
+	</select>
+
+	<select id="countByEntity" resultType="int">
+		select count(1) from mj_download_timezone_info where
+		timezone_info_id=#{timezoneInfoId} AND access_para_info_id= #{accessParaInfoId}
+		AND download_type=#{downloadType}
+		AND is_download=#{isDownload} 
+	</select>
+	<insert id="insert" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO
+		mj_download_timezone_info(
+		timezone_info_id,
+		access_para_info_id,
+		register_time,
+		download_time,
+		is_download,
+		download_type
+		) VALUES (
+		#{timezoneInfoId},
+		#{accessParaInfoId},
+		#{registerTime},
+		#{downloadTime},
+		#{isDownload},
+		#{downloadType}
+		)
+	</insert>
+
+	<update id="update">
+		UPDATE mj_download_timezone_info SET
+		timezone_info_id =
+		#{timezoneInfoId}
+		WHERE id = #{id}
+	</update>
+
+	<update id="delete">
+		<!-- UPDATE mj_download_timezone_info SET download_type ='2' WHERE id = #{id} -->
+
+		DELETE FROM mj_download_timezone_info
+		WHERE id = #{id}
+	</update>
+	<update id="delete1">
+		<!-- UPDATE mj_download_timezone_info SET download_type ='2' WHERE id = #{id} -->
+
+		DELETE FROM mj_download_timezone_info
+		WHERE timezone_info_id = #{timezoneInfoId} and
+		is_download=#{isDownload}
+		<if test="accessParaInfoId!=null and accessParaInfoId!=''">
+			and access_para_info_id=#{accessParaInfoId}
+		</if>
+	</update>
+
+</mapper>

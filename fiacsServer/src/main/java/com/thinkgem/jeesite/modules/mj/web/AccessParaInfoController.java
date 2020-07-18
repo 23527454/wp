@@ -114,13 +114,13 @@ public class AccessParaInfoController extends BaseController {
 		}
 
 		addMessage(redirectAttributes, "门禁同步成功");
-		return backListPage(officeId, model);
+		return backListPage(accessParaInfo.getId(), model);
 	}
 
-	private String backListPage(String officeId,Model model) {
-		model.addAttribute("officeId", officeId);
-		if(!StringUtils.isBlank(officeId)){
-			return "redirect:" + Global.getAdminPath() + "/mj/accessParaInfo/list?id="+officeId;
+	private String backListPage(String accessParaInfoId,Model model) {
+		model.addAttribute("accessParaInfo.id", accessParaInfoId);
+		if(!StringUtils.isBlank(accessParaInfoId)){
+			return "redirect:" + Global.getAdminPath() + "/mj/accessParaInfo/list?id="+accessParaInfoId;
 		}
 		return "redirect:" + Global.getAdminPath() + "/mj/accessParaInfo/?repage";
 	}
@@ -135,7 +135,7 @@ public class AccessParaInfoController extends BaseController {
 		if(accessParaInfo!=null && accessParaInfo.getId()!=null && !accessParaInfo.getId().equals("")){
 			accessParaInfo=accessParaInfoService.get(accessParaInfo.getId());
 			Equipment equipment=equipmentService.get(String.valueOf(accessParaInfo.getEquipmentId()));
-			model.addAttribute("officeId",equipment.getOffice().getId());
+			//model.addAttribute("officeId",equipment.getOffice().getId());
 		}
 
 		model.addAttribute("accessParaInfo",accessParaInfo);

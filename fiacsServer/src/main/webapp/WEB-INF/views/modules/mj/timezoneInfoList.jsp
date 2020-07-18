@@ -23,6 +23,28 @@
 						});
 						top.$('.jbox-body .jbox-icon').css('top', '55px');
 					});
+			$("#btnDownload").click(
+					function() {
+						var accessParaInfoId=$("#accessParaInfoId").val();
+						if(accessParaInfoId==null || accessParaInfoId==""){
+							alert("请先选择一扇门!");
+						}else{
+						top.$.jBox.confirm("确认要同步该门禁所有时区吗？", "系统提示", function(
+								v, h, f) {
+							if (v == "ok") {
+								$("#searchForm").attr("action",
+										"${ctx}/mj/timezoneInfo/download");
+								$("#searchForm").submit();
+								$("#searchForm").attr("action",
+										"${ctx}/mj/timezoneInfo/list");
+							}
+						}, {
+							buttonsFocus : 1
+						});
+						top.$('.jbox-body .jbox-icon').css('top', '55px');
+						}
+
+					});
 		});
 		function page(n,s){
 			$("#pageNo").val(n);
@@ -46,7 +68,7 @@
 		<%--<li class="active"><a href="#" onclick="toAdd();">门禁时区添加</a></li>--%>
 	</ul>
 	<form:form id="searchForm" modelAttribute="timezoneInfo" action="${ctx}/mj/timezoneInfo/" method="post" class="breadcrumb form-search">
-		<form:hidden path="accessParaInfo.id" id="aId" ></form:hidden>
+		<input type="hidden" name="accessParaInfoId" id="accessParaInfoId" value="${accessParaInfoId}">
 		<ul class="ul-form">
 		<li><label>时区类型：</label>
 			<form:select path="timeZoneType" cssClass="form-control input-sm">
@@ -62,6 +84,7 @@
 		</li>
 			<li class="btns"><input id="btnSubmit" class="btn btn-primary" type="submit" value="查询"/></li>
 			<li class="btns"><input id="btnExport" class="btn btn-primary" type="button" value="导出" /></li>
+			<li class="btns"><input id="btnDownload" class="btn btn-primary" type="button" value="同步" /></li>
 	</ul>
 	</form:form>
 	<sys:message content="${message}"/>

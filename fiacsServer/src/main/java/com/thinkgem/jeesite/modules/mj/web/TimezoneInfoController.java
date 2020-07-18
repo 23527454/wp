@@ -9,16 +9,21 @@ import com.thinkgem.jeesite.common.utils.DateUtils;
 import com.thinkgem.jeesite.common.utils.StringUtils;
 import com.thinkgem.jeesite.common.utils.excel.ExportExcel;
 import com.thinkgem.jeesite.common.web.BaseController;
+import com.thinkgem.jeesite.modules.guard.entity.DownloadEntity;
 import com.thinkgem.jeesite.modules.guard.entity.Equipment;
 import com.thinkgem.jeesite.modules.guard.service.EquipmentService;
+import com.thinkgem.jeesite.modules.mj.entity.AccessParaInfo;
+import com.thinkgem.jeesite.modules.mj.entity.DownloadTimezoneInfo;
 import com.thinkgem.jeesite.modules.mj.entity.TimezoneInfo;
 import com.thinkgem.jeesite.modules.mj.service.AccessParaInfoService;
+import com.thinkgem.jeesite.modules.mj.service.DownloadTimezoneInfoService;
 import com.thinkgem.jeesite.modules.mj.service.TimezoneInfoService;
 import com.thinkgem.jeesite.modules.sys.entity.Dict;
 import com.thinkgem.jeesite.modules.sys.service.DictService;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
@@ -28,6 +33,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -47,6 +53,8 @@ public class TimezoneInfoController extends BaseController {
 	private DictService dictService;
 	@Autowired
 	private EquipmentService equipmentService;
+	@Autowired
+	private DownloadTimezoneInfoService downloadTimezoneInfoService;
 	
 	/**
 	 * 获取数据
@@ -97,6 +105,41 @@ public class TimezoneInfoController extends BaseController {
 		return "redirect:" + adminPath + "/mj/timezoneInfo/list?repage";
 	}
 
+	@RequiresPermissions("mj:timezoneInfo:edit")
+	@RequestMapping(value = "download")
+	@Transactional
+	public String download(TimezoneInfo timezoneInfo, HttpServletRequest request, Model model, RedirectAttributes redirectAttributes) {
+		if(timezoneInfo==null){
+			timezoneInfo=new TimezoneInfo();
+			AccessParaInfo accessParaInfo=accessParaInfoService.get(timezoneInfo.getAccessParaInfoId());
+			timezoneInfo.setAccessParaInfo(accessParaInfo);
+		}
+		List<TimezoneInfo> list=timezoneInfoService.findList(timezoneInfo);
+		for(int i=0;i<list.size();i++){
+			TimezoneInfo timezoneInfo2=timezoneInfoService.get(list.get(i));
+			DownloadTimezoneInfo downloadTimezoneInfo=new DownloadTimezoneInfo();
+			downloadTimezoneInfo.setTimezoneInfoId(timezoneInfo2.getId());
+			downloadTimezoneInfo.setAccessParaInfoId(timezoneInfo2.getAccessParaInfoId());
+			downloadTimezoneInfo.setEquipment(equipmentService.get(String.valueOf(timezoneInfo2.getEquipmentId())));
+			downloadTimezoneInfo.setIsDownload("0");
+			downloadTimezoneInfo.setRegisterTime(DateUtils.formatDateTime(new Date()));
+			downloadTimezoneInfo.setDownloadType(DownloadEntity.DOWNLOAD_TYPE_ADD);
+			if(downloadTimezoneInfoService.countByEntity(downloadTimezoneInfo)==0){
+				downloadTimezoneInfoService.save(downloadTimezoneInfo);
+			}
+		}
+		addMessage(redirectAttributes, "时区同步成功");
+		return backListPage(timezoneInfo, model);
+	}
+
+	private String backListPage(TimezoneInfo timezoneInfo,Model model) {
+		model.addAttribute("timezoneInfo",timezoneInfo);
+		if(timezoneInfo!=null){
+			return "redirect:" + Global.getAdminPath() + "/mj/timezoneInfo/list?accessParaInfoId="+timezoneInfo.getAccessParaInfoId()+"&timeZoneType="+timezoneInfo.getTimeZoneType()+"&timeZoneNum="+timezoneInfo.getTimeZoneNum();
+		}
+		return "redirect:" + Global.getAdminPath() + "/mj/timezoneInfo/?repage";
+	}
+
 	/**
 	 * 查询列表
 	 */
@@ -112,9 +155,9 @@ public class TimezoneInfoController extends BaseController {
 		}
 
 		List<TimezoneInfo> list=null;
-		if(timezoneInfo.getAccessParaInfo()!=null && timezoneInfo.getAccessParaInfo().getId()!=null && !timezoneInfo.getAccessParaInfo().getId().equals("")){
+		if(timezoneInfo.getAccessParaInfoId()!=null && !timezoneInfo.getAccessParaInfoId().equals("")){
 			list= timezoneInfoService.findList(timezoneInfo);
-			model.addAttribute("accessParaInfo.id", timezoneInfo.getAccessParaInfo().getId());
+			model.addAttribute("accessParaInfoId", timezoneInfo.getAccessParaInfoId());
 		}
 
 		Dict dict=new Dict();

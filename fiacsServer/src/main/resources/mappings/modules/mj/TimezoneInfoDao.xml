@@ -40,8 +40,8 @@
 		SELECT *
 		FROM mj_timezone_info
 		<where>
-			<if test="accessParaInfo!=null and accessParaInfo.id != null and accessParaInfo.id != ''">
-				AND access_para_info_id =#{accessParaInfo.id}
+			<if test="accessParaInfoId != null and accessParaInfoId != ''">
+				AND access_para_info_id =#{accessParaInfoId}
 			</if>
 
 			<if test="timeZoneType != null and timeZoneType != ''">
