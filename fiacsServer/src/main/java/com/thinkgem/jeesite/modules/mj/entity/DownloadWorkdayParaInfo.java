@@ -10,44 +10,37 @@ import com.thinkgem.jeesite.modules.sys.entity.Office;
 import java.util.List;
 
 /**
- * 工作日同步信息Entity
+ * 门禁同步信息Entity
  * @author Jumbo
  * @version 2017-06-28
  */
-public class DownloadAccessParaInfo extends DownloadEntity<DownloadAccessParaInfo> {
+public class DownloadWorkdayParaInfo extends DownloadEntity<DownloadWorkdayParaInfo> {
 
 	private static final long serialVersionUID = 1L;
-	private String accessParaInfoId;		// 门禁ID
+	private String workdayParaInfoId;		// 工作日ID
 	private String equipmentId;		// 设备ID
-	private AccessParaInfo accessParaInfo;
+
+	private WorkdayParaInfo workdayParaInfo;
 	private Equipment equipment;
 	private Office office;
 
 	private String downloadTimeTwo;
 	private List<String> officeIds;
 
-	public String getDownloadTimeTwo() {
-		return downloadTimeTwo;
-	}
-
-	public void setDownloadTimeTwo(String downloadTimeTwo) {
-		this.downloadTimeTwo = downloadTimeTwo;
-	}
-
-	public DownloadAccessParaInfo() {
+	public DownloadWorkdayParaInfo() {
 		super();
 	}
 
-	public DownloadAccessParaInfo(String id){
+	public DownloadWorkdayParaInfo(String id){
 		super(id);
 	}
 
-	public String getAccessParaInfoId() {
-		return accessParaInfoId;
+	public String getWorkdayParaInfoId() {
+		return workdayParaInfoId;
 	}
 
-	public void setAccessParaInfoId(String accessParaInfoId) {
-		this.accessParaInfoId = accessParaInfoId;
+	public void setWorkdayParaInfoId(String workdayParaInfoId) {
+		this.workdayParaInfoId = workdayParaInfoId;
 	}
 
 	public String getEquipmentId() {
@@ -58,12 +51,12 @@ public class DownloadAccessParaInfo extends DownloadEntity<DownloadAccessParaInf
 		this.equipmentId = equipmentId;
 	}
 
-	public AccessParaInfo getAccessParaInfo() {
-		return accessParaInfo;
+	public WorkdayParaInfo getWorkdayParaInfo() {
+		return workdayParaInfo;
 	}
 
-	public void setAccessParaInfo(AccessParaInfo accessParaInfo) {
-		this.accessParaInfo = accessParaInfo;
+	public void setWorkdayParaInfo(WorkdayParaInfo workdayParaInfo) {
+		this.workdayParaInfo = workdayParaInfo;
 	}
 
 	public Equipment getEquipment() {
@@ -80,6 +73,14 @@ public class DownloadAccessParaInfo extends DownloadEntity<DownloadAccessParaInf
 
 	public void setOffice(Office office) {
 		this.office = office;
+	}
+
+	public String getDownloadTimeTwo() {
+		return downloadTimeTwo;
+	}
+
+	public void setDownloadTimeTwo(String downloadTimeTwo) {
+		this.downloadTimeTwo = downloadTimeTwo;
 	}
 
 	public List<String> getOfficeIds() {

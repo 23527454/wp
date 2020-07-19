@@ -78,6 +78,28 @@
 					});
 				}
 			});
+			$("#btnDownload").click(
+					function() {
+						var eId=$("#eId").val();
+						if(eId==null || eId==""){
+							alert("请先选择一个设备!");
+						}else{
+							top.$.jBox.confirm("确认要同步该设备所有假日吗？", "系统提示", function(
+									v, h, f) {
+								if (v == "ok") {
+									$("#searchForm").attr("action",
+											"${ctx}/mj/workdayParaInfo/download");
+									$("#searchForm").submit();
+									$("#searchForm").attr("action",
+											"${ctx}/mj/workdayParaInfo/list");
+								}
+							}, {
+								buttonsFocus : 1
+							});
+							top.$('.jbox-body .jbox-icon').css('top', '55px');
+						}
+
+					});
 		});
 
 
@@ -111,7 +133,8 @@
 				<option value="12" <c:if test="${mon eq '12'}">selected="selected"</c:if>>12月</option>
 			</select>
 		</li>
-		<li class="btns"><input id="btnSubmit" class="btn btn-primary" type="submit" value="查询"/></li>
+        <li class="btns"><input id="btnSubmit" class="btn btn-primary" type="submit" value="查询"/></li>
+        <li class="btns"><input id="btnDownload" class="btn btn-primary" type="button" value="同步"/></li>
 		<%--<li class="btns"><input id="btnExport" class="btn btn-primary" type="button" value="导出" /></li>--%>
 		<shiro:hasPermission name="mj:workdayParaInfo:edit">
             <input id="btnAdd" class="btn btn-primary" type="button" value="假期添加" />

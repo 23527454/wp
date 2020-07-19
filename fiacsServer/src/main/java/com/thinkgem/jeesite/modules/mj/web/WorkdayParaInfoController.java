@@ -5,10 +5,14 @@ package com.thinkgem.jeesite.modules.mj.web;
 
 import com.thinkgem.jeesite.common.config.Global;
 import com.thinkgem.jeesite.common.persistence.Page;
+import com.thinkgem.jeesite.common.utils.DateUtils;
 import com.thinkgem.jeesite.common.web.BaseController;
+import com.thinkgem.jeesite.modules.guard.entity.DownloadEntity;
 import com.thinkgem.jeesite.modules.guard.entity.Equipment;
 import com.thinkgem.jeesite.modules.guard.service.EquipmentService;
+import com.thinkgem.jeesite.modules.mj.entity.DownloadWorkdayParaInfo;
 import com.thinkgem.jeesite.modules.mj.entity.WorkdayParaInfo;
+import com.thinkgem.jeesite.modules.mj.service.DownloadWorkdayParaInfoService;
 import com.thinkgem.jeesite.modules.mj.service.WorkdayParaInfoService;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,6 +45,8 @@ public class WorkdayParaInfoController extends BaseController {
 	private WorkdayParaInfoService workdayParaInfoService;
 	@Autowired
 	private EquipmentService equipmentService;
+	@Autowired
+	private DownloadWorkdayParaInfoService downloadWorkdayParaInfoService;
 
 	@RequiresPermissions("mj:workdayParaInfo:view")
 	@RequestMapping("index")
@@ -107,6 +113,49 @@ public class WorkdayParaInfoController extends BaseController {
 			addMessage(redirectAttributes, "恢复默认失败！");
 		}
 			return "redirect:" + Global.getAdminPath() + "/mj/workdayParaInfo/?repage";
+	}
+
+	@RequiresPermissions("mj:workdayParaInfo:edit")
+	@RequestMapping(value = "download")
+	@Transactional
+	public String download(String eId,String mon, HttpServletRequest request, Model model, RedirectAttributes redirectAttributes) {
+		/*if(workdayParaInfo==null){
+			workdayParaInfo=new TimezoneInfo();
+			AccessParaInfo accessParaInfo=accessParaInfoService.get(workdayParaInfo.getAccessParaInfoId());
+			timezoneInfo.setAccessParaInfo(accessParaInfo);
+		}*/
+		WorkdayParaInfo workdayParaInfo=new WorkdayParaInfo();
+		workdayParaInfo.setEquipment(equipmentService.get(eId));
+		List<WorkdayParaInfo> list=workdayParaInfoService.findList(workdayParaInfo);
+		for(int i=0;i<list.size();i++){
+			WorkdayParaInfo workdayParaInfo2=workdayParaInfoService.get(list.get(i));
+			DownloadWorkdayParaInfo downloadWorkdayParaInfo=new DownloadWorkdayParaInfo();
+			downloadWorkdayParaInfo.setWorkdayParaInfoId(workdayParaInfo2.getId());
+			downloadWorkdayParaInfo.setEquipmentId(workdayParaInfo.getEquipment().getId());
+			downloadWorkdayParaInfo.setWorkdayParaInfo(workdayParaInfoService.get(workdayParaInfo2.getId()));
+			downloadWorkdayParaInfo.setEquipment(equipmentService.get(String.valueOf(workdayParaInfo.getEquipment().getId())));
+			downloadWorkdayParaInfo.setIsDownload("0");
+			downloadWorkdayParaInfo.setRegisterTime(DateUtils.formatDateTime(new Date()));
+			downloadWorkdayParaInfo.setDownloadType(DownloadEntity.DOWNLOAD_TYPE_ADD);
+			if(downloadWorkdayParaInfoService.countByEntity(downloadWorkdayParaInfo)==0){
+				downloadWorkdayParaInfoService.save(downloadWorkdayParaInfo);
+			}
+		}
+		addMessage(redirectAttributes, "工作日同步成功");
+		return backListPage(eId,mon, model);
+	}
+
+	private String backListPage(String eId,String mon,Model model) {
+		model.addAttribute("eId",eId);
+		model.addAttribute("mon",mon);
+		if((eId!=null && !eId.equals(""))||(mon!=null && !mon.equals(""))){
+			return "redirect:" + Global.getAdminPath() + "/mj/workdayParaInfo/list?eId="+eId+"&mon="+mon;
+		}else if(eId!=null && !eId.equals("")){
+			return "redirect:" + Global.getAdminPath() + "/mj/workdayParaInfo/list?eId="+eId;
+		}else if(eId!=null && !eId.equals("")){
+			return "redirect:" + Global.getAdminPath() + "/mj/workdayParaInfo/list?mon="+mon;
+		}
+		return "redirect:" + Global.getAdminPath() + "/mj/workdayParaInfo/?repage";
 	}
 
 	/**
