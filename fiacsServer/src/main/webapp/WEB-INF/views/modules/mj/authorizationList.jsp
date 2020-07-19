@@ -43,6 +43,28 @@
 								});
 								top.$('.jbox-body .jbox-icon').css('top', '55px');
 							});
+					$("#btnDownload").click(
+							function() {
+								var accessParaInfoId=$("#accessParaInfoId").val();
+								if(accessParaInfoId==null || accessParaInfoId==""){
+									alert("请先选择一扇门!");
+								}else{
+									top.$.jBox.confirm("确认要同步该门的数据吗？", "系统提示", function(
+											v, h, f) {
+										if (v == "ok") {
+											$("#searchForm").attr("action",
+													"${ctx}/mj/authorization/download");
+											$("#searchForm").submit();
+											$("#searchForm").attr("action",
+													"${ctx}/mj/authorization/list");
+										}
+									}, {
+										buttonsFocus : 1
+									});
+									top.$('.jbox-body .jbox-icon').css('top', '55px');
+								}
+
+							});
 
 					var message="${message}";
 					if(message!='')
@@ -89,6 +111,7 @@
 	<div class="form-group">
 		<input id="btnSubmit" class="btn btn-primary" type="submit" value="查询" />
 		<input id="btnExport" class="btn btn-primary" type="button" value="导出" />
+		<input id="btnDownload" class="btn btn-primary" type="button" value="同步"/>
 		<shiro:hasPermission name="mj:authorization:edit">
 			<input id="btnAdd" class="btn btn-primary" type="button" value="人员添加" />
 		</shiro:hasPermission>

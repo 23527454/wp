@@ -22,6 +22,30 @@
 						});
 						top.$('.jbox-body .jbox-icon').css('top', '55px');
 					});
+
+
+			$("#btnDownload").click(
+					function() {
+						var eid=$("#eid").val();
+						if(eid==null || eid==""){
+							alert("请先选择一个设备!");
+						}else{
+							top.$.jBox.confirm("确认要同步该设备的防盗数据吗？", "系统提示", function(
+									v, h, f) {
+								if (v == "ok") {
+									$("#searchForm").attr("action",
+											"${ctx}/mj/securityParaInfo/download");
+									$("#searchForm").submit();
+									$("#searchForm").attr("action",
+											"${ctx}/mj/securityParaInfo/list");
+								}
+							}, {
+								buttonsFocus : 1
+							});
+							top.$('.jbox-body .jbox-icon').css('top', '55px');
+						}
+
+					});
 		});
 		function page(n,s){
 			$("#pageNo").val(n);
@@ -75,6 +99,7 @@
 				</td>
 				<shiro:hasPermission name="mj:securityParaInfo:edit"><td>
 					<a href="${ctx}/mj/securityParaInfo/form?id=${securityParaInfo.id}">修改</a>
+					<a href="#" id="btnDownload">同步</a>
 				</td></shiro:hasPermission>
 			</tr>
 		</c:forEach>
