@@ -82,7 +82,7 @@ public class StaffService extends CrudService<StaffDao, Staff> {
 
 	//public List<Staff> findAll(String name,String workNum,Integer pageIndex,Integer size){return staffDao.findAll(name,workNum,pageIndex,size);}
 
-	public List<Staff> findAll(String name,String workNum,String accessParaInfoId,Integer pageIndex,Integer size){return staffDao.findAll(name,workNum,accessParaInfoId,pageIndex,size);}
+	public List<Staff> findAll(String name,String workNum,String equipmentId,String doorPos,Integer pageIndex,Integer size){return staffDao.findAll(name,workNum,equipmentId,doorPos,pageIndex,size);}
 
 	public List<Staff> findByOfficeId(String officeId){return staffDao.findByOfficeId(officeId);}
 

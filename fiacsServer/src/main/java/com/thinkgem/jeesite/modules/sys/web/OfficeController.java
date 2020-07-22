@@ -9,8 +9,8 @@ import com.thinkgem.jeesite.common.config.Global;
 import com.thinkgem.jeesite.common.service.ServiceException;
 import com.thinkgem.jeesite.common.utils.StringUtils;
 import com.thinkgem.jeesite.common.web.BaseController;
-import com.thinkgem.jeesite.modules.mj.entity.AccessParaInfo;
-import com.thinkgem.jeesite.modules.mj.service.AccessParaInfoService;
+import com.thinkgem.jeesite.modules.tbmj.entity.AccessParaInfo;
+import com.thinkgem.jeesite.modules.tbmj.service.AccessParaInfoService;
 import com.thinkgem.jeesite.modules.guard.entity.Equipment;
 import com.thinkgem.jeesite.modules.guard.entity.LineNodes;
 import com.thinkgem.jeesite.modules.guard.service.EquipmentService;
@@ -360,9 +360,12 @@ public class OfficeController extends BaseController {
 	public List<Map<String, Object>> treezeeData2(@RequestParam(required = false) String extId,
 												  @RequestParam(required = false) String type, @RequestParam(required = false) Long grade,
 												  @RequestParam(required = false) Boolean isAll, HttpServletResponse response) {
+		//返回的数据
 		List<Map<String, Object>> mapList = Lists.newArrayList();
+		//获取所有机构
 		List<Office> list = officeService.findList(false, new Office());
 		Map<String, Map<String, Object>> nodes = new HashMap<String, Map<String, Object>>();
+		//遍历机构
 		for (int i = 0; i < list.size(); i++) {
 			Office e = list.get(i);
 			if (que(e) == false) {
@@ -371,6 +374,7 @@ public class OfficeController extends BaseController {
 		}
 
 		List<Map<String, Object>> newNodes=Lists.newArrayList();
+		//查询所有门号
 		List<Dict> dicts=dictService.findListByType("door_pos");
 		for (Map<String, Object> node : nodes.values()) {
 			Equipment equipment = equipmentService.getByOfficeId(node.get("id").toString());
@@ -385,22 +389,19 @@ public class OfficeController extends BaseController {
 						}
 					}
 					newNode.put("pId", node.get("id").toString());
-					newNode.put("id", "a" + a.getId());
+					newNode.put("id", "d"+a.getId());
+					newNode.put("eid", equipment.getId());
 					newNode.put("pIds", node.get("pIds").toString() + node.get("id").toString() + ",");
 					newNode.put("type", 0);
 					newNode.put("status", "office");
 					newNodes.add(newNode);
 				}
 			}
-			/*if(newNode!=null&&newNode.get("id")!=null){
-				newNodes.add(newNode);
-			}*/
 			mapList.add(node);
 		}
 		for(Map<String, Object> node:newNodes){
 			mapList.add(node);
 		}
-		//System.out.println("----------------mapList:"+mapList.toString());
 		return mapList;
 	}
 

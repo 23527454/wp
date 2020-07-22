@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.tbmj.dao.WorkdayParaInfoDao">
+	
+	<!-- 查询数据
+	<select id="findList" resultType="AccessWorkday">
+		SELECT ${sqlMap.column.toSql()}
+		FROM ${sqlMap.table.toSql()}
+		<where>
+			${sqlMap.where.toSql()}
+		</where>
+		ORDER BY ${sqlMap.order.toSql()}
+	</select> -->
+
+	<select id="get" resultType="WorkdayParaInfo">
+		SELECT *
+		FROM tbmj_workday_para_info
+		WHERE id = #{id} and del_flag = '0'
+	</select>
+
+	<select id="findByEIdAndDate" resultType="WorkdayParaInfo">
+		select *
+		from tbmj_workday_para_info
+		where equipment_id=#{equipment.id} and year=#{year} and month=#{month} and del_flag='0'
+	</select>
+
+	<select id="findList" resultType="WorkdayParaInfo">
+		select *
+		from tbmj_workday_para_info
+		<where>
+			equipment_id=#{equipment.id} and del_flag='0'
+			<if test="month!=null and month!=''">
+				and month=#{month}
+			</if>
+		</where>
+
+	</select>
+
+	<select id="findAllByEIdAndYear" resultType="WorkdayParaInfo">
+		select *
+		from tbmj_workday_para_info
+		<where>
+			equipment_id=#{equipment.id} and year=#{year} and del_flag='0'
+		</where>
+
+	</select>
+
+	<update id="modifyRestDayById">
+		update tbmj_workday_para_info
+		set jan=#{jan},
+		feb=#{feb},
+		mar=#{mar},
+		apr=#{apr},
+		may=#{may},
+		jun=#{jun},
+		jul=#{jul},
+		aug=#{aug},
+		sep=#{sep},
+		oct=#{oct},
+		nov=#{nov},
+		`dec`=#{dec}
+		where id=#{id}
+	</update>
+
+	<delete id="deleteAllByEId">
+		delete from tbmj_workday_para_info
+		where equipment_id=#{eId}
+	</delete>
+
+	<insert id="insert">
+		INSERT INTO tbmj_workday_para_info
+		VALUES (DEFAULT,
+		#{equipmentId},
+		#{workdayNum},
+		#{year},
+		#{jan},
+		#{feb},
+		#{mar},
+		#{apr},
+		#{may},
+		#{jun},
+		#{jul},
+		#{aug},
+		#{sep},
+		#{oct},
+		#{nov},
+		#{dec},
+		#{createBy.id},
+		#{createDate},
+		#{updateBy.id},
+		#{updateDate},
+		#{remarks},
+		DEFAULT)
+	</insert>
+
+	<select id="selMaxNum" resultType="Integer">
+		select max(workday_num)
+		from tbmj_workday_para_info
+	</select>
+</mapper>

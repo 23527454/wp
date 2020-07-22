@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.tbmj.dao.AuthorizationDao">
+	
+	<!-- 查询数据
+	<select id="findList" resultType="Authorization">
+		SELECT ${sqlMap.column.toSql()}
+		FROM ${sqlMap.table.toSql()}
+		<where>
+			${sqlMap.where.toSql()}
+		</where>
+		ORDER BY ${sqlMap.order.toSql()}
+	</select> -->
+
+	<select id="get" resultType="Authorization">
+		SELECT *
+		FROM tbmj_authorization
+		WHERE id = #{id} and del_flag = '0'
+	</select>
+
+	<update id="delete">
+		DELETE FROM tbmj_authorization WHERE id = #{id}
+	</update>
+
+	<select id="getCountBySId" resultType="Integer">
+		select count(1) from tbmj_authorization WHERE staff_id = #{staffId} AND equipment_id=#{equipmentId} and door_pos=#{doorPos}
+	</select>
+
+	<select id="findList" resultType="Authorization">
+		SELECT *
+		FROM tbmj_authorization
+		<where>
+			del_flag = '0'
+			<if test="equipmentId != null and equipmentId != '' and doorPos!=null and doorPos!=''">
+				AND equipment_id = #{equipmentId} and door_pos=#{doorPos}
+			</if>
+			<if test="staffName!=null and staffName != ''">
+				AND staff_id in (
+					select id
+					from guard_staff
+					where name like CONCAT('%', #{staffName}, '%')
+				)
+			</if>
+			<if test="workNum!=null and workNum != ''">
+				AND staff_id in (
+					select id
+					from guard_staff
+					where work_num like CONCAT('%', #{workNum}, '%')
+				)
+			</if>
+		</where>
+		<choose>
+			<otherwise>
+				ORDER BY create_date
+			</otherwise>
+		</choose>
+	</select>
+
+	<update id="update">
+		UPDATE tbmj_authorization SET
+		timezone_info_num=#{timezoneInfoNum},
+		permission_group=#{permissionGroup},
+		check_pom=#{checkPom},
+		workday_num=#{workdayNum},
+		remarks=#{remarks}
+		WHERE id=#{id}
+	</update>
+
+	<insert id="insert" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO tbmj_authorization
+		VALUES (DEFAULT ,
+		#{staff.id},
+		#{equipment.id},
+		#{doorPos},
+		#{timezoneInfoNum},
+		#{permissionGroup},
+		#{checkPom},
+		#{workdayNum},
+		#{createBy.id},
+		#{createDate},
+		#{updateBy.id},
+		#{updateDate},
+		#{remarks},
+		DEFAULT)
+	</insert>
+
+	<delete id="deleteById">
+		delete from tbmj_authorization where id=#{id}
+	</delete>
+
+	<delete id="deleteByEId">
+		delete from tbmj_authorization where equipment_id=#{id}
+	</delete>
+
+</mapper>

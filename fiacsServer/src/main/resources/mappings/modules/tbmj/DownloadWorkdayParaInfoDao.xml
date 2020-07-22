@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.tbmj.dao.DownloadWorkdayParaInfoDao">
+
+	<sql id="downloadWorkdayParaInfoColumns">
+		a.id AS "id",
+		a.workday_para_info_id AS "workdayParaInfoId",
+		eq.id AS "equipmentId",
+		a.register_time AS "registerTime",
+		a.download_time AS "downloadTime",
+		a.is_download AS "isDownload",
+		a.download_type AS "downloadType",
+		eq.site_type AS "equipment.siteType",
+		o3.name AS "office.name",
+		o3.id AS "office.id"
+	</sql>
+
+	<sql id="downloadWorkdayParaInfoJoins">
+		inner JOIN tbmj_workday_para_info a4 ON a4.id = a.workday_para_info_id
+		inner JOIN guard_equipment eq on eq.id = a.equipment_id
+		inner JOIN sys_office o3 ON o3.id = eq.office_id
+	</sql>
+
+	<select id="get" resultType="DownloadWorkdayParaInfo">
+		SELECT
+		<include refid="downloadWorkdayParaInfoColumns" />
+		FROM tbmj_download_workday_para_info a
+		<include refid="downloadWorkdayParaInfoJoins" />
+		WHERE a.id = #{id}
+	</select>
+
+	<select id="findList" resultType="DownloadWorkdayParaInfo">
+		SELECT
+		<include refid="downloadWorkdayParaInfoColumns" />
+		FROM tbmj_download_workday_para_info a
+
+		<include refid="downloadWorkdayParaInfoJoins" />
+		<where>
+			1=1 AND o3.id in
+			<foreach collection="officeIds"  item="item" index="index"
+					 open="(" separator="," close=")">
+				${item}
+			</foreach>
+			<if test="office != null and  office.id !=null and office.name !=''">
+				<!-- AND a.equip_id =#{office.id} -->
+				AND o3.id =#{office.id}
+			</if>
+			<if test="downloadTime != null and downloadTime != ''">
+				AND (a.download_time >= #{downloadTime} or
+				a.download_time is NULL )
+			</if>
+			<if test="downloadTimeTwo != null and downloadTimeTwo != ''">
+				AND (#{downloadTimeTwo} >= a.download_time or
+				a.download_time is NULL )
+			</if>
+		</where>
+		<choose>
+			<when
+				test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				order by a.register_time desc
+			</otherwise>
+		</choose>
+	</select>
+
+	<select id="findAllList" resultType="DownloadWorkdayParaInfo">
+		SELECT
+		<include refid="downloadWorkdayParaInfoColumns" />
+		FROM tbmj_download_workday_para_info a
+		<include refid="downloadWorkdayParaInfoJoins" />
+		<where>
+
+		</where>
+		<choose>
+			<when
+				test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				order by a.register_time desc
+			</otherwise>
+		</choose>
+	</select>
+
+	<select id="countByEntity" resultType="int">
+		select count(1) from tbmj_download_workday_para_info where
+		workday_para_info_id=#{workdayParaInfoId} AND equipment_id= #{equipmentId}
+		AND download_type=#{downloadType}
+		AND is_download=#{isDownload} 
+	</select>
+	<insert id="insert" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO
+		tbmj_download_workday_para_info(
+		workday_para_info_id,
+		equipment_id,
+		register_time,
+		download_time,
+		is_download,
+		download_type
+		) VALUES (
+		#{workdayParaInfoId},
+		#{equipmentId},
+		#{registerTime},
+		#{downloadTime},
+		#{isDownload},
+		#{downloadType}
+		)
+	</insert>
+
+	<update id="update">
+		UPDATE tbmj_download_workday_para_info SET
+		workday_para_info_id =
+		#{workdayParaInfoId}
+		WHERE id = #{id}
+	</update>
+
+	<update id="delete">
+		<!-- UPDATE tbmj_download_workday_para_info SET download_type ='2' WHERE id = #{id} -->
+
+		DELETE FROM tbmj_download_workday_para_info
+		WHERE id = #{id}
+	</update>
+	<update id="delete1">
+		<!-- UPDATE tbmj_download_workday_para_info SET download_type ='2' WHERE id = #{id} -->
+
+		DELETE FROM tbmj_download_workday_para_info
+		WHERE access_para_info_id = #{accessParaInfoId} and
+		is_download=#{isDownload}
+		<if test="equipmentId!=null and equipmentId!=''">
+			and equipment_id=#{equipmentId}
+		</if>
+	</update>
+
+</mapper>

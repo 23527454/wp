@@ -17,8 +17,8 @@ import com.thinkgem.jeesite.modules.guard.dao.LineNodesDao;
 import com.thinkgem.jeesite.modules.guard.entity.Equipment;
 import com.thinkgem.jeesite.modules.guard.entity.LineNodes;
 import com.thinkgem.jeesite.modules.guard.service.EquipmentService;
-import com.thinkgem.jeesite.modules.mj.entity.*;
-import com.thinkgem.jeesite.modules.mj.service.*;
+import com.thinkgem.jeesite.modules.tbmj.entity.*;
+import com.thinkgem.jeesite.modules.tbmj.service.*;
 import com.thinkgem.jeesite.modules.sys.entity.Office;
 import com.thinkgem.jeesite.modules.sys.entity.User;
 import com.thinkgem.jeesite.modules.sys.service.OfficeService;
@@ -275,11 +275,8 @@ public class EquipmentController extends BaseController {
 			//如果是第一次添加设备，或者是在进行修改时将设备类型和开锁方式修改了，进入方法删除门禁
 			if (e2==null||(e2!=null && (!equipment.getSiteType().equals(e2.getSiteType()) || equipment.getAccessType()!=e2.getAccessType()))){
 
-				//根据门禁ID删除授权信息
-				List<AccessParaInfo> accessParaInfos=accessParaInfoService.findListById(equipment.getId());
-				for(AccessParaInfo a:accessParaInfos){
-					authorizationService.deleteByAId(a.getId());
-				}
+				//根据设备ID删除授权信息
+				authorizationService.deleteByEId(equipment.getId());
 
 				accessParaInfoService.deleteByEId(equipment.getId());
 				timezoneInfoService.deleteByEId(equipment.getId());
@@ -313,31 +310,28 @@ public class EquipmentController extends BaseController {
 					accessParaInfo.setNetOutAge2("00");
 					accessParaInfoService.save(accessParaInfo);
 
-					for(int j=1;j<=7;j++){
-						TimezoneInfo timezoneInfo =new TimezoneInfo();
-						timezoneInfo.setEquipment(equipment);
-						timezoneInfo.setAccessParaInfo(accessParaInfo);
-						timezoneInfo.setDoorPos("1");
-						timezoneInfo.setTimeZoneType("1");
-						timezoneInfo.setTimeZoneNum("1");
-						timezoneInfo.setWeekNumber(j);
-						timezoneInfo.setTimeStart1("00:00");
-						timezoneInfo.setTimeEnd1("23:59");
-						timezoneInfo.setTimeStart2("00:00");
-						timezoneInfo.setTimeEnd2("00:00");
-						timezoneInfo.setTimeStart3("00:00");
-						timezoneInfo.setTimeEnd3("00:00");
-						timezoneInfo.setTimeStart4("00:00");
-						timezoneInfo.setTimeEnd4("00:00");
-						timezoneInfoService.save(timezoneInfo);
-					}
+					TimezoneInfo timezoneInfo =new TimezoneInfo();
+					timezoneInfo.setEquipment(equipment);
+					timezoneInfo.setEquipmentId(equipment.getId());
+					timezoneInfo.setAccessParaInfo(accessParaInfo);
+					timezoneInfo.setDoorPos(accessParaInfo.getDoorPos());
+					timezoneInfo.setTimeZoneType("1");
+					timezoneInfo.setTimeZoneNum("1");
+					timezoneInfo.setMon("00:00-23:59;00:00-00:00;00:00-00:00;00:00-00:00;");
+					timezoneInfo.setTue("00:00-23:59;00:00-00:00;00:00-00:00;00:00-00:00;");
+					timezoneInfo.setWed("00:00-23:59;00:00-00:00;00:00-00:00;00:00-00:00;");
+					timezoneInfo.setThu("00:00-23:59;00:00-00:00;00:00-00:00;00:00-00:00;");
+					timezoneInfo.setFri("00:00-23:59;00:00-00:00;00:00-00:00;00:00-00:00;");
+					timezoneInfo.setSat("00:00-23:59;00:00-00:00;00:00-00:00;00:00-00:00;");
+					timezoneInfo.setSun("00:00-23:59;00:00-00:00;00:00-00:00;00:00-00:00;");
+					timezoneInfoService.save(timezoneInfo);
 				}
 
 				SecurityParaInfo securityParaInfo =new SecurityParaInfo(60,60,120,60,5,"1","1","1","1","1","1","1","1","1","1","1");
 				securityParaInfo.setEquipment(equipment);
 				securityParaInfoService.save(securityParaInfo);
 
-				DefenseParaInfo defenseParaInfo =new DefenseParaInfo(1,1,"1",1,005,"00:00","23:59","00:00","00:00","00:00","00:00","00:00","00:00");
+				DefenseParaInfo defenseParaInfo =new DefenseParaInfo(1,1,"1",1,005,"00:00-00:00;00:00-00:00;00:00-00:00;00:00-00:00;");
 				defenseParaInfo.setEquipment(equipment);
 				defenseParaInfoService.save(defenseParaInfo);
 
@@ -347,6 +341,12 @@ public class EquipmentController extends BaseController {
 				Calendar c2 = Calendar.getInstance();
 				String year = String.valueOf(c2.get(Calendar.YEAR));
 				Date date = new Date();
+				WorkdayParaInfo workdayParaInfo =new WorkdayParaInfo();
+				workdayParaInfo.setEquipment(equipment);
+				workdayParaInfo.setEquipmentId(equipment.getId());
+				workdayParaInfo.setYear(year);
+				Integer maxNum=workdayParaInfoService.selMaxNum();
+				workdayParaInfo.setWorkdayNum(maxNum==null?1:maxNum+1);
 				for(int i=0;i<12;i++){
 					sb=new StringBuffer("");
 					String str=year+"-"+(i+1)+"-"+1;
@@ -365,13 +365,9 @@ public class EquipmentController extends BaseController {
 							sb.append("1");
 						}
 					}
-					WorkdayParaInfo workdayParaInfo=new WorkdayParaInfo();
-					workdayParaInfo.setEquipment(equipment);
-					workdayParaInfo.setYear(year);
-					workdayParaInfo.setMonth((i+1)+"");
-					workdayParaInfo.setDay(sb.toString());
-					workdayParaInfoService.save(workdayParaInfo);
+					setWorkParaInfoDays(String.valueOf((i+1)),sb.toString(),workdayParaInfo);
 				}
+				workdayParaInfoService.save(workdayParaInfo);
 			}
 
 		} catch (Exception e) {
@@ -404,11 +400,8 @@ public class EquipmentController extends BaseController {
 				return "redirect:" + Global.getAdminPath() + "/guard/equipment/?repage";
 			}
 		}
-		//根据门禁ID删除授权信息
-		List<AccessParaInfo> accessParaInfos=accessParaInfoService.findListById(equipment.getId());
-		for(AccessParaInfo a:accessParaInfos){
-			authorizationService.deleteByAId(a.getId());
-		}
+		//根据设备ID删除授权信息
+		authorizationService.deleteByEId(equipment.getId());
 
 		//先删除时区表accessDoorTimezone、防盗信息表access_antitheft、防区信息表access_defense_info数据
 		timezoneInfoService.deleteByEId(equipment.getId());
@@ -416,7 +409,7 @@ public class EquipmentController extends BaseController {
 		defenseParaInfoService.deleteByEId(equipment.getId());
 		//再删除门禁信息表accessParaInfo数据
 		accessParaInfoService.deleteByEId(equipment.getId());
-
+		workdayParaInfoService.deleteAllByEId(equipment.getId());
 		//删除设备信息
 		equipmentService.delete(equipment);
 		addMessage(redirectAttributes, "删除设备信息成功");
@@ -474,6 +467,48 @@ public class EquipmentController extends BaseController {
 		}
 		return "success";
 	}
-	
 
+	public void setWorkParaInfoDays(String mon,String times,WorkdayParaInfo workdayParaInfo){
+		switch (Integer.parseInt(mon)){
+			case 1:
+				workdayParaInfo.setJan(times);
+				break;
+			case 2:
+				workdayParaInfo.setFeb(times);
+				break;
+			case 3:
+				workdayParaInfo.setMar(times);
+				break;
+			case 4:
+				workdayParaInfo.setApr(times);
+				break;
+			case 5:
+				workdayParaInfo.setMay(times);
+				break;
+			case 6:
+				workdayParaInfo.setJun(times);
+				break;
+			case 7:
+				workdayParaInfo.setJul(times);
+				break;
+			case 8:
+				workdayParaInfo.setAug(times);
+				break;
+			case 9:
+				workdayParaInfo.setSep(times);
+				break;
+			case 10:
+				workdayParaInfo.setOct(times);
+				break;
+			case 11:
+				workdayParaInfo.setNov(times);
+				break;
+			case 12:
+				workdayParaInfo.setDec(times);
+				break;
+			default:
+				workdayParaInfo.setJan(times);
+				break;
+		}
+	}
 }

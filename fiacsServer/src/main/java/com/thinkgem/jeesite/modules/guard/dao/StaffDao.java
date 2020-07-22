@@ -27,7 +27,7 @@ public interface StaffDao extends CrudDao<Staff> {
 
 	//List<Staff> findAll(@Param("name") String name, @Param("workNum") String workNum, @Param("pageIndex") Integer pageIndex,@Param("size") Integer size);
 
-	List<Staff> findAll(@Param("name") String name, @Param("workNum") String workNum, @Param("accessParaInfoId") String accessParaInfoId, @Param("pageIndex") Integer pageIndex, @Param("size") Integer size);
+	List<Staff> findAll(@Param("name") String name, @Param("workNum") String workNum, @Param("equipmentId") String equipmentId,@Param("doorPos") String doorPos, @Param("pageIndex") Integer pageIndex, @Param("size") Integer size);
 
 	List<Staff> findByOfficeId(String officeId);
 }

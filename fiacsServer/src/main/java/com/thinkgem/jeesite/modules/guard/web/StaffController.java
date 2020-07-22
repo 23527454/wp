@@ -24,6 +24,8 @@ import com.thinkgem.jeesite.modules.sys.service.AreaService;
 import com.thinkgem.jeesite.modules.sys.service.OfficeService;
 import com.thinkgem.jeesite.modules.sys.utils.DictUtils;
 import com.thinkgem.jeesite.modules.sys.utils.UserUtils;
+import com.thinkgem.jeesite.modules.tbmj.entity.AccessParaInfo;
+import com.thinkgem.jeesite.modules.tbmj.service.AccessParaInfoService;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import net.sf.json.JsonConfig;
@@ -81,6 +83,8 @@ public class StaffController extends BaseController {
 
 	@Autowired
 	private SysConfigService sysConfigService;
+	@Autowired
+	private AccessParaInfoService accessParaInfoService;
 	
 	@Value("${projectPath.images}")
 	private String projectPath;
@@ -104,7 +108,7 @@ public class StaffController extends BaseController {
 	@RequestMapping(value = "plan1")
 	public ModelAndView plan1(String accessParaInfoId,ModelAndView modelAndView,Model model) {
 		model.addAttribute("accessParaInfoId",accessParaInfoId);
-		modelAndView.setViewName("modules/mj/selStaff");//跳转到这个jsp页面来渲染表格
+		modelAndView.setViewName("modules/tbmj/selStaff");//跳转到这个jsp页面来渲染表格
 		return modelAndView;
 	}
 
@@ -120,8 +124,10 @@ public class StaffController extends BaseController {
 		}
 		pageIndex=(pageIndex-1)*size;
 
-		List<Staff> list=staffService.findAll(name,workNum, accessParaInfoId,pageIndex,size);
-		List<Staff> list2=staffService.findAll(name,workNum,accessParaInfoId,null,null);
+		AccessParaInfo accessParaInfo=accessParaInfoService.get(accessParaInfoId);
+
+		List<Staff> list=staffService.findAll(name,workNum, String.valueOf(accessParaInfo.getEquipmentId()),accessParaInfo.getDoorPos(),pageIndex,size);
+		List<Staff> list2=staffService.findAll(name,workNum, String.valueOf(accessParaInfo.getEquipmentId()),accessParaInfo.getDoorPos(),null,null);
 		StringBuffer sb=new StringBuffer("");
 		StringBuffer sb2=new StringBuffer("");
 

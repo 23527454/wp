@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.tbmj.dao.TimezoneInfoDao">
+
+
+	<select id="findCountByNum" resultType="Integer">
+		select count(1)
+		from tbmj_timezone_info
+		where equipment_id=#{id} and door_pos=#{doorPos} and timezone_num=#{num} and timezone_type=#{type}
+	</select>
+
+	<select id="get" resultType="TimezoneInfo">
+		SELECT *
+		FROM tbmj_timezone_info
+		WHERE id = #{id} and del_flag = '0'
+	</select>
+
+	<select id="findAIdById" resultType="String">
+		SELECT access_para_info_id
+		FROM tbmj_timezone_info
+		WHERE id = #{id} and del_flag = '0'
+	</select>
+
+	<!--没使用-->
+	<select id="getByWdAndAid" resultType="TimezoneInfo">
+		SELECT *
+		FROM tbmj_timezone_info
+		WHERE week_number = #{weekNumber} and access_para_info_id=#{id} and del_flag = '0'
+	</select>
+
+	<select id="findList" resultType="TimezoneInfo">
+		SELECT *
+		FROM tbmj_timezone_info
+		<where>
+			<if test="equipmentId != null and equipmentId != ''">
+				AND equipment_id =#{equipmentId}
+			</if>
+			<if test="doorPos != null and doorPos != ''">
+				AND door_pos =#{doorPos}
+			</if>
+
+			<if test="timeZoneType != null and timeZoneType != ''">
+				AND timezone_type = #{timeZoneType}
+			</if>
+			<if test="timeZoneNum != null and timeZoneNum != ''">
+				AND timezone_num = #{timeZoneNum}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY id
+			</otherwise>
+		</choose>
+	</select>
+
+	<insert id="insert" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO tbmj_timezone_info
+		VALUES (DEFAULT ,
+		#{equipment.id},
+		#{doorPos},
+		#{timeZoneType},
+		#{timeZoneNum},
+		#{mon},
+		#{tue},
+		#{wed},
+		#{thu},
+		#{fri},
+		#{sat},
+		#{sun},
+		#{createBy.id},
+		#{createDate},
+		#{updateBy.id},
+		#{updateDate},
+		#{remarks},
+		DEFAULT )
+	</insert>
+
+	<update id="deleteByEId">
+		DELETE FROM tbmj_timezone_info WHERE equipment_id = #{id}
+	</update>
+
+	<update id="update">
+		UPDATE tbmj_timezone_info SET
+		mon=#{mon},
+		tue=#{tue},
+		wed=#{wed},
+		thu=#{thu},
+		fri=#{fri},
+		sat=#{sat},
+		sun=#{sun},
+		remarks=#{remarks}
+		WHERE id=#{id}
+	</update>
+
+	<update id="modifyByWeekNum">
+		UPDATE tbmj_timezone_info SET
+		<if test="weekNum=='1'.toString">
+			mon=#{mon}
+		</if>
+		<if test="weekNum=='2'.toString">
+			tue=#{tue}
+		</if>
+		<if test="weekNum=='3'.toString">
+			wed=#{wed}
+		</if>
+		<if test="weekNum=='4'.toString">
+			thu=#{thu}
+		</if>
+		<if test="weekNum=='5'.toString">
+			fri=#{fri}
+		</if>
+		<if test="weekNum=='6'.toString">
+			sat=#{sat}
+		</if>
+		<if test="weekNum=='7'.toString">
+			sun=#{sun}
+		</if>
+		where id=#{id}
+	</update>
+</mapper>
