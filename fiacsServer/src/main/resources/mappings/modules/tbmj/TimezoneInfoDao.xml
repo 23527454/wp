@@ -9,6 +9,12 @@
 		where equipment_id=#{id} and door_pos=#{doorPos} and timezone_num=#{num} and timezone_type=#{type}
 	</select>
 
+	<select id="getByEId" resultType="TimezoneInfo">
+		SELECT *
+		FROM tbmj_timezone_info
+		WHERE equipment_id = #{id} and del_flag = '0'
+	</select>
+
 	<select id="get" resultType="TimezoneInfo">
 		SELECT *
 		FROM tbmj_timezone_info

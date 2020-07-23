@@ -92,4 +92,10 @@
 		delete from tbmj_authorization where equipment_id=#{id}
 	</delete>
 
+	<select id="getByEId" resultType="Authorization">
+		SELECT *
+		FROM tbmj_authorization
+		WHERE equipment_id = #{id} and del_flag = '0'
+	</select>
+
 </mapper>

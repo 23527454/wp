@@ -14,6 +14,7 @@ import com.thinkgem.jeesite.common.utils.StringUtils;
 import com.thinkgem.jeesite.common.utils.excel.ExportExcel;
 import com.thinkgem.jeesite.common.web.BaseController;
 import com.thinkgem.jeesite.modules.guard.dao.LineNodesDao;
+import com.thinkgem.jeesite.modules.guard.entity.DownloadEntity;
 import com.thinkgem.jeesite.modules.guard.entity.Equipment;
 import com.thinkgem.jeesite.modules.guard.entity.LineNodes;
 import com.thinkgem.jeesite.modules.guard.service.EquipmentService;
@@ -74,6 +75,20 @@ public class EquipmentController extends BaseController {
 	private AuthorizationService authorizationService;
 	@Autowired
 	private WorkdayParaInfoService workdayParaInfoService;
+
+	@Autowired
+	private DownloadAccessParaInfoService downloadAccessParaInfoService;
+	@Autowired
+	private DownloadTimezoneInfoService downloadTimezoneInfoService;
+	@Autowired
+	private DownloadWorkdayParaInfoService downloadWorkdayParaInfoService;
+	@Autowired
+	private DownloadSecurityParaInfoService downloadSecurityParaInfoService;
+	@Autowired
+	private DownloadDefenseParaInfoService downloadDefenseParaInfoService;
+	@Autowired
+	private DownloadAuthorizationService downloadAuthorizationService;
+
 
 	@ModelAttribute
 	public Equipment get(@RequestParam(required = false) String id) {
@@ -272,10 +287,98 @@ public class EquipmentController extends BaseController {
 
 	@RequiresPermissions("guard:equipment:edit")
 	@RequestMapping(value = "download")
+	@Transactional
 	public String download(Equipment equipment, Model model, RedirectAttributes redirectAttributes) {
 		if (!beanValidator(model, equipment)) {
 			return form(equipment, model, redirectAttributes);
 		}
+
+		//同步该设备下所有门禁参数
+		List<AccessParaInfo> accessParaInfos=accessParaInfoService.getByEId(equipment.getId());
+		for(AccessParaInfo a:accessParaInfos){
+			DownloadAccessParaInfo downloadAccessParaInfo=new DownloadAccessParaInfo();
+			downloadAccessParaInfo.setAccessParaInfoId(a.getId());
+			downloadAccessParaInfo.setEquipmentId(String.valueOf(a.getEquipmentId()));
+			downloadAccessParaInfo.setIsDownload("0");
+			downloadAccessParaInfo.setRegisterTime(DateUtils.formatDateTime(new Date()));
+			downloadAccessParaInfo.setDownloadType(DownloadEntity.DOWNLOAD_TYPE_ADD);
+			if(downloadAccessParaInfoService.countByEntity(downloadAccessParaInfo)==0){
+				downloadAccessParaInfoService.save(downloadAccessParaInfo);
+			}
+		}
+
+		//同步该设备下所有时区参数
+		List<TimezoneInfo> timezoneInfos=timezoneInfoService.getByEId(equipment.getId());
+		for(TimezoneInfo t:timezoneInfos){
+			DownloadTimezoneInfo downloadTimezoneInfo=new DownloadTimezoneInfo();
+			downloadTimezoneInfo.setTimezoneParaInfoId(t.getId());
+			downloadTimezoneInfo.setEquipmentId(String.valueOf(equipment.getId()));
+			downloadTimezoneInfo.setIsDownload("0");
+			downloadTimezoneInfo.setRegisterTime(DateUtils.formatDateTime(new Date()));
+			downloadTimezoneInfo.setDownloadType(DownloadEntity.DOWNLOAD_TYPE_ADD);
+			if(downloadTimezoneInfoService.countByEntity(downloadTimezoneInfo)==0){
+				downloadTimezoneInfoService.save(downloadTimezoneInfo);
+			}
+		}
+
+		//同步该设备下所有工作日参数
+		List<WorkdayParaInfo> workdayParaInfos=workdayParaInfoService.getByEId(equipment.getId());
+		for(WorkdayParaInfo w:workdayParaInfos){
+			DownloadWorkdayParaInfo downloadWorkdayParaInfo=new DownloadWorkdayParaInfo();
+			downloadWorkdayParaInfo.setWorkdayParaInfoId(w.getId());
+			downloadWorkdayParaInfo.setEquipmentId(String.valueOf(equipment.getId()));
+			downloadWorkdayParaInfo.setIsDownload("0");
+			downloadWorkdayParaInfo.setRegisterTime(DateUtils.formatDateTime(new Date()));
+			downloadWorkdayParaInfo.setDownloadType(DownloadEntity.DOWNLOAD_TYPE_ADD);
+			if(downloadWorkdayParaInfoService.countByEntity(downloadWorkdayParaInfo)==0){
+				downloadWorkdayParaInfoService.save(downloadWorkdayParaInfo);
+			}
+		}
+
+		//同步该设备下所有防盗参数
+		List<SecurityParaInfo> securityParaInfos=securityParaInfoService.getByEId(equipment.getId());
+		for(SecurityParaInfo s:securityParaInfos){
+			DownloadSecurityParaInfo downloadSecurityParaInfo=new DownloadSecurityParaInfo();
+			downloadSecurityParaInfo.setSecurityParaInfoId(s.getId());
+			downloadSecurityParaInfo.setEquipmentId(String.valueOf(equipment.getId()));
+			downloadSecurityParaInfo.setIsDownload("0");
+			downloadSecurityParaInfo.setRegisterTime(DateUtils.formatDateTime(new Date()));
+			downloadSecurityParaInfo.setDownloadType(DownloadEntity.DOWNLOAD_TYPE_ADD);
+			if(downloadSecurityParaInfoService.countByEntity(downloadSecurityParaInfo)==0){
+				downloadSecurityParaInfoService.save(downloadSecurityParaInfo);
+			}
+		}
+
+		//同步该设备下所有防区参数
+		List<DefenseParaInfo> defenseParaInfos=defenseParaInfoService.getByEId(equipment.getId());
+		for(DefenseParaInfo d:defenseParaInfos){
+			DownloadDefenseParaInfo downloadDefenseParaInfo=new DownloadDefenseParaInfo();
+			downloadDefenseParaInfo.setDefenseParaInfoId(d.getId());
+			downloadDefenseParaInfo.setEquipmentId(String.valueOf(equipment.getId()));
+			downloadDefenseParaInfo.setIsDownload("0");
+			downloadDefenseParaInfo.setRegisterTime(DateUtils.formatDateTime(new Date()));
+			downloadDefenseParaInfo.setDownloadType(DownloadEntity.DOWNLOAD_TYPE_ADD);
+			if(downloadDefenseParaInfoService.countByEntity(downloadDefenseParaInfo)==0){
+				downloadDefenseParaInfoService.save(downloadDefenseParaInfo);
+			}
+		}
+
+		//同步该设备下所有权限参数
+		List<Authorization> authorizations=authorizationService.getByEId(equipment.getId());
+		for(Authorization a:authorizations){
+			DownloadAuthorization downloadAuthorization=new DownloadAuthorization();
+			downloadAuthorization.setAuthorizationId(a.getId());
+			downloadAuthorization.setEquipmentId(String.valueOf(equipment.getId()));
+			downloadAuthorization.setIsDownload("0");
+			downloadAuthorization.setRegisterTime(DateUtils.formatDateTime(new Date()));
+			downloadAuthorization.setDownloadType(DownloadEntity.DOWNLOAD_TYPE_ADD);
+			if(downloadAuthorizationService.countByEntity(downloadAuthorization)==0){
+				downloadAuthorizationService.save(downloadAuthorization);
+			}
+		}
+
+
+
 		equipmentService.insentDownload(equipment);
 		addMessage(redirectAttributes, "设备同步成功");
 		return "redirect:" + Global.getAdminPath() + "/guard/equipment/?repage";

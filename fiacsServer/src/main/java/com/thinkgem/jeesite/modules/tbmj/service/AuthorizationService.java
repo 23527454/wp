@@ -11,6 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 /**
  * power_authorizationService
  * @author demo
@@ -22,6 +24,8 @@ public class AuthorizationService extends CrudService<AuthorizationDao, Authoriz
 
 	@Autowired
 	private AuthorizationDao authorizationDao;
+
+	public List<Authorization> getByEId(String id){return authorizationDao.getByEId(id);}
 
 	//,accessParaInfoId,String accessParaInfoId
 	public int getCountBySId(String staffId,String equipmentId,String doorPos){

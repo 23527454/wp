@@ -8,6 +8,8 @@ import com.thinkgem.jeesite.common.persistence.annotation.MyBatisDao;
 import com.thinkgem.jeesite.modules.tbmj.entity.TimezoneInfo;
 import org.apache.ibatis.annotations.Param;
 
+import java.util.List;
+
 
 /**
  * access_door_timezoneDAO接口
@@ -25,4 +27,6 @@ public interface TimezoneInfoDao extends CrudDao<TimezoneInfo> {
 	public Integer findCountByNum(@Param("id") String id,@Param("doorPos") String doorPos, @Param("num") String num,@Param("type") String type);
 
 	public Integer modifyByWeekNum(TimezoneInfo timezoneInfo);
+
+	public List<TimezoneInfo> getByEId(String id);
 }

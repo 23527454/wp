@@ -8,6 +8,8 @@ import com.thinkgem.jeesite.common.persistence.annotation.MyBatisDao;
 import com.thinkgem.jeesite.modules.tbmj.entity.Authorization;
 import org.apache.ibatis.annotations.Param;
 
+import java.util.List;
+
 /**
  * power_authorizationDAO接口
  * @author demo
@@ -21,5 +23,7 @@ public interface AuthorizationDao extends CrudDao<Authorization> {
 	public int deleteByEId(@Param("id")String id);
 
 	public int getCountBySId(@Param("staffId")String staffId, @Param("equipmentId")String equipmentId,@Param("doorPos") String doorPos);
+
+	public List<Authorization> getByEId(String id);
 
 }

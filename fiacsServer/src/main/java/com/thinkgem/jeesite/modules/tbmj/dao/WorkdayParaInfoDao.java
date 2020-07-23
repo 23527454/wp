@@ -8,6 +8,8 @@ import com.thinkgem.jeesite.common.persistence.annotation.MyBatisDao;
 import com.thinkgem.jeesite.modules.tbmj.entity.WorkdayParaInfo;
 import org.apache.ibatis.annotations.Param;
 
+import java.util.List;
+
 /**
  * access_workdayDAO接口
  * @author demo
@@ -24,4 +26,6 @@ public interface WorkdayParaInfoDao extends CrudDao<WorkdayParaInfo> {
     public WorkdayParaInfo findByEIdAndDate(WorkdayParaInfo workdayParaInfo);
 
     public Integer selMaxNum();
+
+    public List<WorkdayParaInfo> getByEId(String id);
 }

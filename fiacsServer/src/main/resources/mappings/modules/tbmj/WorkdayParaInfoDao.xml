@@ -18,6 +18,12 @@
 		WHERE id = #{id} and del_flag = '0'
 	</select>
 
+	<select id="getByEId" resultType="WorkdayParaInfo">
+		SELECT *
+		FROM tbmj_workday_para_info
+		WHERE equipment_id = #{id} and del_flag = '0'
+	</select>
+
 	<select id="findByEIdAndDate" resultType="WorkdayParaInfo">
 		select *
 		from tbmj_workday_para_info

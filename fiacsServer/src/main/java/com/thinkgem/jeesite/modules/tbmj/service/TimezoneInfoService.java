@@ -11,6 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 /**
  * access_door_timezoneService
  * @author demo
@@ -21,6 +23,8 @@ import org.springframework.transaction.annotation.Transactional;
 public class TimezoneInfoService extends CrudService<TimezoneInfoDao, TimezoneInfo> {
 	@Autowired
 	private TimezoneInfoDao timezoneInfoDao;
+
+	public List<TimezoneInfo> getByEId(String id){return timezoneInfoDao.getByEId(id);}
 
 	public Integer modifyByWeekNum(TimezoneInfo timezoneInfo){return timezoneInfoDao.modifyByWeekNum(timezoneInfo);}
 

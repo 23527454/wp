@@ -6,7 +6,7 @@
 		a.id AS "id",
 		t.id AS "timezoneParaInfoId",
 		a.equipment_id AS "equipmentId",
-		t.door_pos AS "accessParaInfo.doorPos",
+		t.door_pos AS "timezoneInfo.doorPos",
 		t.timezone_type AS "timezoneInfo.timeZoneType",
 		t.timezone_num AS "timezoneInfo.timeZoneNum",
 		eq.id AS "equipment.id",

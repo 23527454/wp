@@ -78,7 +78,7 @@
 		<tr is-download="${downloadTimezoneInfo.isDownload}">
 			<td style="text-align: center;">${varStatus.count }</td>
 			<td>${downloadTimezoneInfo.office.name}</td>
-			<td>${fns:getDictLabel(downloadTimezoneInfo.equipment.doorPos, 'door_pos', '')}</td>
+			<td>${fns:getDictLabel(downloadTimezoneInfo.timezoneInfo.doorPos, 'door_pos', '')}</td>
 			<td>${fns:getDictLabel(downloadTimezoneInfo.timezoneInfo.timeZoneType, 'time_zone_type', '')}</td>
 			<td>${fns:getDictLabel(downloadTimezoneInfo.timezoneInfo.timeZoneNum, 'time_zone_num', '')}</td>
 			<td>${downloadTimezoneInfo.downloadTime}</td>
