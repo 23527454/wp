@@ -65,7 +65,7 @@
 </div>--%>
 <sys:message content="${message}"/>
 <form:form id="searchForm" action="${ctx}/tbmj/defenseParaInfo/" method="post" class="breadcrumb form-search">
-	<input type="hidden" name="eid" value="${eid}" />
+	<input type="hidden" name="eid" id="eid" value="${eid}" />
 </form:form>
 <table id="contentTable" class="table table-striped table-bordered table-condensed">
 	<thead>

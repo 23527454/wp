@@ -84,9 +84,6 @@
 <body>
 <ul class="nav nav-tabs">
 	<li class="active"><a href="${ctx}/tbmj/authorization/">授权信息列表</a></li>
-	<%--<shiro:hasPermission name="tbmj:authorization:edit">
-		<li><a href="${ctx}/tbmj/authorization/form?accessParaInfoId=${accessParaInfoId}">授权信息添加</a></li>
-	</shiro:hasPermission>--%>
 </ul>
 <form:form id="searchForm" modelAttribute="authorization"
 		   action="${ctx}/tbmj/authorization/" method="post"

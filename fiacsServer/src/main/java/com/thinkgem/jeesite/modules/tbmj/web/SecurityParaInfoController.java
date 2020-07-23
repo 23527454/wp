@@ -10,13 +10,17 @@ import com.thinkgem.jeesite.common.utils.DateUtils;
 import com.thinkgem.jeesite.common.utils.StringUtils;
 import com.thinkgem.jeesite.common.utils.excel.ExportExcel;
 import com.thinkgem.jeesite.common.web.BaseController;
+import com.thinkgem.jeesite.modules.guard.entity.DownloadEntity;
 import com.thinkgem.jeesite.modules.guard.entity.Equipment;
 import com.thinkgem.jeesite.modules.guard.service.EquipmentService;
+import com.thinkgem.jeesite.modules.tbmj.entity.DownloadSecurityParaInfo;
 import com.thinkgem.jeesite.modules.tbmj.entity.SecurityParaInfo;
+import com.thinkgem.jeesite.modules.tbmj.service.DownloadSecurityParaInfoService;
 import com.thinkgem.jeesite.modules.tbmj.service.SecurityParaInfoService;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
@@ -26,6 +30,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -41,6 +46,8 @@ public class SecurityParaInfoController extends BaseController {
 	private SecurityParaInfoService securityParaInfoService;
 	@Autowired
 	private EquipmentService equipmentService;
+	@Autowired
+	private DownloadSecurityParaInfoService downloadSecurityParaInfoService;
 	
 	/**
 	 * 获取数据
@@ -117,6 +124,37 @@ public class SecurityParaInfoController extends BaseController {
 		Page<AccessAntitheft> page = accessAntitheftService.findPage(accessAntitheft);
 		return page;
 	}*/
+
+	@RequiresPermissions("tbmj:securityParaInfo:edit")
+	@RequestMapping(value = "download")
+	@Transactional
+	public String download(String eid, HttpServletRequest request, Model model, RedirectAttributes redirectAttributes) {
+		SecurityParaInfo securityParaInfo =new SecurityParaInfo();
+		securityParaInfo.setEquipment(equipmentService.get(eid));
+		List<SecurityParaInfo> list= securityParaInfoService.getByEId(eid);
+		for(int i=0;i<list.size();i++){
+			SecurityParaInfo securityParaInfo2 = securityParaInfoService.get(list.get(i));
+			DownloadSecurityParaInfo downloadSecurityParaInfo=new DownloadSecurityParaInfo();
+			downloadSecurityParaInfo.setSecurityParaInfoId(securityParaInfo2.getId());
+			downloadSecurityParaInfo.setEquipmentId(eid);
+			downloadSecurityParaInfo.setIsDownload("0");
+			downloadSecurityParaInfo.setRegisterTime(DateUtils.formatDateTime(new Date()));
+			downloadSecurityParaInfo.setDownloadType(DownloadEntity.DOWNLOAD_TYPE_ADD);
+			if(downloadSecurityParaInfoService.countByEntity(downloadSecurityParaInfo)==0){
+				downloadSecurityParaInfoService.save(downloadSecurityParaInfo);
+			}
+		}
+		addMessage(redirectAttributes, "防盗参数同步成功");
+		return backListPage(eid, model);
+	}
+
+	private String backListPage(String eid,Model model) {
+		model.addAttribute("eid",eid);
+		if(eid!=null && !eid.equals("")){
+			return "redirect:" + Global.getAdminPath() + "/tbmj/securityParaInfo/list?eid="+eid+"&repage";
+		}
+		return "redirect:" + Global.getAdminPath() + "/tbmj/securityParaInfo/?repage";
+	}
 
 	/**
 	 * 粘贴数据

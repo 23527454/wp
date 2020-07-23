@@ -15,8 +15,8 @@ import com.thinkgem.jeesite.modules.sys.entity.User;
 import com.thinkgem.jeesite.modules.sys.service.OfficeService;
 import com.thinkgem.jeesite.modules.sys.utils.DictUtils;
 import com.thinkgem.jeesite.modules.sys.utils.UserUtils;
-import com.thinkgem.jeesite.modules.tbmj.entity.DownloadWorkdayParaInfo;
-import com.thinkgem.jeesite.modules.tbmj.service.DownloadWorkdayParaInfoService;
+import com.thinkgem.jeesite.modules.tbmj.entity.DownloadDefenseParaInfo;
+import com.thinkgem.jeesite.modules.tbmj.service.DownloadDefenseParaInfoService;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import net.sf.json.JsonConfig;
@@ -38,64 +38,64 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * 工作日同步信息Controller
+ * 防区参数同步信息Controller
  * @author Jumbo
  * @version 2017-06-28
  */
 @Controller
-@RequestMapping(value = "${adminPath}/tbmj/downloadWorkdayParaInfo")
-public class DownloadWorkdayParaInfoController extends BaseController {
+@RequestMapping(value = "${adminPath}/tbmj/downloadDefenseParaInfo")
+public class DownloadDefenseParaInfoController extends BaseController {
 
 	@Autowired
-	private DownloadWorkdayParaInfoService downloadWorkdayParaInfoService;
+	private DownloadDefenseParaInfoService downloadDefenseParaInfoService;
 	
 	@Autowired
 	private OfficeService officeService;
 	
 	@ModelAttribute
-	public DownloadWorkdayParaInfo get(@RequestParam(required=false) String id) {
-		DownloadWorkdayParaInfo entity = null;
+	public DownloadDefenseParaInfo get(@RequestParam(required=false) String id) {
+		DownloadDefenseParaInfo entity = null;
 		if (StringUtils.isNotBlank(id)){
-			entity = downloadWorkdayParaInfoService.get(id);
+			entity = downloadDefenseParaInfoService.get(id);
 		}
 		if (entity == null){
-			entity = new DownloadWorkdayParaInfo();
+			entity = new DownloadDefenseParaInfo();
 		}
 		return entity;
 	}
 	
 
-	@RequiresPermissions("tbmj:downloadWorkdayParaInfo:view")
+	@RequiresPermissions("tbmj:downloadDefenseParaInfo:view")
 	@RequestMapping(value = {"list", ""})
-	public String list(DownloadWorkdayParaInfo downloadWorkdayParaInfo, HttpServletRequest request, HttpServletResponse response, Model model) {
-		Page<DownloadWorkdayParaInfo> p = new Page<DownloadWorkdayParaInfo>(request, response);
+	public String list(DownloadDefenseParaInfo downloadDefenseParaInfo, HttpServletRequest request, HttpServletResponse response, Model model) {
+		Page<DownloadDefenseParaInfo> p = new Page<DownloadDefenseParaInfo>(request, response);
 		p.setOrderBy("a.id desc");
 		List<String> officeids = new ArrayList<String>();
 		List<Office> list = officeService.findList(false, new Office());
 		for (Office office : list) {
 			officeids.add(office.getId());
 		}
-		downloadWorkdayParaInfo.setOfficeIds(officeids);
-		Page<DownloadWorkdayParaInfo> page = downloadWorkdayParaInfoService.findPage(p, downloadWorkdayParaInfo);
+		downloadDefenseParaInfo.setOfficeIds(officeids);
+		Page<DownloadDefenseParaInfo> page = downloadDefenseParaInfoService.findPage(p, downloadDefenseParaInfo);
 		model.addAttribute("page", page);
-		return "modules/tbmj/downloadWorkdayParaInfoList";
+		return "modules/tbmj/downloadDefenseParaInfoList";
 	}
 	
 	/**
 	 * 获取列表数据（JSON）
-	 * @param downloadWorkdayParaInfo
+	 * @param downloadDefenseParaInfo
 	 * @param request
 	 * @param response
 	 * @param model
 	 * @return
 	 */
-	@RequiresPermissions("tbmj:downloadWorkdayParaInfo:view")
+	@RequiresPermissions("tbmj:downloadDefenseParaInfo:view")
 	@RequestMapping(value = "listData")
 	@ResponseBody
-	public String listData(DownloadWorkdayParaInfo downloadWorkdayParaInfo, HttpServletRequest request, HttpServletResponse response, Model model) {
+	public String listData(DownloadDefenseParaInfo downloadDefenseParaInfo, HttpServletRequest request, HttpServletResponse response, Model model) {
 		User user = UserUtils.getUser();
 		if (!user.isAdmin()){
-			downloadWorkdayParaInfo.setCreateBy(user);
+			downloadDefenseParaInfo.setCreateBy(user);
 		}
 		
 		String filterRules = request.getParameter("filterRules");
@@ -105,13 +105,13 @@ public class DownloadWorkdayParaInfoController extends BaseController {
 		if(StringUtils.isNoneBlank(filterRules)){
 				JSONArray filter = JSONArray.fromObject(filterRules, jsonConfig);
 				List<Field> fields = new ArrayList();
-				Reflections.getAllFields(fields, DownloadWorkdayParaInfo.class);
+				Reflections.getAllFields(fields, DownloadDefenseParaInfo.class);
 				if(filter!=null&& filter.size()>0){
 					for (Object o : filter) {
 						JSONObject oo = (JSONObject) o;
 						for(int i=0;i<fields.size();i++){  
 							if(fields.get(i).getName().equals(oo.get("field"))){
-								Reflections.invokeSetter(downloadWorkdayParaInfo, fields.get(i).getName(), oo.get("value"));
+								Reflections.invokeSetter(downloadDefenseParaInfo, fields.get(i).getName(), oo.get("value"));
 							}
 						}
 					}
@@ -119,7 +119,7 @@ public class DownloadWorkdayParaInfoController extends BaseController {
 				
 		}
 		
-        Page<DownloadWorkdayParaInfo> page = downloadWorkdayParaInfoService.findPage(new Page<DownloadWorkdayParaInfo>(request, response), downloadWorkdayParaInfo);
+        Page<DownloadDefenseParaInfo> page = downloadDefenseParaInfoService.findPage(new Page<DownloadDefenseParaInfo>(request, response), downloadDefenseParaInfo);
         JSONObject jo = JSONObject.fromObject(JsonMapper.toJsonString(page));
         JSONArray ja = jo.getJSONArray("list");
         for(int i = 0;ja!=null&&i<ja.size();i++){
@@ -136,35 +136,35 @@ public class DownloadWorkdayParaInfoController extends BaseController {
         return jo.toString();
 	}
 
-	@RequiresPermissions("tbmj:downloadWorkdayParaInfo:view")
+	@RequiresPermissions("tbmj:downloadDefenseParaInfo:view")
 	@RequestMapping(value = "form")
-	public String form(DownloadWorkdayParaInfo downloadWorkdayParaInfo, Model model) {
-		model.addAttribute("downloadWorkdayParaInfo", downloadWorkdayParaInfo);
-		return "modules/tbmj/downloadWorkdayParaInfoForm";
+	public String form(DownloadDefenseParaInfo downloadDefenseParaInfo, Model model) {
+		model.addAttribute("downloadDefenseParaInfo", downloadDefenseParaInfo);
+		return "modules/tbmj/downloadDefenseParaInfoForm";
 	}
 
-	@RequiresPermissions("tbmj:downloadWorkdayParaInfo:edit")
+	@RequiresPermissions("tbmj:downloadDefenseParaInfo:edit")
 	@RequestMapping(value = "save")
-	public String save(DownloadWorkdayParaInfo downloadWorkdayParaInfo, Model model, RedirectAttributes redirectAttributes) {
-		if (!beanValidator(model, downloadWorkdayParaInfo)){
-			return form(downloadWorkdayParaInfo, model);
+	public String save(DownloadDefenseParaInfo downloadDefenseParaInfo, Model model, RedirectAttributes redirectAttributes) {
+		if (!beanValidator(model, downloadDefenseParaInfo)){
+			return form(downloadDefenseParaInfo, model);
 		}
-		downloadWorkdayParaInfoService.save(downloadWorkdayParaInfo);
+		downloadDefenseParaInfoService.save(downloadDefenseParaInfo);
 		addMessage(redirectAttributes, "保存工作日同步信息成功");
-		return "redirect:"+Global.getAdminPath()+"/tbmj/downloadWorkdayParaInfo/?repage";
+		return "redirect:"+Global.getAdminPath()+"/tbmj/downloadDefenseParaInfo/?repage";
 	}
 	
-	@RequiresPermissions("tbmj:downloadWorkdayParaInfo:edit")
+	@RequiresPermissions("tbmj:downloadDefenseParaInfo:edit")
 	@RequestMapping(value = "delete")
-	public String delete(DownloadWorkdayParaInfo downloadWorkdayParaInfo, RedirectAttributes redirectAttributes) {
-		if("1".equals(downloadWorkdayParaInfo.getIsDownload())){
+	public String delete(DownloadDefenseParaInfo downloadDefenseParaInfo, RedirectAttributes redirectAttributes) {
+		if("1".equals(downloadDefenseParaInfo.getIsDownload())){
 			addMessage(redirectAttributes, "记录已经同步成功, 不能删除!");
-			return "redirect:"+Global.getAdminPath()+"/tbmj/downloadWorkdayParaInfo/?repage";
+			return "redirect:"+Global.getAdminPath()+"/tbmj/downloadDefenseParaInfo/?repage";
 		}
 		
-		downloadWorkdayParaInfoService.delete(downloadWorkdayParaInfo);
+		downloadDefenseParaInfoService.delete(downloadDefenseParaInfo);
 		addMessage(redirectAttributes, "删除工作日同步信息成功");
-		return "redirect:"+Global.getAdminPath()+"/tbmj/downloadWorkdayParaInfo/?repage";
+		return "redirect:"+Global.getAdminPath()+"/tbmj/downloadDefenseParaInfo/?repage";
 	}
 
 }

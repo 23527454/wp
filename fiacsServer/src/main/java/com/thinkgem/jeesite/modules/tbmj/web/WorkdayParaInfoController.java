@@ -199,7 +199,7 @@ public class WorkdayParaInfoController extends BaseController {
 			return "redirect:" + Global.getAdminPath() + "/tbmj/workdayParaInfo/list?eId="+eId+"&mon="+mon+"&repage";
 		}else if(eId!=null && !eId.equals("")){
 			return "redirect:" + Global.getAdminPath() + "/tbmj/workdayParaInfo/list?eId="+eId+"&repage";
-		}else if(eId!=null && !eId.equals("")){
+		}else if(mon!=null && !mon.equals("")){
 			return "redirect:" + Global.getAdminPath() + "/tbmj/workdayParaInfo/list?mon="+mon+"&repage";
 		}
 		return "redirect:" + Global.getAdminPath() + "/tbmj/workdayParaInfo/?repage";

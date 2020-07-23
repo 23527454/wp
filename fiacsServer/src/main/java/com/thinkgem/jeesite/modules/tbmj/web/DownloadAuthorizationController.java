@@ -15,8 +15,8 @@ import com.thinkgem.jeesite.modules.sys.entity.User;
 import com.thinkgem.jeesite.modules.sys.service.OfficeService;
 import com.thinkgem.jeesite.modules.sys.utils.DictUtils;
 import com.thinkgem.jeesite.modules.sys.utils.UserUtils;
-import com.thinkgem.jeesite.modules.tbmj.entity.DownloadWorkdayParaInfo;
-import com.thinkgem.jeesite.modules.tbmj.service.DownloadWorkdayParaInfoService;
+import com.thinkgem.jeesite.modules.tbmj.entity.DownloadAuthorization;
+import com.thinkgem.jeesite.modules.tbmj.service.DownloadAuthorizationService;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import net.sf.json.JsonConfig;
@@ -38,64 +38,64 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * 工作日同步信息Controller
+ * 权限同步信息Controller
  * @author Jumbo
  * @version 2017-06-28
  */
 @Controller
-@RequestMapping(value = "${adminPath}/tbmj/downloadWorkdayParaInfo")
-public class DownloadWorkdayParaInfoController extends BaseController {
+@RequestMapping(value = "${adminPath}/tbmj/downloadAuthorization")
+public class DownloadAuthorizationController extends BaseController {
 
 	@Autowired
-	private DownloadWorkdayParaInfoService downloadWorkdayParaInfoService;
+	private DownloadAuthorizationService downloadAuthorizationService;
 	
 	@Autowired
 	private OfficeService officeService;
 	
 	@ModelAttribute
-	public DownloadWorkdayParaInfo get(@RequestParam(required=false) String id) {
-		DownloadWorkdayParaInfo entity = null;
+	public DownloadAuthorization get(@RequestParam(required=false) String id) {
+		DownloadAuthorization entity = null;
 		if (StringUtils.isNotBlank(id)){
-			entity = downloadWorkdayParaInfoService.get(id);
+			entity = downloadAuthorizationService.get(id);
 		}
 		if (entity == null){
-			entity = new DownloadWorkdayParaInfo();
+			entity = new DownloadAuthorization();
 		}
 		return entity;
 	}
 	
 
-	@RequiresPermissions("tbmj:downloadWorkdayParaInfo:view")
+	@RequiresPermissions("tbmj:downloadAuthorization:view")
 	@RequestMapping(value = {"list", ""})
-	public String list(DownloadWorkdayParaInfo downloadWorkdayParaInfo, HttpServletRequest request, HttpServletResponse response, Model model) {
-		Page<DownloadWorkdayParaInfo> p = new Page<DownloadWorkdayParaInfo>(request, response);
+	public String list(DownloadAuthorization downloadAuthorization, HttpServletRequest request, HttpServletResponse response, Model model) {
+		Page<DownloadAuthorization> p = new Page<DownloadAuthorization>(request, response);
 		p.setOrderBy("a.id desc");
 		List<String> officeids = new ArrayList<String>();
 		List<Office> list = officeService.findList(false, new Office());
 		for (Office office : list) {
 			officeids.add(office.getId());
 		}
-		downloadWorkdayParaInfo.setOfficeIds(officeids);
-		Page<DownloadWorkdayParaInfo> page = downloadWorkdayParaInfoService.findPage(p, downloadWorkdayParaInfo);
+		downloadAuthorization.setOfficeIds(officeids);
+		Page<DownloadAuthorization> page = downloadAuthorizationService.findPage(p, downloadAuthorization);
 		model.addAttribute("page", page);
-		return "modules/tbmj/downloadWorkdayParaInfoList";
+		return "modules/tbmj/downloadAuthorizationList";
 	}
 	
 	/**
 	 * 获取列表数据（JSON）
-	 * @param downloadWorkdayParaInfo
+	 * @param downloadAuthorization
 	 * @param request
 	 * @param response
 	 * @param model
 	 * @return
 	 */
-	@RequiresPermissions("tbmj:downloadWorkdayParaInfo:view")
+	@RequiresPermissions("tbmj:downloadAuthorization:view")
 	@RequestMapping(value = "listData")
 	@ResponseBody
-	public String listData(DownloadWorkdayParaInfo downloadWorkdayParaInfo, HttpServletRequest request, HttpServletResponse response, Model model) {
+	public String listData(DownloadAuthorization downloadAuthorization, HttpServletRequest request, HttpServletResponse response, Model model) {
 		User user = UserUtils.getUser();
 		if (!user.isAdmin()){
-			downloadWorkdayParaInfo.setCreateBy(user);
+			downloadAuthorization.setCreateBy(user);
 		}
 		
 		String filterRules = request.getParameter("filterRules");
@@ -105,13 +105,13 @@ public class DownloadWorkdayParaInfoController extends BaseController {
 		if(StringUtils.isNoneBlank(filterRules)){
 				JSONArray filter = JSONArray.fromObject(filterRules, jsonConfig);
 				List<Field> fields = new ArrayList();
-				Reflections.getAllFields(fields, DownloadWorkdayParaInfo.class);
+				Reflections.getAllFields(fields, DownloadAuthorization.class);
 				if(filter!=null&& filter.size()>0){
 					for (Object o : filter) {
 						JSONObject oo = (JSONObject) o;
 						for(int i=0;i<fields.size();i++){  
 							if(fields.get(i).getName().equals(oo.get("field"))){
-								Reflections.invokeSetter(downloadWorkdayParaInfo, fields.get(i).getName(), oo.get("value"));
+								Reflections.invokeSetter(downloadAuthorization, fields.get(i).getName(), oo.get("value"));
 							}
 						}
 					}
@@ -119,7 +119,7 @@ public class DownloadWorkdayParaInfoController extends BaseController {
 				
 		}
 		
-        Page<DownloadWorkdayParaInfo> page = downloadWorkdayParaInfoService.findPage(new Page<DownloadWorkdayParaInfo>(request, response), downloadWorkdayParaInfo);
+        Page<DownloadAuthorization> page = downloadAuthorizationService.findPage(new Page<DownloadAuthorization>(request, response), downloadAuthorization);
         JSONObject jo = JSONObject.fromObject(JsonMapper.toJsonString(page));
         JSONArray ja = jo.getJSONArray("list");
         for(int i = 0;ja!=null&&i<ja.size();i++){
@@ -136,35 +136,35 @@ public class DownloadWorkdayParaInfoController extends BaseController {
         return jo.toString();
 	}
 
-	@RequiresPermissions("tbmj:downloadWorkdayParaInfo:view")
+	@RequiresPermissions("tbmj:downloadAuthorization:view")
 	@RequestMapping(value = "form")
-	public String form(DownloadWorkdayParaInfo downloadWorkdayParaInfo, Model model) {
-		model.addAttribute("downloadWorkdayParaInfo", downloadWorkdayParaInfo);
-		return "modules/tbmj/downloadWorkdayParaInfoForm";
+	public String form(DownloadAuthorization downloadAuthorization, Model model) {
+		model.addAttribute("downloadAuthorization", downloadAuthorization);
+		return "modules/tbmj/downloadAuthorizationForm";
 	}
 
-	@RequiresPermissions("tbmj:downloadWorkdayParaInfo:edit")
+	@RequiresPermissions("tbmj:downloadAuthorization:edit")
 	@RequestMapping(value = "save")
-	public String save(DownloadWorkdayParaInfo downloadWorkdayParaInfo, Model model, RedirectAttributes redirectAttributes) {
-		if (!beanValidator(model, downloadWorkdayParaInfo)){
-			return form(downloadWorkdayParaInfo, model);
+	public String save(DownloadAuthorization downloadAuthorization, Model model, RedirectAttributes redirectAttributes) {
+		if (!beanValidator(model, downloadAuthorization)){
+			return form(downloadAuthorization, model);
 		}
-		downloadWorkdayParaInfoService.save(downloadWorkdayParaInfo);
-		addMessage(redirectAttributes, "保存工作日同步信息成功");
-		return "redirect:"+Global.getAdminPath()+"/tbmj/downloadWorkdayParaInfo/?repage";
+		downloadAuthorizationService.save(downloadAuthorization);
+		addMessage(redirectAttributes, "保存门禁同步信息成功");
+		return "redirect:"+Global.getAdminPath()+"/tbmj/downloadAuthorization/?repage";
 	}
 	
-	@RequiresPermissions("tbmj:downloadWorkdayParaInfo:edit")
+	@RequiresPermissions("tbmj:downloadAuthorization:edit")
 	@RequestMapping(value = "delete")
-	public String delete(DownloadWorkdayParaInfo downloadWorkdayParaInfo, RedirectAttributes redirectAttributes) {
-		if("1".equals(downloadWorkdayParaInfo.getIsDownload())){
+	public String delete(DownloadAuthorization downloadAuthorization, RedirectAttributes redirectAttributes) {
+		if("1".equals(downloadAuthorization.getIsDownload())){
 			addMessage(redirectAttributes, "记录已经同步成功, 不能删除!");
-			return "redirect:"+Global.getAdminPath()+"/tbmj/downloadWorkdayParaInfo/?repage";
+			return "redirect:"+Global.getAdminPath()+"/tbmj/downloadAuthorization/?repage";
 		}
 		
-		downloadWorkdayParaInfoService.delete(downloadWorkdayParaInfo);
-		addMessage(redirectAttributes, "删除工作日同步信息成功");
-		return "redirect:"+Global.getAdminPath()+"/tbmj/downloadWorkdayParaInfo/?repage";
+		downloadAuthorizationService.delete(downloadAuthorization);
+		addMessage(redirectAttributes, "删除门禁同步信息成功");
+		return "redirect:"+Global.getAdminPath()+"/tbmj/downloadAuthorization/?repage";
 	}
 
 }

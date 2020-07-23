@@ -6,8 +6,10 @@ package com.thinkgem.jeesite.modules.tbmj.web;
 import com.thinkgem.jeesite.common.config.Global;
 import com.thinkgem.jeesite.common.persistence.Page;
 import com.thinkgem.jeesite.common.utils.DateUtils;
+import com.thinkgem.jeesite.common.utils.StringUtils;
 import com.thinkgem.jeesite.common.utils.excel.ExportExcel;
 import com.thinkgem.jeesite.common.web.BaseController;
+import com.thinkgem.jeesite.modules.guard.entity.DownloadEntity;
 import com.thinkgem.jeesite.modules.guard.entity.Equipment;
 import com.thinkgem.jeesite.modules.guard.service.EquipmentService;
 import com.thinkgem.jeesite.modules.guard.service.StaffService;
@@ -15,9 +17,11 @@ import com.thinkgem.jeesite.modules.sys.entity.Office;
 import com.thinkgem.jeesite.modules.sys.service.OfficeService;
 import com.thinkgem.jeesite.modules.tbmj.entity.AccessParaInfo;
 import com.thinkgem.jeesite.modules.tbmj.entity.Authorization;
+import com.thinkgem.jeesite.modules.tbmj.entity.DownloadAuthorization;
 import com.thinkgem.jeesite.modules.tbmj.entity.TimezoneInfo;
 import com.thinkgem.jeesite.modules.tbmj.service.AccessParaInfoService;
 import com.thinkgem.jeesite.modules.tbmj.service.AuthorizationService;
+import com.thinkgem.jeesite.modules.tbmj.service.DownloadAuthorizationService;
 import com.thinkgem.jeesite.modules.tbmj.service.TimezoneInfoService;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +37,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.text.ParseException;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -56,6 +61,8 @@ public class AuthorizationController extends BaseController {
 	private TimezoneInfoService timezoneInfoService;
 	@Autowired
 	private EquipmentService equipmentService;
+	@Autowired
+	private DownloadAuthorizationService downloadAuthorizationService;
 
 	@RequiresPermissions("tbmj:authorization:view")
 	@RequestMapping(value = { "index" })
@@ -176,6 +183,45 @@ public class AuthorizationController extends BaseController {
 		Page<authorization> page = authorizationService.findPage(authorization);
 		return page;
 	}*/
+
+	@RequiresPermissions("tbmj:authorization:edit")
+	@RequestMapping(value = "download")
+	public String download(Authorization authorization, String accessParaInfoId,String name,String workNum, HttpServletRequest request, Model model, RedirectAttributes redirectAttributes) {
+		if(authorization!=null){
+			authorization=authorizationService.get(authorization.getId());
+		}else{
+			authorization=new Authorization();
+		}
+		AccessParaInfo accessParaInfo=accessParaInfoService.get(accessParaInfoId);
+		authorization.setEquipmentId(String.valueOf(accessParaInfo.getEquipmentId()));
+		authorization.setDoorPos(accessParaInfo.getDoorPos());
+		authorization.setStaffName(name);
+		authorization.setWorkdayNum(workNum);
+
+		List<Authorization> list=authorizationService.findList(authorization);
+
+		for(Authorization a:list){
+			DownloadAuthorization downloadAuthorization=new DownloadAuthorization();
+			downloadAuthorization.setAuthorizationId(a.getId());
+			downloadAuthorization.setEquipmentId(a.getEquipmentId());
+			downloadAuthorization.setIsDownload("0");
+			downloadAuthorization.setRegisterTime(DateUtils.formatDateTime(new Date()));
+			downloadAuthorization.setDownloadType(DownloadEntity.DOWNLOAD_TYPE_ADD);
+			if(downloadAuthorizationService.countByEntity(downloadAuthorization)==0){
+				downloadAuthorizationService.save(downloadAuthorization);
+			}
+		}
+		addMessage(redirectAttributes, "权限同步成功");
+		return backListPage(authorization.getId(), model);
+	}
+
+	private String backListPage(String authorizationId,Model model) {
+		model.addAttribute("authorization.id", authorizationId);
+		if(!StringUtils.isBlank(authorizationId)){
+			return "redirect:" + Global.getAdminPath() + "/tbmj/authorization/list?id="+authorizationId;
+		}
+		return "redirect:" + Global.getAdminPath() + "/tbmj/authorization/?repage";
+	}
 
 	/**
 	 * 粘贴数据

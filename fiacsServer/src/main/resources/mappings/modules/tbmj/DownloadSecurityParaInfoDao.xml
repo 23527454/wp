@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.thinkgem.jeesite.modules.tbmj.dao.DownloadWorkdayParaInfoDao">
+<mapper namespace="com.thinkgem.jeesite.modules.tbmj.dao.DownloadSecurityParaInfoDao">
 
-	<sql id="downloadWorkdayParaInfoColumns">
+	<sql id="downloadSecurityParaInfoColumns">
 		a.id AS "id",
-		a.workday_para_info_id AS "workdayParaInfoId",
+		a.security_para_info_id AS "securityParaInfoId",
 		eq.id AS "equipment.id",
 		a.register_time AS "registerTime",
 		a.download_time AS "downloadTime",
@@ -15,26 +15,26 @@
 		o3.id AS "office.id"
 	</sql>
 
-	<sql id="downloadWorkdayParaInfoJoins">
-		inner JOIN tbmj_workday_para_info a4 ON a4.id = a.workday_para_info_id
+	<sql id="downloadSecurityParaInfoJoins">
+		inner JOIN tbmj_security_para_info a4 ON a4.id = a.security_para_info_id
 		inner JOIN guard_equipment eq on eq.id = a.equipment_id
 		inner JOIN sys_office o3 ON o3.id = eq.office_id
 	</sql>
 
-	<select id="get" resultType="DownloadWorkdayParaInfo">
+	<select id="get" resultType="DownloadSecurityParaInfo">
 		SELECT
-		<include refid="downloadWorkdayParaInfoColumns" />
-		FROM tbmj_download_workday_para_info a
-		<include refid="downloadWorkdayParaInfoJoins" />
+		<include refid="downloadSecurityParaInfoColumns" />
+		FROM tbmj_download_security_para_info a
+		<include refid="downloadSecurityParaInfoJoins" />
 		WHERE a.id = #{id}
 	</select>
 
-	<select id="findList" resultType="DownloadWorkdayParaInfo">
+	<select id="findList" resultType="DownloadSecurityParaInfo">
 		SELECT
-		<include refid="downloadWorkdayParaInfoColumns" />
-		FROM tbmj_download_workday_para_info a
+		<include refid="downloadSecurityParaInfoColumns" />
+		FROM tbmj_download_security_para_info a
 
-		<include refid="downloadWorkdayParaInfoJoins" />
+		<include refid="downloadSecurityParaInfoJoins" />
 		<where>
 			1=1 AND o3.id in
 			<foreach collection="officeIds"  item="item" index="index"
@@ -65,11 +65,11 @@
 		</choose>
 	</select>
 
-	<select id="findAllList" resultType="DownloadWorkdayParaInfo">
+	<select id="findAllList" resultType="DownloadSecurityParaInfo">
 		SELECT
-		<include refid="downloadWorkdayParaInfoColumns" />
-		FROM tbmj_download_workday_para_info a
-		<include refid="downloadWorkdayParaInfoJoins" />
+		<include refid="downloadSecurityParaInfoColumns" />
+		FROM tbmj_download_security_para_info a
+		<include refid="downloadSecurityParaInfoJoins" />
 		<where>
 
 		</where>
@@ -85,22 +85,22 @@
 	</select>
 
 	<select id="countByEntity" resultType="int">
-		select count(1) from tbmj_download_workday_para_info where
-		workday_para_info_id=#{workdayParaInfoId} AND equipment_id= #{equipmentId}
+		select count(1) from tbmj_download_security_para_info where
+		security_para_info_id=#{securityParaInfoId} AND equipment_id= #{equipmentId}
 		AND download_type=#{downloadType}
 		AND is_download=#{isDownload} 
 	</select>
 	<insert id="insert" useGeneratedKeys="true" keyProperty="id">
 		INSERT INTO
-		tbmj_download_workday_para_info(
-		workday_para_info_id,
+		tbmj_download_security_para_info(
+		security_para_info_id,
 		equipment_id,
 		register_time,
 		download_time,
 		is_download,
 		download_type
 		) VALUES (
-		#{workdayParaInfoId},
+		#{securityParaInfoId},
 		#{equipmentId},
 		#{registerTime},
 		#{downloadTime},
@@ -110,23 +110,23 @@
 	</insert>
 
 	<update id="update">
-		UPDATE tbmj_download_workday_para_info SET
-		workday_para_info_id =
-		#{workdayParaInfoId}
+		UPDATE tbmj_download_security_para_info SET
+		security_para_info_id =
+		#{securityParaInfoId}
 		WHERE id = #{id}
 	</update>
 
 	<update id="delete">
-		<!-- UPDATE tbmj_download_workday_para_info SET download_type ='2' WHERE id = #{id} -->
+		<!-- UPDATE tbmj_download_security_para_info SET download_type ='2' WHERE id = #{id} -->
 
-		DELETE FROM tbmj_download_workday_para_info
+		DELETE FROM tbmj_download_security_para_info
 		WHERE id = #{id}
 	</update>
 	<update id="delete1">
-		<!-- UPDATE tbmj_download_workday_para_info SET download_type ='2' WHERE id = #{id} -->
+		<!-- UPDATE tbmj_download_security_para_info SET download_type ='2' WHERE id = #{id} -->
 
-		DELETE FROM tbmj_download_workday_para_info
-		WHERE access_para_info_id = #{accessParaInfoId} and
+		DELETE FROM tbmj_download_security_para_info
+		WHERE security_para_info_id = #{securityParaInfoId} and
 		is_download=#{isDownload}
 		<if test="equipmentId!=null and equipmentId!=''">
 			and equipment_id=#{equipmentId}

@@ -8,13 +8,17 @@ import com.thinkgem.jeesite.common.service.ServiceException;
 import com.thinkgem.jeesite.common.utils.DateUtils;
 import com.thinkgem.jeesite.common.utils.excel.ExportExcel;
 import com.thinkgem.jeesite.common.web.BaseController;
+import com.thinkgem.jeesite.modules.guard.entity.DownloadEntity;
 import com.thinkgem.jeesite.modules.guard.entity.Equipment;
 import com.thinkgem.jeesite.modules.guard.service.EquipmentService;
 import com.thinkgem.jeesite.modules.tbmj.entity.DefenseParaInfo;
+import com.thinkgem.jeesite.modules.tbmj.entity.DownloadDefenseParaInfo;
 import com.thinkgem.jeesite.modules.tbmj.service.DefenseParaInfoService;
+import com.thinkgem.jeesite.modules.tbmj.service.DownloadDefenseParaInfoService;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
@@ -23,6 +27,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -38,6 +43,8 @@ public class DefenseParaInfoController extends BaseController {
 	private DefenseParaInfoService defenseParaInfoService;
 	@Autowired
 	private EquipmentService equipmentService;
+	@Autowired
+	DownloadDefenseParaInfoService downloadDefenseParaInfoService;
 
 	@RequiresPermissions("tbmj:defenseParaInfo:view")
 	@RequestMapping("index")
@@ -79,6 +86,37 @@ public class DefenseParaInfoController extends BaseController {
 			addMessage(redirectAttributes, "导出门禁参数信息失败！失败信息：" + e.getMessage());
 		}
 		return "redirect:" + adminPath + "/tbmj/defenseParaInfo/list?eid="+eid;
+	}
+
+	@RequiresPermissions("tbmj:defenseParaInfo:edit")
+	@RequestMapping(value = "download")
+	@Transactional
+	public String download(String eid, HttpServletRequest request, Model model, RedirectAttributes redirectAttributes) {
+		DefenseParaInfo defenseParaInfo =new DefenseParaInfo();
+		defenseParaInfo.setEquipment(equipmentService.get(eid));
+		List<DefenseParaInfo> list= defenseParaInfoService.getByEId(eid);
+		for(int i=0;i<list.size();i++){
+			DefenseParaInfo defenseParaInfo2 = defenseParaInfoService.get(list.get(i));
+			DownloadDefenseParaInfo downloadDefenseParaInfo=new DownloadDefenseParaInfo();
+			downloadDefenseParaInfo.setDefenseParaInfoId(defenseParaInfo2.getId());
+			downloadDefenseParaInfo.setEquipmentId(eid);
+			downloadDefenseParaInfo.setIsDownload("0");
+			downloadDefenseParaInfo.setRegisterTime(DateUtils.formatDateTime(new Date()));
+			downloadDefenseParaInfo.setDownloadType(DownloadEntity.DOWNLOAD_TYPE_ADD);
+			if(downloadDefenseParaInfoService.countByEntity(downloadDefenseParaInfo)==0){
+				downloadDefenseParaInfoService.save(downloadDefenseParaInfo);
+			}
+		}
+		addMessage(redirectAttributes, "防区参数同步成功");
+		return backListPage(eid, model);
+	}
+
+	private String backListPage(String eid,Model model) {
+		model.addAttribute("eid",eid);
+		if(eid!=null && !eid.equals("")){
+			return "redirect:" + Global.getAdminPath() + "/tbmj/defenseParaInfo/list?eid="+eid+"&repage";
+		}
+		return "redirect:" + Global.getAdminPath() + "/tbmj/defenseParaInfo/?repage";
 	}
 
 	/**

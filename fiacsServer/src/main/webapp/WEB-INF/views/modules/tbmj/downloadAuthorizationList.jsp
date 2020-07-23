@@ -65,6 +65,9 @@
 		<th style="width: 30px;">序号</th>
 		<th>网点</th>
 		<th>设备类型</th>
+		<th>门号</th>
+		<th>员工姓名</th>
+		<th>员工工号</th>
 		<th>同步时间</th>
 		<th>同步类型</th>
 		<th>同步状态</th>
@@ -76,9 +79,11 @@
 		<tr is-download="${downloadAuthorization.isDownload}">
 			<td style="text-align: center;">${varStatus.count }</td>
 			<td>${downloadAuthorization.office.name}</td>
-			<td>${fns:getDictLabel(downloadAuthorization.equipment.siteType, 'site_type', '')}
-			</td>
-			<td>${downloadAuthorization.downloadTime}</td>
+			<td>${fns:getDictLabel(downloadAuthorization.equipment.siteType, 'site_type', '')}</td>
+			<td>${fns:getDictLabel(downloadAuthorization.authorization.doorPos, 'door_pos', '')}</td>
+			<td>${downloadAuthorization.staff.name}</td>
+			<td>${downloadAuthorization.staff.workNum}</td>
+			<td>${downloadTimezoneInfo.downloadTime}</td>
 			<td>${fns:getDictLabel(downloadAuthorization.isDownload, 'isDownload', '')}
 			</td>
 			<c:if test="${downloadAuthorization.downloadType == '0'}">
