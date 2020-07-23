@@ -85,7 +85,6 @@
 			</form:select>
 		</li>
 			<li class="btns"><input id="btnSubmit" class="btn btn-primary" type="submit" value="查询"/></li>
-			<li class="btns"><input id="btnExport" class="btn btn-primary" type="button" value="导出" /></li>
 			<li class="btns"><input id="btnDownload" class="btn btn-primary" type="button" value="同步" /></li>
 	</ul>
 	</form:form>

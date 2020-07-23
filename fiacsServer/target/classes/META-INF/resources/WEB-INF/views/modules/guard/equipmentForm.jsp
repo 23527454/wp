@@ -86,6 +86,18 @@
 											}
 									}
 								});
+
+
+				$("#btnCopy").on('click',function () {
+					$.post("${ctx}/guard/equipment/copy",$("#inputForm").serialize(),function (data) {
+						alert("复制成功!");
+					});
+				});
+
+				$("#btnPaste").on('click',function () {
+					window.location.href="${ctx}/guard/equipment/paste?"+$("#inputForm").serialize();
+				});
+
 			});
 
 
@@ -161,9 +173,28 @@
 				<shiro:lacksPermission name="guard:equipment:edit">查看</shiro:lacksPermission></a></li>
 	</ul>
 	<br />
+
 	<form:form id="inputForm" modelAttribute="equipment"
 		action="${ctx}/guard/equipment/save" method="post"
 		class="form-horizontal">
+
+		<div class="row">
+			<div style="margin-left:10px;margin-top:10px;">
+				<shiro:hasPermission name="guard:equipment:edit">
+					<input id="btnSubmit" class="btn btn-primary" type="submit"
+						   value="保 存"/>
+				</shiro:hasPermission>
+				<input id="btnCancel" class="btn" type="button" value="返 回"
+					   onclick="history.go(-1)" />
+				<shiro:hasPermission name="guard:equipment:edit">
+					<input id="btnCopy" class="btn btn-primary" type="button" style="margin-left: 5%"
+						   value="复 制"/>&nbsp;
+					<input id="btnPaste" class="btn btn-primary" type="button"
+						   value="粘 贴"/>&nbsp;
+				</shiro:hasPermission>
+			</div>
+		</div>
+		<br/>
 		<form:hidden path="id" id="equipment_id" />
 		<sys:message content="${message}" />
 		<form:input path="equipment_ids" htmlEscape="false" maxlength="64"
@@ -310,14 +341,6 @@
 			<div class="col-xs-3">
 				<form:textarea path="remarks" htmlEscape="false" rows="4"
 					maxlength="255" class="input-xxlarge " />
-			</div>
-		</div>
-		<div class="form-group">
-			<div class="col-xs-offset-2 col-xs-10">
-				<shiro:hasPermission name="guard:equipment:edit">
-					<input id="btnSubmit" class="btn btn-primary" type="submit"
-						value="保 存" />&nbsp;</shiro:hasPermission>
-				<a id="btnCancel" href="${ctx}/guard/equipment/" class="btn btn-default" >返回</a>
 			</div>
 		</div>
 	</form:form>

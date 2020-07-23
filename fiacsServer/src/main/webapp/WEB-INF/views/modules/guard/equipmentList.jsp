@@ -29,7 +29,6 @@
 				
 				$("#btnExport").click(
 						function() {
-							alert(1);
 							top.$.jBox.confirm("确认要导出设备数据吗？", "系统提示", function(
 									v, h, f) {
 								if (v == "ok") {

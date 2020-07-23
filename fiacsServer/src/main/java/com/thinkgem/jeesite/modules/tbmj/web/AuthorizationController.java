@@ -31,6 +31,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import java.text.ParseException;
 import java.util.List;
 
@@ -177,16 +178,57 @@ public class AuthorizationController extends BaseController {
 	}*/
 
 	/**
+	 * 粘贴数据
+	 */
+	@RequiresPermissions("tbmj:authorization:edit")
+	@PostMapping(value = "paste")
+	//@ResponseBody
+	public String paste(Authorization authorization, HttpServletRequest request, HttpServletResponse response, Model model, RedirectAttributes redirectAttributes) {
+		HttpSession session=request.getSession();
+		Authorization copy_authorization=(Authorization)session.getAttribute("copy_authorization");
+		if(copy_authorization!=null){
+			authorization.setTimezoneInfoNum(copy_authorization.getTimezoneInfoNum());
+			authorization.setWorkdayNum(copy_authorization.getWorkdayNum());
+			authorization.setPermissionGroup(copy_authorization.getPermissionGroup());
+			authorization.setCheckPom(copy_authorization.getCheckPom());
+			authorization.setRemarks(copy_authorization.getRemarks());
+			addMessage(redirectAttributes,"粘贴成功!");
+		}else{
+			addMessage(redirectAttributes,"暂未复制内容!");
+		}
+		model.addAttribute("authorization", authorization);
+		return "modules/tbmj/authorizationForm";
+	}
+
+
+	/**
+ 	* 复制数据
+	 */
+	@RequiresPermissions("tbmj:authorization:edit")
+	@PostMapping(value = "copy")
+	@ResponseBody
+	public boolean copy(Authorization authorization,HttpServletRequest request,HttpServletResponse response,Model model) {
+		HttpSession session=request.getSession();
+		Authorization copy_authorization=new Authorization();
+		copy_authorization.setTimezoneInfoNum(authorization.getTimezoneInfoNum());
+		copy_authorization.setWorkdayNum(authorization.getWorkdayNum());
+		copy_authorization.setPermissionGroup(authorization.getPermissionGroup());
+		copy_authorization.setCheckPom(authorization.getCheckPom());
+		copy_authorization.setRemarks(authorization.getRemarks());
+		session.setAttribute("copy_authorization",copy_authorization);
+		return true;
+	}
+
+	/**
 	 * 查看编辑表单
 	 */
 	@RequiresPermissions("tbmj:authorization:view")
 	@RequestMapping(value = "form")
-	public String form(Authorization authorization, String id, String accessParaInfoId, Model model, RedirectAttributes redirectAttributes) {
-		if(authorization!=null){
-			authorization=authorizationService.get(authorization.getId());
-			authorization.setAccessParaInfoId(accessParaInfoId);
-			model.addAttribute("authorization", authorization);
-		}
+	public String form(Authorization authorization, String id, String accessParaInfoId,HttpServletRequest request, Model model, RedirectAttributes redirectAttributes) {
+		HttpSession session=request.getSession();
+		authorization=authorizationService.get(authorization.getId());
+		authorization.setAccessParaInfoId(accessParaInfoId);
+		model.addAttribute("authorization", authorization);
 		return "modules/tbmj/authorizationForm";
 	}
 

@@ -17,13 +17,13 @@ import com.thinkgem.jeesite.modules.guard.dao.LineNodesDao;
 import com.thinkgem.jeesite.modules.guard.entity.Equipment;
 import com.thinkgem.jeesite.modules.guard.entity.LineNodes;
 import com.thinkgem.jeesite.modules.guard.service.EquipmentService;
-import com.thinkgem.jeesite.modules.tbmj.entity.*;
-import com.thinkgem.jeesite.modules.tbmj.service.*;
 import com.thinkgem.jeesite.modules.sys.entity.Office;
 import com.thinkgem.jeesite.modules.sys.entity.User;
 import com.thinkgem.jeesite.modules.sys.service.OfficeService;
 import com.thinkgem.jeesite.modules.sys.utils.DictUtils;
 import com.thinkgem.jeesite.modules.sys.utils.UserUtils;
+import com.thinkgem.jeesite.modules.tbmj.entity.*;
+import com.thinkgem.jeesite.modules.tbmj.service.*;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import net.sf.json.JsonConfig;
@@ -38,6 +38,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import java.lang.reflect.Field;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -99,12 +100,12 @@ public class EquipmentController extends BaseController {
 		List<Office> officeList = officeService.findList(new Office());
 		for (Office office : officeList) {
 			for (Equipment equipment2 : page.getList()) {
-			
+
 				if(equipment2.getOffice().getId().equals(office.getId())) {
 					equipment2.setOffice(office);
 				}
 			}
-			
+
 		}
 		model.addAttribute("page", page);
 		model.addAttribute("equipment", equipment);
@@ -113,7 +114,7 @@ public class EquipmentController extends BaseController {
 
 	/**
 	 * 获取列表数据（JSON）
-	 * 
+	 *
 	 * @param equipment
 	 * @param request
 	 * @param response
@@ -173,6 +174,51 @@ public class EquipmentController extends BaseController {
 		return jo.toString();
 	}
 
+	/**
+	 * 粘贴数据
+	 */
+	@RequiresPermissions("guard:equipment:edit")
+	@GetMapping(value = "paste")
+	//@ResponseBody
+	public String paste(Equipment equipment, HttpServletRequest request, HttpServletResponse response, Model model, RedirectAttributes redirectAttributes) {
+		HttpSession session=request.getSession();
+		Equipment copy_equipment=(Equipment)session.getAttribute("copy_equipment");
+		if(copy_equipment!=null){
+			equipment.setSerialNum(copy_equipment.getSerialNum());
+			equipment.setSiteType(copy_equipment.getSiteType());
+			equipment.setAccessType(copy_equipment.getAccessType());
+			equipment.setEquipType(copy_equipment.getEquipType());
+			equipment.setNetMask(copy_equipment.getNetMask());
+			equipment.setNetGate(copy_equipment.getNetGate());
+			equipment.setIp(copy_equipment.getIp());
+			equipment.setPort(copy_equipment.getPort());
+			equipment.setPrintServerIp(copy_equipment.getPrintServerIp());
+			equipment.setPrintServerPort(copy_equipment.getPrintServerPort());
+			equipment.setUploadEventSrvIp(copy_equipment.getUploadEventSrvIp());
+			equipment.setUploadEventSrvPort(copy_equipment.getUploadEventSrvPort());
+			equipment.setRemarks(copy_equipment.getRemarks());
+			addMessage(redirectAttributes,"粘贴成功!");
+		}else{
+			addMessage(redirectAttributes,"暂未复制内容!");
+		}
+		model.addAttribute("equipment", equipment);
+
+		return backForm(equipment, model);
+	}
+
+
+	/**
+	 * 复制数据
+	 */
+	@RequiresPermissions("guard:equipment:edit")
+	@PostMapping(value = "copy")
+	@ResponseBody
+	public boolean copy(Equipment equipment, HttpServletRequest request, HttpServletResponse response, Model model) {
+		HttpSession session=request.getSession();
+		session.setAttribute("copy_equipment",equipment);
+		return true;
+	}
+
 	@RequiresPermissions("guard:equipment:view")
 	@RequestMapping(value = "form")
 	public String form(Equipment equipment, Model model, RedirectAttributes redirectAttributes) {
@@ -186,10 +232,10 @@ public class EquipmentController extends BaseController {
 				addMessage(redirectAttributes, "只有中心金库、营业网点、营业子网点才能关联设备");
 				return "redirect:" + Global.getAdminPath() + "/guard/equipment/?repage";
 			}
-			
+
 			Office office = officeService.get(equipment.getEqu_office_id());
 			equipment.setOffice(office);
-			
+
 			equipment.setPort("8001");
 			equipment.setIp("192.168.1.118");
 			equipment.setUploadEventSrvIp("192.168.1.100");
@@ -199,15 +245,15 @@ public class EquipmentController extends BaseController {
 			equipment.setPrintServerIp("192.168.1.100");
 			equipment.setPrintServerPort("15000");
 		}
-		
+
 		return backForm(equipment, model);
 	}
-	
+
 	private String backForm(Equipment equipment, Model model) {
 		model.addAttribute("equipment", equipment);
 		return "modules/guard/equipmentForm";
 	}
-	
+
 	@RequiresPermissions("guard:equipment:view")
 	@RequestMapping(value = "paramSetting")
 	public String doorParamSetting(Equipment equipment, Model model, RedirectAttributes redirectAttributes) {
@@ -256,15 +302,15 @@ public class EquipmentController extends BaseController {
 				return "redirect:" + Global.getAdminPath() + "/guard/equipment/?repage";
 			}
 		}
-		
+
 		if(equipmentService.countByIp(equipment.getId(), equipment.getIp()) > 0) {
 			result.rejectValue("ip", "duplicate", "Ip地址已经存在");
 		}
-		
+
 		if(equipmentService.countBySerialNum(equipment.getId(), equipment.getSerialNum()) > 0) {
 			result.rejectValue("serialNum", "duplicate", "序列号已经存在");
 		}
-		
+
 		if(result.hasErrors()) {
 			return backForm(equipment, model);
 		}
@@ -325,10 +371,60 @@ public class EquipmentController extends BaseController {
 					timezoneInfo.setSat("00:00-23:59;00:00-00:00;00:00-00:00;00:00-00:00;");
 					timezoneInfo.setSun("00:00-23:59;00:00-00:00;00:00-00:00;00:00-00:00;");
 					timezoneInfoService.save(timezoneInfo);
+
+					TimezoneInfo timezoneInfo2 =new TimezoneInfo();
+					timezoneInfo2.setEquipment(equipment);
+					timezoneInfo2.setEquipmentId(equipment.getId());
+					timezoneInfo2.setAccessParaInfo(accessParaInfo);
+					timezoneInfo2.setDoorPos(accessParaInfo.getDoorPos());
+					timezoneInfo2.setTimeZoneType("1");
+					timezoneInfo2.setTimeZoneNum("2");
+					timezoneInfo2.setMon("00:00-23:59;00:00-00:00;00:00-00:00;00:00-00:00;");
+					timezoneInfo2.setTue("00:00-23:59;00:00-00:00;00:00-00:00;00:00-00:00;");
+					timezoneInfo2.setWed("00:00-23:59;00:00-00:00;00:00-00:00;00:00-00:00;");
+					timezoneInfo2.setThu("00:00-23:59;00:00-00:00;00:00-00:00;00:00-00:00;");
+					timezoneInfo2.setFri("00:00-23:59;00:00-00:00;00:00-00:00;00:00-00:00;");
+					timezoneInfo2.setSat("00:00-23:59;00:00-00:00;00:00-00:00;00:00-00:00;");
+					timezoneInfo2.setSun("00:00-23:59;00:00-00:00;00:00-00:00;00:00-00:00;");
+					timezoneInfoService.save(timezoneInfo2);
+
+					TimezoneInfo timezoneInfo3 =new TimezoneInfo();
+					timezoneInfo3.setEquipment(equipment);
+					timezoneInfo3.setEquipmentId(equipment.getId());
+					timezoneInfo3.setAccessParaInfo(accessParaInfo);
+					timezoneInfo3.setDoorPos(accessParaInfo.getDoorPos());
+					timezoneInfo3.setTimeZoneType("2");
+					timezoneInfo3.setTimeZoneNum("2");
+					timezoneInfo3.setMon("00:00-00:00;00:00-00:00;00:00-00:00;00:00-00:00;");
+					timezoneInfo3.setTue("00:00-00:00;00:00-00:00;00:00-00:00;00:00-00:00;");
+					timezoneInfo3.setWed("00:00-00:00;00:00-00:00;00:00-00:00;00:00-00:00;");
+					timezoneInfo3.setThu("00:00-00:00;00:00-00:00;00:00-00:00;00:00-00:00;");
+					timezoneInfo3.setFri("00:00-00:00;00:00-00:00;00:00-00:00;00:00-00:00;");
+					timezoneInfo3.setSat("00:00-00:00;00:00-00:00;00:00-00:00;00:00-00:00;");
+					timezoneInfo3.setSun("00:00-00:00;00:00-00:00;00:00-00:00;00:00-00:00;");
+					timezoneInfoService.save(timezoneInfo3);
+
+					TimezoneInfo timezoneInfo4 =new TimezoneInfo();
+					timezoneInfo4.setEquipment(equipment);
+					timezoneInfo4.setEquipmentId(equipment.getId());
+					timezoneInfo4.setAccessParaInfo(accessParaInfo);
+					timezoneInfo4.setDoorPos(accessParaInfo.getDoorPos());
+					timezoneInfo4.setTimeZoneType("2");
+					timezoneInfo4.setTimeZoneNum("3");
+					timezoneInfo4.setMon("00:00-00:00;00:00-00:00;00:00-00:00;00:00-00:00;");
+					timezoneInfo4.setTue("00:00-00:00;00:00-00:00;00:00-00:00;00:00-00:00;");
+					timezoneInfo4.setWed("00:00-00:00;00:00-00:00;00:00-00:00;00:00-00:00;");
+					timezoneInfo4.setThu("00:00-00:00;00:00-00:00;00:00-00:00;00:00-00:00;");
+					timezoneInfo4.setFri("00:00-00:00;00:00-00:00;00:00-00:00;00:00-00:00;");
+					timezoneInfo4.setSat("00:00-00:00;00:00-00:00;00:00-00:00;00:00-00:00;");
+					timezoneInfo4.setSun("00:00-00:00;00:00-00:00;00:00-00:00;00:00-00:00;");
+					timezoneInfoService.save(timezoneInfo4);
+
 				}
 
 				SecurityParaInfo securityParaInfo =new SecurityParaInfo(60,60,120,60,5,"1","1","1","1","1","1","1","1","1","1","1");
 				securityParaInfo.setEquipment(equipment);
+				securityParaInfo.setEquipmentId(equipment.getId());
 				securityParaInfoService.save(securityParaInfo);
 
 				DefenseParaInfo defenseParaInfo =new DefenseParaInfo(1,1,"1",1,005,"00:00-00:00;00:00-00:00;00:00-00:00;00:00-00:00;");

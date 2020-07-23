@@ -48,10 +48,6 @@
 	<ul class="nav nav-tabs">
 		<li class="active"><a href="${ctx}/tbmj/accessParaInfo/">门禁信息列表</a></li>
 	</ul>
-
-	<div class="form-group">
-		<input id="btnExport" class="btn btn-primary" style="margin: 10px 0 0 10%" type="button" value="导出" />
-	</div>
 	<sys:message content="${message}"/>
 	<form:form id="searchForm" modelAttribute="accessParaInfo" action="${ctx}/tbmj/accessParaInfo/" method="post" class="breadcrumb form-search">
 		<input:hidden path="id" />
@@ -68,7 +64,7 @@
 			</tr>
 		</thead>
 		<tbody>
-		<c:if test="${accessParaInfo!=null && accessParaInfo.id!=null}">
+		<c:if test="${accessParaInfo!=null && accessParaInfo.id!=null && accessParaInfo.id!=''}">
 			<tr>
 				<td>
 						${accessParaInfo.doorRelayTime}

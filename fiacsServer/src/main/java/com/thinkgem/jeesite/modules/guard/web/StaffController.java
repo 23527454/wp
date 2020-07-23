@@ -47,6 +47,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import javax.validation.ConstraintViolationException;
 import java.io.File;
 import java.io.IOException;
@@ -326,6 +327,56 @@ public class StaffController extends BaseController {
 		return true;
 	}
 
+	/**
+	 * 粘贴数据
+	 */
+	@RequiresPermissions("guard:staff:edit")
+	@GetMapping(value = "paste")
+	//@ResponseBody
+	public String paste(Staff staff, HttpServletRequest request, HttpServletResponse response, Model model, RedirectAttributes redirectAttributes) {
+		HttpSession session=request.getSession();
+		Staff copy_staff=(Staff)session.getAttribute("copy_staff");
+		if(copy_staff!=null){
+			staff.setName(copy_staff.getName());
+			staff.setIdentifyType(copy_staff.getIdentifyType());
+			staff.setIdentifyNumber(copy_staff.getIdentifyNumber());
+			staff.setSex(copy_staff.getSex());
+			staff.setWorkNum(copy_staff.getWorkNum());
+			staff.setOffice(copy_staff.getOffice());
+			staff.setWorkStatus(copy_staff.getWorkStatus());
+			staff.setStatus(copy_staff.getStatus());
+			staff.setStaffType(copy_staff.getStaffType());
+			staff.setDupt(copy_staff.getDupt());
+			staff.setNation(copy_staff.getNation());
+			staff.setEducation(copy_staff.getEducation());
+			staff.setAddress(copy_staff.getAddress());
+			staff.setWork(copy_staff.getWork());
+			staff.setPhone(copy_staff.getPhone());
+			staff.setEmail(copy_staff.getEmail());
+			staff.setDept(copy_staff.getDept());
+			staff.setRemarks(copy_staff.getRemarks());
+			addMessage(redirectAttributes,"粘贴成功!");
+		}else{
+			addMessage(redirectAttributes,"暂未复制内容!");
+		}
+		model.addAttribute("staff", staff);
+
+		return "modules/guard/staffForm";
+	}
+
+
+	/**
+	 * 复制数据
+	 */
+	@RequiresPermissions("guard:staff:edit")
+	@PostMapping(value = "copy")
+	@ResponseBody
+	public boolean copy(Staff staff, HttpServletRequest request, HttpServletResponse response, Model model) {
+		HttpSession session=request.getSession();
+		session.setAttribute("copy_staff",staff);
+		return true;
+	}
+
 	@RequiresPermissions("guard:staff:view")
 	@RequestMapping(value = "form")
 	public String form(Staff staff, 
@@ -480,7 +531,7 @@ public class StaffController extends BaseController {
 			RedirectAttributes redirectAttributes,
 			@RequestParam("selectedOfficeId") String selectedOfficeId,
 			@RequestParam("selectedCompanyId") String selectedCompanyId) throws IOException {
-		model.addAttribute("staff", staff);
+			model.addAttribute("staff", staff);
 		if (!beanValidator(model, staff)) {
 			return backForm(staff,  selectedOfficeId,selectedCompanyId,model);
 		}

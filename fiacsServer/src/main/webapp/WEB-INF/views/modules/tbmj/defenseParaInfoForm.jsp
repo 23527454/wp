@@ -26,6 +26,19 @@
 											form.submit();
 										}
 									});
+
+
+					$("#btnCopy").on('click',function () {
+						$.post("${ctx}/tbmj/defenseParaInfo/copy",$("#inputForm").serialize(),function (data) {
+							alert("复制成功!");
+						});
+					});
+
+					$("#btnPaste").on('click',function () {
+						$("#inputForm").attr("action","${ctx}/tbmj/defenseParaInfo/paste");
+						$("#inputForm").submit();
+						$("#inputForm").attr("action","${ctx}/tbmj/defenseParaInfo/save");
+					});
 				});
 		//数字:数字
 		jQuery.validator.addMethod("numfh", function(value, element) {
@@ -41,10 +54,27 @@
 		<li class="active"><a
 				href="${ctx}/tbmj/defenseParaInfo/form?id=${defenseParaInfo.id}">防区信息</a></li>
 	</ul>
-	<br />
+
 	<form:form id="inputForm" modelAttribute="defenseParaInfo"
 			   action="${ctx}/tbmj/defenseParaInfo/save" method="post"
 			   class="form-horizontal">
+		<div class="row">
+			<div style="margin-left:10px;margin-top:10px;">
+				<shiro:hasPermission name="tbmj:defenseParaInfo:edit">
+					<input id="btnSubmit" class="btn btn-primary" type="submit"
+						   value="保 存"/>
+				</shiro:hasPermission>
+				<input id="btnCancel" class="btn" type="button" value="返 回"
+					   onclick="history.go(-1)" />
+				<shiro:hasPermission name="tbmj:defenseParaInfo:edit">
+					<input id="btnCopy" class="btn btn-primary" type="button" style="margin-left: 5%"
+						   value="复 制"/>&nbsp;
+					<input id="btnPaste" class="btn btn-primary" type="button"
+						   value="粘 贴"/>&nbsp;
+				</shiro:hasPermission>
+			</div>
+		</div>
+		<br/>
 		<form:hidden path="id" />
 		<sys:message content="${message}" />
 
@@ -135,14 +165,6 @@
 			<div class="col-xs-3">
 				<form:textarea path="remarks" htmlEscape="false" rows="4"
 							   maxlength="255" class="input-xxlarge " />
-			</div>
-		</div>
-		<div class="form-group">
-			<div class="col-xs-offset-2 col-xs-10">
-				<shiro:hasPermission name="tbmj:timezoneInfo:edit">
-					<input id="btnSubmit" class="btn btn-primary" type="submit"
-						   value="保 存"/>&nbsp;</shiro:hasPermission>
-				<a id="btnCancel" href="${ctx}/tbmj/defenseParaInfo/" class="btn btn-default" >返回</a>
 			</div>
 		</div>
 	</form:form>

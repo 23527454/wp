@@ -48,7 +48,7 @@
                         {
                             submitHandler: function (form) {
                                 loading('正在提交，请稍等...');
-                                $.post("${ctx}/tbmj/authorization/save",);
+                                $.post("${ctx}/tbmj/authorization/modify",);
                                 form.submit();
                             }
                         });
@@ -58,6 +58,19 @@
                 {
                     top.$.jBox.tip("${message}","",{persistent:true,opacity:0});$("#messageBox").show();
                 }
+
+
+                $("#btnCopy").on('click',function () {
+                    $.post("${ctx}/tbmj/authorization/copy",$("#inputForm").serialize(),function (data) {
+                        alert("复制成功!");
+                    });
+                });
+
+                $("#btnPaste").on('click',function () {
+                    $("#inputForm").attr("action","${ctx}/tbmj/authorization/paste");
+                    $("#inputForm").submit();
+                    $("#inputForm").attr("action","${ctx}/tbmj/authorization/modify");
+                });
             });
     </script>
 </head>
@@ -69,10 +82,26 @@
         <li class="active"><a
                 href="#">权限信息修改</a></li>
     </ul>
-    <br/>
     <form:form id="inputForm" modelAttribute="authorization"
                action="${ctx}/tbmj/authorization/modify" method="post"
                class="form-horizontal">
+    <div class="row">
+        <div style="margin-left:10px;margin-top:10px;">
+            <shiro:hasPermission name="tbmj:authorization:edit">
+                <input id="btnSubmit" class="btn btn-primary" type="submit"
+                       value="保 存"/>
+            </shiro:hasPermission>
+            <input id="btnCancel" class="btn" type="button" value="返 回"
+                   onclick="history.go(-1)" />
+            <shiro:hasPermission name="tbmj:authorization:edit">
+                <input id="btnCopy" class="btn btn-primary" type="button" style="margin-left: 5%"
+                       value="复 制"/>&nbsp;
+                <input id="btnPaste" class="btn btn-primary" type="button"
+                       value="粘 贴"/>&nbsp;
+            </shiro:hasPermission>
+        </div>
+    </div>
+    <br/>
     <sys:message content="${message}"/>
     <input type="hidden" name="id" id="id" value="${authorization.id}" />
     <input type="hidden" name="selStaffIds" id="selStaffIds" value="${authorization.staffId}" />
@@ -122,14 +151,6 @@
         </div>
     </div>
 
-</div>
-<div class="form-group">
-    <div class="col-xs-offset-2 col-xs-10">
-        <shiro:hasPermission name="tbmj:authorization:edit">
-            <input id="btnSubmit" class="btn btn-primary" type="button"
-                   value="保 存"/>&nbsp;</shiro:hasPermission>
-        <a id="btnCancel" href="${ctx}/tbmj/authorization/" class="btn btn-default">返回</a>
-    </div>
 </div>
 </form:form>
 </div>

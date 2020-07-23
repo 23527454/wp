@@ -25,6 +25,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import java.util.List;
 
 /**
@@ -116,6 +117,62 @@ public class SecurityParaInfoController extends BaseController {
 		Page<AccessAntitheft> page = accessAntitheftService.findPage(accessAntitheft);
 		return page;
 	}*/
+
+	/**
+	 * 粘贴数据
+	 */
+	@RequiresPermissions("tbmj:securityParaInfo:edit")
+	@PostMapping(value = "paste")
+	//@ResponseBody
+	public String paste(SecurityParaInfo securityParaInfo, HttpServletRequest request, HttpServletResponse response, Model model, RedirectAttributes redirectAttributes) {
+		HttpSession session=request.getSession();
+		SecurityParaInfo copy_securityParaInfo=(SecurityParaInfo)session.getAttribute("copy_securityParaInfo");
+		if(copy_securityParaInfo!=null){
+			securityParaInfo.setLeaveRelayTime(copy_securityParaInfo.getLeaveRelayTime());
+			securityParaInfo.setDoorSensorTime(copy_securityParaInfo.getDoorSensorTime());
+			securityParaInfo.setLocalTipsTime(copy_securityParaInfo.getLocalTipsTime());
+			securityParaInfo.setTipsAlarmTime(copy_securityParaInfo.getTipsAlarmTime());
+			securityParaInfo.setAlarmIntervalTime(copy_securityParaInfo.getAlarmIntervalTime());
+			securityParaInfo.setAllowRemoteClose(copy_securityParaInfo.getAllowRemoteClose());
+			securityParaInfo.setAllowDoorSensorOpen(copy_securityParaInfo.getAllowDoorSensorOpen());
+			securityParaInfo.setAllowDoorButtonOpen(copy_securityParaInfo.getAllowDoorButtonOpen());
+			securityParaInfo.setAllowButtonOpen(copy_securityParaInfo.getAllowButtonOpen());
+			securityParaInfo.setAllowAuthClose(copy_securityParaInfo.getAllowAuthClose());
+			securityParaInfo.setAllowButtonClose(copy_securityParaInfo.getAllowButtonClose());
+			securityParaInfo.setAllowAuthRelieve(copy_securityParaInfo.getAllowAuthRelieve());
+			securityParaInfo.setAllowButtonRelieve(copy_securityParaInfo.getAllowButtonRelieve());
+			securityParaInfo.setAllowPowerAlarm(copy_securityParaInfo.getAllowPowerAlarm());
+			securityParaInfo.setAllowBatteryAlarm(copy_securityParaInfo.getAllowBatteryAlarm());
+			securityParaInfo.setRemarks(copy_securityParaInfo.getRemarks());
+			addMessage(redirectAttributes,"粘贴成功!");
+		}else{
+			addMessage(redirectAttributes,"暂未复制内容!");
+		}
+		model.addAttribute("accessAntitheft", securityParaInfo);
+		return "modules/tbmj/securityParaInfoForm";
+	}
+
+
+	/**
+	 * 复制数据
+	 */
+	@RequiresPermissions("tbmj:securityParaInfo:edit")
+	@PostMapping(value = "copy")
+	@ResponseBody
+	public boolean copy(SecurityParaInfo securityParaInfo, HttpServletRequest request, HttpServletResponse response, Model model) {
+		HttpSession session=request.getSession();
+
+		/*SecurityParaInfo copy_securityParaInfo=new SecurityParaInfo();
+		copy_securityParaInfo.setDefensePos(securityParaInfo.getDefensePos());
+		copy_securityParaInfo.setDefenseAreaType(securityParaInfo.getDefenseAreaType());
+		copy_securityParaInfo.setDefenseAreaBypass(securityParaInfo.getDefenseAreaBypass());
+		copy_securityParaInfo.setDefenseAreaAttr(securityParaInfo.getDefenseAreaAttr());
+		copy_securityParaInfo.setAlarmDelayTime(securityParaInfo.getAlarmDelayTime());
+		copy_securityParaInfo.setTimeframe(securityParaInfo.getTimeframe());
+		copy_securityParaInfo.setRemarks(securityParaInfo.getRemarks());*/
+		session.setAttribute("copy_securityParaInfo",securityParaInfo);
+		return true;
+	}
 
 	/**
 	 * 查看编辑表单

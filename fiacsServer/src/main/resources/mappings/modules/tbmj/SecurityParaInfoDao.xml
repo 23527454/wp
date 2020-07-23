@@ -21,13 +21,13 @@
 	<select id="getByEId" resultType="SecurityParaInfo">
 		SELECT *
 		FROM tbmj_security_para_info
-		WHERE equipment_id = #{equipment.id} and del_flag = '0'
+		WHERE equipment_id = #{equipmentId} and del_flag = '0'
 	</select>
 
 	<insert id="insert" useGeneratedKeys="true" keyProperty="id">
 		INSERT INTO tbmj_security_para_info
 		VALUES (DEFAULT ,
-		#{equipment.id},
+		#{equipmentId},
 		#{leaveRelayTime},
 		#{doorSensorTime},
 		#{localTipsTime},

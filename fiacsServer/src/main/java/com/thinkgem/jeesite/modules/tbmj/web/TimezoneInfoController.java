@@ -105,22 +105,21 @@ public class TimezoneInfoController extends BaseController {
 		return "redirect:" + adminPath + "/tbmj/timezoneInfo/list?repage";
 	}
 
-	@RequiresPermissions("tbmj:timezoneInfo:edit")
+	@RequiresPermissions("tbmj:downloadTimezoneInfo:edit")
 	@RequestMapping(value = "download")
 	@Transactional
 	public String download(TimezoneInfo timezoneInfo, HttpServletRequest request, Model model, RedirectAttributes redirectAttributes) {
-		if(timezoneInfo==null){
-			timezoneInfo=new TimezoneInfo();
-			AccessParaInfo accessParaInfo=accessParaInfoService.get(timezoneInfo.getAccessParaInfoId());
-			timezoneInfo.setAccessParaInfo(accessParaInfo);
-		}
+		AccessParaInfo accessParaInfo=accessParaInfoService.get(timezoneInfo.getAccessParaInfoId());
+		timezoneInfo.setAccessParaInfo(accessParaInfo);
+		timezoneInfo.setDoorPos(accessParaInfo.getDoorPos());
 		List<TimezoneInfo> list=timezoneInfoService.findList(timezoneInfo);
 		for(int i=0;i<list.size();i++){
 			TimezoneInfo timezoneInfo2=timezoneInfoService.get(list.get(i));
 			DownloadTimezoneInfo downloadTimezoneInfo=new DownloadTimezoneInfo();
-			downloadTimezoneInfo.setTimezoneInfoId(timezoneInfo2.getId());
+			downloadTimezoneInfo.setTimezoneParaInfoId(timezoneInfo2.getId());
 			downloadTimezoneInfo.setAccessParaInfoId(timezoneInfo2.getAccessParaInfoId());
 			downloadTimezoneInfo.setEquipment(equipmentService.get(String.valueOf(timezoneInfo2.getEquipmentId())));
+			downloadTimezoneInfo.setEquipmentId(downloadTimezoneInfo.getEquipment().getId());
 			downloadTimezoneInfo.setIsDownload("0");
 			downloadTimezoneInfo.setRegisterTime(DateUtils.formatDateTime(new Date()));
 			downloadTimezoneInfo.setDownloadType(DownloadEntity.DOWNLOAD_TYPE_ADD);

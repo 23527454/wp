@@ -285,6 +285,18 @@ var warkNumber = 1;
 			
 			$("#endDate").val((parseInt(year)+parseInt(yearLater))+"-"+year[1]+"-"+year[2])
 		});
+
+
+
+		$("#btnCopy").on('click',function () {
+			$.post("${ctx}/guard/staff/copy",$("#inputForm").serialize(),function (data) {
+				alert("复制成功!");
+			});
+		});
+
+		$("#btnPaste").on('click',function () {
+			window.location.href="${ctx}/guard/staff/paste?"+$("#inputForm").serialize();
+		});
 		
 	});
 	
@@ -643,22 +655,27 @@ var warkNumber = 1;
 					name="guard:staff:edit">${not empty staff.id?'修改':'添加'}</shiro:hasPermission>
 				<shiro:lacksPermission name="guard:staff:edit">查看</shiro:lacksPermission></a></li>
 	</ul>
-	<div class="row">
-		<div style="margin-left:10px;margin-top:10px;">
-            <shiro:hasPermission name="guard:staff:edit">
-				<input id="btnSubmit" class="btn btn-primary" type="button"
-					   value="保 存" onclick="sub()" />&nbsp;
-				<input id="btnSubmit" class="btn btn-primary" type="button"
-					   value="复 制" onclick="copy()" />&nbsp;
-			</shiro:hasPermission>
-            <input id="btnCancel" class="btn" type="button" value="返 回"
-                onclick="history.go(-1)" />
-                <span class="bg-warning" style="float:right;">提示：此界面所有数据都需要点击“<b>保存</b>”按钮才会执行保存.</span	>
-		</div>
-	</div>
+
+
 	<form:form id="inputForm" modelAttribute="staff"
 		action="${ctx}/guard/staff/save" enctype="multipart/form-data"
-		method="post" class="form-horizontal">
+		method="post" class="form-horizontal"><div class="row">
+		<div style="margin-left:10px;margin-top:10px;">
+			<shiro:hasPermission name="guard:staff:edit">
+				<input id="btnSubmit" class="btn btn-primary" type="submit"
+					   value="保 存"/>
+			</shiro:hasPermission>
+			<input id="btnCancel" class="btn" type="button" value="返 回"
+				   onclick="history.go(-1)" />
+			<shiro:hasPermission name="guard:staff:edit">
+				<input id="btnCopy" class="btn btn-primary" type="button" style="margin-left: 5%"
+					   value="复 制"/>&nbsp;
+				<input id="btnPaste" class="btn btn-primary" type="button"
+					   value="粘 贴"/>&nbsp;
+			</shiro:hasPermission>
+		</div>
+	</div>
+		<br/>
 		<form:hidden path="id" />
 		<input type="hidden" name="selectedOfficeId" id="selectedOfficeId"/>
 		<input type="hidden" name="selectedCompanyId" id="selectedCompanyId"/>

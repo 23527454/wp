@@ -17,14 +17,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import java.util.List;
 
 /**
@@ -108,6 +106,74 @@ public class DefenseParaInfoController extends BaseController {
 		Page<AccessDefenseInfo> page = accessDefenseInfoService.findPage(accessDefenseInfo);
 		return page;
 	}*/
+
+	/**
+	 * 粘贴数据
+	 */
+	@RequiresPermissions("tbmj:defenseParaInfo:edit")
+	@PostMapping(value = "paste")
+	//@ResponseBody
+	public String paste(DefenseParaInfo defenseParaInfo, HttpServletRequest request, HttpServletResponse response, Model model, RedirectAttributes redirectAttributes) {
+		HttpSession session=request.getSession();
+		DefenseParaInfo copy_defenseParaInfo=(DefenseParaInfo)session.getAttribute("copy_defenseParaInfo");
+		if(copy_defenseParaInfo!=null){
+			defenseParaInfo.setDefensePos(copy_defenseParaInfo.getDefensePos());
+			defenseParaInfo.setDefenseAreaType(copy_defenseParaInfo.getDefenseAreaType());
+			defenseParaInfo.setDefenseAreaBypass(copy_defenseParaInfo.getDefenseAreaBypass());
+			defenseParaInfo.setDefenseAreaAttr(copy_defenseParaInfo.getDefenseAreaAttr());
+			defenseParaInfo.setAlarmDelayTime(copy_defenseParaInfo.getAlarmDelayTime());
+			defenseParaInfo.setTimeframe(copy_defenseParaInfo.getTimeframe());
+			defenseParaInfo.setRemarks(copy_defenseParaInfo.getRemarks());
+			String[] sd=defenseParaInfo.getTimeframe().split(";");
+			for(int i=0;i<sd.length;i++){
+				//根据-拆分为每个时段的开始和结束时间
+				String[] time=sd[i].split("-");
+				model.addAttribute("timeStart"+(i+1),time[0]);
+				model.addAttribute("timeEnd"+(i+1),time[1]);
+			}
+			addMessage(redirectAttributes,"粘贴成功!");
+		}else{
+			addMessage(redirectAttributes,"暂未复制内容!");
+		}
+		model.addAttribute("accessDefenseInfo", defenseParaInfo);
+		return "modules/tbmj/defenseParaInfoForm";
+	}
+
+
+	/**
+	 * 复制数据
+	 */
+	@RequiresPermissions("tbmj:defenseParaInfo:edit")
+	@PostMapping(value = "copy")
+	@ResponseBody
+	public boolean copy(DefenseParaInfo defenseParaInfo,HttpServletRequest request,HttpServletResponse response,Model model) {
+		HttpSession session=request.getSession();
+
+		String start1=request.getParameter("timeStart1");
+		String start2=request.getParameter("timeStart2");
+		String start3=request.getParameter("timeStart3");
+		String start4=request.getParameter("timeStart4");
+		String end1=request.getParameter("timeEnd1");
+		String end2=request.getParameter("timeEnd2");
+		String end3=request.getParameter("timeEnd3");
+		String end4=request.getParameter("timeEnd4");
+		String str=start1+"-"+end1+";"+start2+"-"+end2+";"+start3+"-"+end3+";"+start4+"-"+end4+";";
+
+		defenseParaInfo.setTimeframe(str);
+
+
+		DefenseParaInfo copy_defenseParaInfo=new DefenseParaInfo();
+		copy_defenseParaInfo.setDefensePos(defenseParaInfo.getDefensePos());
+		copy_defenseParaInfo.setDefenseAreaType(defenseParaInfo.getDefenseAreaType());
+		copy_defenseParaInfo.setDefenseAreaBypass(defenseParaInfo.getDefenseAreaBypass());
+		copy_defenseParaInfo.setDefenseAreaAttr(defenseParaInfo.getDefenseAreaAttr());
+		copy_defenseParaInfo.setAlarmDelayTime(defenseParaInfo.getAlarmDelayTime());
+		copy_defenseParaInfo.setTimeframe(defenseParaInfo.getTimeframe());
+		copy_defenseParaInfo.setRemarks(defenseParaInfo.getRemarks());
+		session.setAttribute("copy_defenseParaInfo",copy_defenseParaInfo);
+		return true;
+	}
+
 
 	/**
 	 * 查看编辑表单

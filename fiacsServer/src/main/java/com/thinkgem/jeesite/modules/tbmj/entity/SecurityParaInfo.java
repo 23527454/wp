@@ -35,6 +35,16 @@ public class SecurityParaInfo extends DataEntity<SecurityParaInfo> {
 	private String allowBatteryAlarm;		// 允许电池低电压
 	private String remarks;					//备注信息
 
+	private String equipmentId;
+
+	public String getEquipmentId() {
+		return equipmentId;
+	}
+
+	public void setEquipmentId(String equipmentId) {
+		this.equipmentId = equipmentId;
+	}
+
 	@Override
 	public String getRemarks() {
 		return remarks;

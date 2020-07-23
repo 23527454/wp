@@ -4,9 +4,11 @@
 
 	<sql id="downloadTimezoneInfoColumns">
 		a.id AS "id",
-		t.id AS "timezoneInfoId",
-		a.access_para_info_id AS "accessParaInfoId",
-		a4.door_pos AS "accessParaInfo.doorPos",
+		t.id AS "timezoneParaInfoId",
+		a.equipment_id AS "equipmentId",
+		t.door_pos AS "accessParaInfo.doorPos",
+		t.timezone_type AS "timezoneInfo.timeZoneType",
+		t.timezone_num AS "timezoneInfo.timeZoneNum",
 		eq.id AS "equipment.id",
 		a.register_time AS "registerTime",
 		a.download_time AS "downloadTime",
@@ -18,16 +20,15 @@
 	</sql>
 
 	<sql id="downloadTimezoneInfoJoins">
-		inner JOIN tbmj_access_para_info a4 ON a4.id = a.access_para_info_id
-		inner JOIN guard_equipment eq on eq.id = a4.equipment_id
+		inner JOIN guard_equipment eq on eq.id = a.equipment_id
 		inner JOIN sys_office o3 ON o3.id = eq.office_id
-		inner JOIN tbmj_timezone_info t ON t.id = a.timezone_info_id
+		inner JOIN tbmj_timezone_info t ON t.id = a.timezone_para_info_id
 	</sql>
 
 	<select id="get" resultType="DownloadTimezoneInfo">
 		SELECT
 		<include refid="downloadTimezoneInfoColumns" />
-		FROM tbmj_download_timezone_info a
+		FROM tbmj_download_timezone_para_info a
 		<include refid="downloadTimezoneInfoJoins" />
 		WHERE a.id = #{id}
 	</select>
@@ -35,7 +36,7 @@
 	<select id="findList" resultType="DownloadTimezoneInfo">
 		SELECT
 		<include refid="downloadTimezoneInfoColumns" />
-		FROM tbmj_download_timezone_info a
+		FROM tbmj_download_timezone_para_info a
 
 		<include refid="downloadTimezoneInfoJoins" />
 		<where>
@@ -71,7 +72,7 @@
 	<select id="findAllList" resultType="DownloadTimezoneInfo">
 		SELECT
 		<include refid="downloadTimezoneInfoColumns" />
-		FROM tbmj_download_timezone_info a
+		FROM tbmj_download_timezone_para_info a
 		<include refid="downloadTimezoneInfoJoins" />
 		<where>
 
@@ -88,23 +89,23 @@
 	</select>
 
 	<select id="countByEntity" resultType="int">
-		select count(1) from tbmj_download_timezone_info where
-		timezone_info_id=#{timezoneInfoId} AND access_para_info_id= #{accessParaInfoId}
+		select count(1) from tbmj_download_timezone_para_info where
+		timezone_para_info_id=#{timezoneParaInfoId} AND equipment_id= #{equipmentId}
 		AND download_type=#{downloadType}
 		AND is_download=#{isDownload} 
 	</select>
 	<insert id="insert" useGeneratedKeys="true" keyProperty="id">
 		INSERT INTO
-		tbmj_download_timezone_info(
-		timezone_info_id,
-		access_para_info_id,
+		tbmj_download_timezone_para_info(
+		timezone_para_info_id,
+		equipment_id,
 		register_time,
 		download_time,
 		is_download,
 		download_type
 		) VALUES (
-		#{timezoneInfoId},
-		#{accessParaInfoId},
+		#{timezoneParaInfoId},
+		#{equipmentId},
 		#{registerTime},
 		#{downloadTime},
 		#{isDownload},
@@ -113,26 +114,26 @@
 	</insert>
 
 	<update id="update">
-		UPDATE tbmj_download_timezone_info SET
-		timezone_info_id =
-		#{timezoneInfoId}
+		UPDATE tbmj_download_timezone_para_info SET
+		timezone_para_info_id =
+		#{timezoneParaInfoId}
 		WHERE id = #{id}
 	</update>
 
 	<update id="delete">
-		<!-- UPDATE tbmj_download_timezone_info SET download_type ='2' WHERE id = #{id} -->
+		<!-- UPDATE tbmj_download_timezone_para_info SET download_type ='2' WHERE id = #{id} -->
 
-		DELETE FROM tbmj_download_timezone_info
+		DELETE FROM tbmj_download_timezone_para_info
 		WHERE id = #{id}
 	</update>
 	<update id="delete1">
-		<!-- UPDATE tbmj_download_timezone_info SET download_type ='2' WHERE id = #{id} -->
+		<!-- UPDATE tbmj_download_timezone_para_info SET download_type ='2' WHERE id = #{id} -->
 
-		DELETE FROM tbmj_download_timezone_info
-		WHERE timezone_info_id = #{timezoneInfoId} and
+		DELETE FROM tbmj_download_timezone_para_info
+		WHERE timezone_para_info_id = #{timezoneParaInfoId} and
 		is_download=#{isDownload}
-		<if test="accessParaInfoId!=null and accessParaInfoId!=''">
-			and access_para_info_id=#{accessParaInfoId}
+		<if test="equipmentId!=null and equipmentId!=''">
+			and equipment_id=#{equipmentId}
 		</if>
 	</update>
 

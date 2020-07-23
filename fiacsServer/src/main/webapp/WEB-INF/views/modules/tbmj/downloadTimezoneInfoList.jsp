@@ -65,6 +65,8 @@
 		<th style="width: 30px;">序号</th>
 		<th>网点</th>
 		<th>门号</th>
+		<th>时区类型</th>
+		<th>时区号</th>
 		<th>同步时间</th>
 		<th>同步类型</th>
 		<th>同步状态</th>
@@ -76,8 +78,9 @@
 		<tr is-download="${downloadTimezoneInfo.isDownload}">
 			<td style="text-align: center;">${varStatus.count }</td>
 			<td>${downloadTimezoneInfo.office.name}</td>
-			<td>${fns:getDictLabel(downloadTimezoneInfo.accessParaInfo.doorPos, 'door_pos', '')}
-			</td>
+			<td>${fns:getDictLabel(downloadTimezoneInfo.accessParaInfo.doorPos, 'door_pos', '')}</td>
+			<td>${fns:getDictLabel(downloadTimezoneInfo.timezoneInfo.timeZoneType, 'time_zone_type', '')}</td>
+			<td>${fns:getDictLabel(downloadTimezoneInfo.accessParaInfo.timeZoneNum, 'time_zone_num', '')}</td>
 			<td>${downloadTimezoneInfo.downloadTime}</td>
 			<td>${fns:getDictLabel(downloadTimezoneInfo.isDownload, 'isDownload', '')}
 			</td>

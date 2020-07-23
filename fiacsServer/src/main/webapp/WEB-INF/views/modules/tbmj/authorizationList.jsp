@@ -110,7 +110,6 @@
 
 	<div class="form-group">
 		<input id="btnSubmit" class="btn btn-primary" type="submit" value="查询" />
-		<input id="btnExport" class="btn btn-primary" type="button" value="导出" />
 		<input id="btnDownload" class="btn btn-primary" type="button" value="同步"/>
 		<shiro:hasPermission name="tbmj:authorization:edit">
 			<input id="btnAdd" class="btn btn-primary" type="button" value="人员添加" />

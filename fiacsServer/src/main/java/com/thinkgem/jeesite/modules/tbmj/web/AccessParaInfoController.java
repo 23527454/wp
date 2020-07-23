@@ -29,6 +29,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import java.util.Date;
 import java.util.List;
 
@@ -125,17 +126,17 @@ public class AccessParaInfoController extends BaseController {
 		return "redirect:" + Global.getAdminPath() + "/tbmj/accessParaInfo/?repage";
 	}
 
+
+
 	/**
 	 * 查询列表
 	 */
 	@RequiresPermissions("tbmj:accessParaInfo:view")
 	@RequestMapping(value = {"list", ""})
 	public String list(AccessParaInfo accessParaInfo, HttpServletRequest request, HttpServletResponse response, Model model) {
-
 		if(accessParaInfo!=null && accessParaInfo.getId()!=null && !accessParaInfo.getId().equals("")){
 			accessParaInfo=accessParaInfoService.get(accessParaInfo.getId());
 			Equipment equipment=equipmentService.get(String.valueOf(accessParaInfo.getEquipmentId()));
-			//model.addAttribute("officeId",equipment.getOffice().getId());
 		}
 
 		model.addAttribute("accessParaInfo",accessParaInfo);
@@ -155,14 +156,118 @@ public class AccessParaInfoController extends BaseController {
 	}*/
 
 	/**
+	 * 粘贴数据
+	 */
+	@RequiresPermissions("tbmj:accessParaInfo:edit")
+	@PostMapping(value = "paste")
+	//@ResponseBody
+	public String paste(AccessParaInfo accessParaInfo, HttpServletRequest request, HttpServletResponse response, Model model, RedirectAttributes redirectAttributes) {
+		HttpSession session=request.getSession();
+
+		AccessParaInfo copy_accessParaInfo=(AccessParaInfo)session.getAttribute("copy_accessParaInfo");
+		if(copy_accessParaInfo!=null){
+			
+			accessParaInfo.setDoorRelayTime(copy_accessParaInfo.getDoorRelayTime());
+			accessParaInfo.setDoorDelayTime(copy_accessParaInfo.getDoorDelayTime());
+			accessParaInfo.setEnterOperaTime(copy_accessParaInfo.getEnterOperaTime());
+			accessParaInfo.setCheckOperaTime(copy_accessParaInfo.getCheckOperaTime());
+			accessParaInfo.setOutTipsTime(copy_accessParaInfo.getOutTipsTime());
+			accessParaInfo.setAlarmIntervalTime(copy_accessParaInfo.getAlarmIntervalTime());
+			accessParaInfo.setRemoteOverTime(copy_accessParaInfo.getRemoteOverTime());
+			accessParaInfo.setAuthType(copy_accessParaInfo.getAuthType());
+			accessParaInfo.setCenterPermit(copy_accessParaInfo.getCenterPermit());
+			accessParaInfo.setCombNum(copy_accessParaInfo.getCombNum());
+			accessParaInfo.setBase1(copy_accessParaInfo.getBase1());
+			accessParaInfo.setBase2(copy_accessParaInfo.getBase2());
+			accessParaInfo.setBase3(copy_accessParaInfo.getBase3());
+			accessParaInfo.setBase4(copy_accessParaInfo.getBase4());
+			accessParaInfo.setBase5(copy_accessParaInfo.getBase5());
+			accessParaInfo.setBase6(copy_accessParaInfo.getBase6());
+			accessParaInfo.setWorkTime1(copy_accessParaInfo.getWorkTime1());
+			accessParaInfo.setWorkTime2(copy_accessParaInfo.getWorkTime2());
+			accessParaInfo.setNetOutAge1(copy_accessParaInfo.getNetOutAge1());
+			accessParaInfo.setNetOutAge2(copy_accessParaInfo.getNetOutAge2());
+			addMessage(redirectAttributes,"粘贴成功!");
+		}else{
+			addMessage(redirectAttributes,"暂未复制内容!");
+		}
+
+		List<Dict> hglist=dictService.findListByType2("high_group","lead_group");
+		model.addAttribute("hglist", hglist);
+		model.addAttribute("accessParaInfo", accessParaInfo);
+		return "modules/tbmj/accessParaInfoForm";
+	}
+
+	/**
+	 * 复制数据
+	 */
+	@RequiresPermissions("tbmj:accessParaInfo:edit")
+	@PostMapping(value = "copy")
+	@ResponseBody
+	public boolean copy(AccessParaInfo accessParaInfo,HttpServletRequest request,HttpServletResponse response,Model model) {
+		HttpSession session=request.getSession();
+
+		int i=0;
+		if(!accessParaInfo.getBase1().equals("0")){
+			i++;
+		}
+		if(!accessParaInfo.getBase2().equals("0")){
+			i++;
+		}
+		if(!accessParaInfo.getBase3().equals("0")){
+			i++;
+		}
+		if(!accessParaInfo.getBase4().equals("0")){
+			i++;
+		}
+		if(!accessParaInfo.getBase5().equals("0")){
+			i++;
+		}
+		if(!accessParaInfo.getBase6().equals("0")){
+			i++;
+		}
+		if(i>2||i==0){
+			i=2;
+		}
+		accessParaInfo.setCombNum(i);
+
+		AccessParaInfo copy_accessParaInfo=new AccessParaInfo();
+		copy_accessParaInfo.setDoorRelayTime(accessParaInfo.getDoorRelayTime());
+		copy_accessParaInfo.setDoorDelayTime(accessParaInfo.getDoorDelayTime());
+		copy_accessParaInfo.setEnterOperaTime(accessParaInfo.getEnterOperaTime());
+		copy_accessParaInfo.setCheckOperaTime(accessParaInfo.getCheckOperaTime());
+		copy_accessParaInfo.setOutTipsTime(accessParaInfo.getOutTipsTime());
+		copy_accessParaInfo.setAlarmIntervalTime(accessParaInfo.getAlarmIntervalTime());
+		copy_accessParaInfo.setRemoteOverTime(accessParaInfo.getRemoteOverTime());
+		copy_accessParaInfo.setAuthType(accessParaInfo.getAuthType());
+		copy_accessParaInfo.setCenterPermit(accessParaInfo.getCenterPermit());
+		copy_accessParaInfo.setCombNum(accessParaInfo.getCombNum());
+		copy_accessParaInfo.setBase1(accessParaInfo.getBase1());
+		copy_accessParaInfo.setBase2(accessParaInfo.getBase2());
+		copy_accessParaInfo.setBase3(accessParaInfo.getBase3());
+		copy_accessParaInfo.setBase4(accessParaInfo.getBase4());
+		copy_accessParaInfo.setBase5(accessParaInfo.getBase5());
+		copy_accessParaInfo.setBase6(accessParaInfo.getBase6());
+		copy_accessParaInfo.setWorkTime1(accessParaInfo.getWorkTime1());
+		copy_accessParaInfo.setWorkTime2(accessParaInfo.getWorkTime2());
+		copy_accessParaInfo.setNetOutAge1(accessParaInfo.getNetOutAge1());
+		copy_accessParaInfo.setNetOutAge2(accessParaInfo.getNetOutAge2());
+
+
+		session.setAttribute("copy_accessParaInfo",copy_accessParaInfo);
+		return true;
+	}
+
+	/**
 	 * 查看编辑表单
 	 */
 	@RequiresPermissions("tbmj:accessParaInfo:view")
 	@RequestMapping(value = "form")
-	public String form(AccessParaInfo accessParaInfo, Model model) {
-		accessParaInfo=accessParaInfoService.get(accessParaInfo.getId());
+	public String form(AccessParaInfo accessParaInfo,HttpServletRequest request, Model model) {
+		HttpSession session=request.getSession();
 		List<Dict> hglist=dictService.findListByType2("high_group","lead_group");
 		model.addAttribute("hglist", hglist);
+		accessParaInfo=accessParaInfoService.get(accessParaInfo.getId());
 		model.addAttribute("accessParaInfo", accessParaInfo);
 		return "modules/tbmj/accessParaInfoForm";
 	}
@@ -175,25 +280,25 @@ public class AccessParaInfoController extends BaseController {
 	public String save(@Validated AccessParaInfo accessParaInfo, BindingResult result, Model model, RedirectAttributes redirectAttributes) {
 		try {
 			int i=0;
-			if(!accessParaInfo.getBase1().equals("00")){
+			if(!accessParaInfo.getBase1().equals("0")){
 				i++;
 			}
-			if(!accessParaInfo.getBase2().equals("00")){
+			if(!accessParaInfo.getBase2().equals("0")){
 				i++;
 			}
-			if(!accessParaInfo.getBase3().equals("00")){
+			if(!accessParaInfo.getBase3().equals("0")){
 				i++;
 			}
-			if(!accessParaInfo.getBase4().equals("00")){
+			if(!accessParaInfo.getBase4().equals("0")){
 				i++;
 			}
-			if(!accessParaInfo.getBase5().equals("00")){
+			if(!accessParaInfo.getBase5().equals("0")){
 				i++;
 			}
-			if(!accessParaInfo.getBase6().equals("00")){
+			if(!accessParaInfo.getBase6().equals("0")){
 				i++;
 			}
-			if(i>2){
+			if(i>2||i==0){
 				i=2;
 			}
 			accessParaInfo.setCombNum(i);

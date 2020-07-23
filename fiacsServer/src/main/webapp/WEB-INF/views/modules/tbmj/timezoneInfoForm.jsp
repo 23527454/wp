@@ -47,10 +47,22 @@
 	<ul class="nav nav-tabs">
 		<li><a href="${ctx}/tbmj/accessParaInfo/">时区信息列表</a></li>
 	</ul>
-	<br />
 	<form:form id="inputForm" modelAttribute="timezoneInfo"
 			   action="${ctx}/tbmj/timezoneInfo/save" method="post"
 			   class="form-horizontal">
+		<div class="row">
+			<div style="margin-left:10px;margin-top:10px;">
+				<shiro:hasPermission name="tbmj:timezoneInfo:edit">
+					<input id="btnSubmit" class="btn btn-primary" type="submit"
+						   value="保 存"/>
+					<input id="btnCopy" class="btn btn-primary" type="button"
+						   value="复 制" />&nbsp;
+				</shiro:hasPermission>
+				<input id="btnCancel" class="btn" type="button" value="返 回"
+					   onclick="history.go(-1)" />
+			</div>
+		</div>
+		<br>
 		<%--type="hidden" name="id" value="${id}" id="id"--%>
 		<input:hidden path="id" />
 		<input:hidden path="equipment.id" />
@@ -126,15 +138,6 @@
 			<div class="col-xs-2">
 				<form:textarea path="remarks" htmlEscape="false" rows="4"
 							   maxlength="255" class="input-xxlarge " />
-			</div>
-		</div>
-		<div class="form-group">
-			<div class="col-xs-offset-2 col-xs-10">
-				<shiro:hasPermission name="tbmj:timezoneInfo:edit">
-					<input id="btnSubmit" class="btn btn-primary" type="submit" value="保 存"/>
-					<input id="btnCopy" class="btn btn-primary" type="button" value="复 制"/>
-				</shiro:hasPermission>
-				<a id="btnCancel" href="${ctx}/tbmj/timezoneInfo/" class="btn btn-default" >返回</a>
 			</div>
 		</div>
 	</form:form>

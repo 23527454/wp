@@ -49,6 +49,19 @@
                             }
                         });
 
+
+                $("#btnCopy").on('click',function () {
+                    $.post("${ctx}/tbmj/securityParaInfo/copy",$("#inputForm").serialize(),function (data) {
+                        alert("复制成功!");
+                    });
+                });
+
+                $("#btnPaste").on('click',function () {
+                    $("#inputForm").attr("action","${ctx}/tbmj/securityParaInfo/paste");
+                    $("#inputForm").submit();
+                    $("#inputForm").attr("action","${ctx}/tbmj/securityParaInfo/save");
+                });
+
             });
 
 
@@ -61,12 +74,29 @@
         <li class="active"><a
                 href="${ctx}/tbmj/securityParaInfo/form?id=${securityParaInfo.id}">防盗信息</a></li>
     </ul>
-    <br/>
     <form:form id="inputForm" modelAttribute="securityParaInfo"
                action="${ctx}/tbmj/securityParaInfo/save" method="post"
                class="form-horizontal">
+
+    <div class="row">
+        <div style="margin-left:10px;margin-top:10px;">
+            <shiro:hasPermission name="tbmj:securityParaInfo:edit">
+                <input id="btnSubmit" class="btn btn-primary" type="submit"
+                       value="保 存"/>
+            </shiro:hasPermission>
+            <input id="btnCancel" class="btn" type="button" value="返 回"
+                   onclick="history.go(-1)" />
+            <shiro:hasPermission name="tbmj:securityParaInfo:edit">
+                <input id="btnCopy" class="btn btn-primary" type="button" style="margin-left: 5%"
+                       value="复 制"/>&nbsp;
+                <input id="btnPaste" class="btn btn-primary" type="button"
+                       value="粘 贴"/>&nbsp;
+            </shiro:hasPermission>
+        </div>
+    </div>
+    <br/>
     <form:hidden path="id" id="accessParaInfo_id"/>
-    <form:hidden path="equipment.id" id="equipment_id"/>
+    <form:hidden path="equipmentId" id="equipment_id"/>
     <sys:message content="${message}"/>
     <div class="form-group">
         <label class="control-label col-xs-2"><font class="red">*</font>布防离开等待时间:</label>
@@ -212,14 +242,6 @@
             <form:textarea path="remarks" htmlEscape="false" rows="4"
                            maxlength="255" class="input-xxlarge " />
         </div>
-    </div>
-</div>
-<div class="form-group">
-    <div class="col-xs-offset-2 col-xs-10">
-        <shiro:hasPermission name="tbmj:securityParaInfo:edit">
-            <input id="btnSubmit" class="btn btn-primary" type="submit"
-                   value="保 存"/>&nbsp;</shiro:hasPermission>
-        <a id="btnCancel" href="${ctx}/tbmj/securityParaInfo/" class="btn btn-default">返回</a>
     </div>
 </div>
 </form:form>

@@ -17,8 +17,9 @@ import java.util.List;
 public class DownloadTimezoneInfo extends DownloadEntity<DownloadTimezoneInfo> {
 
 	private static final long serialVersionUID = 1L;
-	private String timezoneInfoId;		// 时区ID
+	private String timezoneParaInfoId;		// 时区ID
 	private String accessParaInfoId;		// 门禁ID
+	private String equipmentId;		// 设备ID
 
 	private TimezoneInfo timezoneInfo;
 	private AccessParaInfo accessParaInfo;
@@ -36,12 +37,20 @@ public class DownloadTimezoneInfo extends DownloadEntity<DownloadTimezoneInfo> {
 		super(id);
 	}
 
-	public String getTimezoneInfoId() {
-		return timezoneInfoId;
+	public String getTimezoneParaInfoId() {
+		return timezoneParaInfoId;
 	}
 
-	public void setTimezoneInfoId(String timezoneInfoId) {
-		this.timezoneInfoId = timezoneInfoId;
+	public void setTimezoneParaInfoId(String timezoneParaInfoId) {
+		this.timezoneParaInfoId = timezoneParaInfoId;
+	}
+
+	public String getEquipmentId() {
+		return equipmentId;
+	}
+
+	public void setEquipmentId(String equipmentId) {
+		this.equipmentId = equipmentId;
 	}
 
 	public String getAccessParaInfoId() {
