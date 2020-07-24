@@ -857,37 +857,68 @@ var warkNumber = 1;
 				
 			</div>
 			<div class="row">
-			    <div class="col-xs-4">
-                    <div class="form-group">
-                        <label class="control-label col-xs-4">密&nbsp;&nbsp;&nbsp;码：</label>
-                        <div class="col-xs-5">
-                            <form:input path="fingerInfoList[0].pwd" htmlEscape="false"
-                                class="form-control input-sm" style="width:158px;"/>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-xs-4">
-                					<div class="form-group">
-                						<label class="control-label col-xs-4"><font class="red">*</font>人员类型：</label>
-
-                							<div class="radio-inline" style="margin-top:-8px;">
-                								<form:input path="staffType" id="radio_hidden" type="hidden" />
-                									<label class="control-label"><input type="radio" name="radio" value="0">押款员</label>
-                									<label class="control-label"><input type="radio" name="radio" value="1"> 交接员</label>
-                									<label class="control-label"><input type="radio" name="radio" value="2"> 维保员</label>
-                						</div>
-                					</div>
-                				</div>
-				<%--<div class="col-xs-4">
+				<div class="col-xs-4">
 					<div class="form-group">
-						<label class="control-label col-xs-4"><font class="red">*</font>接警号码：</label>
+						<label class="control-label col-xs-4">密&nbsp;&nbsp;&nbsp;码：</label>
 						<div class="col-xs-5">
-							<form:input path="fingerInfoList[0].phoneNum" htmlEscape="false"
+							<form:input path="fingerInfoList[0].pwd" htmlEscape="false"
 										class="form-control input-sm" style="width:158px;"/>
 						</div>
 					</div>
-				</div>--%>
+				</div>
+
+				<div class="col-xs-4">
+					<div class="form-group">
+						<label class="control-label col-xs-4"><font class="red">*</font>人员类型：</label>
+
+						<div class="radio-inline" style="margin-top:-8px;">
+							<form:input path="staffType" id="radio_hidden" type="hidden" />
+							<label class="control-label"><input type="radio" name="radio" value="0">押款员</label>
+							<label class="control-label"><input type="radio" name="radio" value="1"> 交接员</label>
+							<label class="control-label"><input type="radio" name="radio" value="2"> 维保员</label>
+						</div>
+					</div>
+				</div>
+				<div class="col-xs-4">
+					<div class="form-group">
+						<label class="control-label col-xs-4"><font class="red">*</font>接警号码：</label>
+						<div class="col-xs-5">
+
+							<form:input path="phoneNum" htmlEscape="false" maxlength="18"
+										id="phoneNum" class="form-control input-sm required"
+										data-validate="validateName" style="width:158px;"/>
+
+							<form:errors path="phoneNum" cssClass="error"></form:errors>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-xs-4">
+					<div class="form-group">
+						<label class="control-label col-xs-4">接警手机级别：</label>
+						<div class="col-xs-5">
+							<form:select path="alarmGrade" class="form-control input-sm required"
+										 style="width:160px;">
+								<form:options items="${fns:getDictList('alarm_grade')}"
+											  itemLabel="label" itemValue="value" htmlEscape="false"/>
+							</form:select>
+						</div>
+					</div>
+				</div>
+
+				<div class="col-xs-4">
+					<div class="form-group">
+						<label class="control-label col-xs-4"><font class="red">*</font>门权限：</label>
+						<div class="col-xs-5">
+							<form:select path="doorPom" class="form-control input-sm"
+										 style="width:160px;">
+								<form:options items="${fns:getDictList('yes_no')}"
+											  itemLabel="label" itemValue="value" htmlEscape="false" />
+							</form:select>
+						</div>
+					</div>
+				</div>
 			</div>
 			<div class="row">
 			<div class="col-xs-4">

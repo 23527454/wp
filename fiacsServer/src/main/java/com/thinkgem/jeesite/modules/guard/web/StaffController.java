@@ -55,6 +55,8 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * 人员信息管理Controller
@@ -494,6 +496,17 @@ public class StaffController extends BaseController {
 		}
 		if(staffService.countByIdentifyNumber(staff.getId(), staff.getIdentifyNumber()) > 0) {
 			result.rejectValue("identifyNumber", "duplicate", "证件号码已经存在");
+		}
+		String regex = "^((13[0-9])|(14[5|7])|(15([0-3]|[5-9]))|(17[013678])|(18[0,5-9]))\\d{8}$";
+		if(staff.getPhoneNum().length() != 11){
+			result.rejectValue("phoneNum", "duplicate", "手机号应为11位数");
+		}else{
+			Pattern p = Pattern.compile(regex);
+			Matcher m = p.matcher(staff.getPhoneNum());
+			boolean isMatch = m.matches();
+			if(!isMatch){
+				result.rejectValue("phoneNum", "duplicate", "手机号格式不正确");
+			}
 		}
 		
 		if(!CollectionUtils.isEmpty( staff.getFingerInfoList())) {

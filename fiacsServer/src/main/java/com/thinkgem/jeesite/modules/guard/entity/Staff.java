@@ -51,8 +51,36 @@ public class Staff extends DataEntity<Staff> {
 	private String classTaskId;
 	private String imagePath;
 	private List<Company> companyIds;
+
+	private String phoneNum;
+	private String alarmGrade="0";
+	private String doorPom="1";
  
 	private List<String> compIds;
+
+	public String getPhoneNum() {
+		return phoneNum;
+	}
+
+	public void setPhoneNum(String phoneNum) {
+		this.phoneNum = phoneNum;
+	}
+
+	public String getAlarmGrade() {
+		return alarmGrade;
+	}
+
+	public void setAlarmGrade(String alarmGrade) {
+		this.alarmGrade = alarmGrade;
+	}
+
+	public String getDoorPom() {
+		return doorPom;
+	}
+
+	public void setDoorPom(String doorPom) {
+		this.doorPom = doorPom;
+	}
 
 	public List<String> getCompIds() {
 		return compIds;
