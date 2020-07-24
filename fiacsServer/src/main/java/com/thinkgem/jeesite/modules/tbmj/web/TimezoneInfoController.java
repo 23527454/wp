@@ -12,6 +12,7 @@ import com.thinkgem.jeesite.common.web.BaseController;
 import com.thinkgem.jeesite.modules.guard.entity.DownloadEntity;
 import com.thinkgem.jeesite.modules.guard.entity.Equipment;
 import com.thinkgem.jeesite.modules.guard.service.EquipmentService;
+import com.thinkgem.jeesite.modules.sys.entity.Dict;
 import com.thinkgem.jeesite.modules.sys.service.DictService;
 import com.thinkgem.jeesite.modules.tbmj.entity.AccessParaInfo;
 import com.thinkgem.jeesite.modules.tbmj.entity.DownloadTimezoneInfo;
@@ -26,15 +27,13 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * access_door_timezoneController
@@ -178,6 +177,94 @@ public class TimezoneInfoController extends BaseController {
 		return "modules/tbmj/timezoneInfoList";
 	}
 
+	/**
+	 * 弹出添加时区的框
+	 * @param accessParaInfoId
+	 * @param timeZoneType
+	 * @param modelAndView
+	 * @param model
+	 * @return
+	 */
+	@RequiresPermissions("tbmj:timezoneInfo:view")
+	@RequestMapping(value = "toAddPage")
+	public ModelAndView toAddPage(String accessParaInfoId,String timeZoneType, ModelAndView modelAndView, Model model) {
+		model.addAttribute("accessParaInfoId",accessParaInfoId);
+		model.addAttribute("timeZoneType",timeZoneType);
+		modelAndView.setViewName("modules/tbmj/addTimezoneInfoPage");//跳转到这个jsp页面来渲染表格
+		return modelAndView;
+	}
+
+	/**
+	 * 添加时区
+	 */
+	@RequiresPermissions("tbmj:timezoneInfo:edit")
+	@PostMapping(value = "save2")
+	@Transactional
+	@ResponseBody
+	public Map<String,Object> save2(TimezoneInfo timezoneInfo,String timezoneName,HttpServletRequest request, BindingResult result, Model model, RedirectAttributes redirectAttributes) {
+		Map<String, Object> map=new HashMap<>();
+		AccessParaInfo accessParaInfo = accessParaInfoService.get(timezoneInfo.getAccessParaInfoId());
+		Equipment equipment = equipmentService.get(String.valueOf(accessParaInfo.getEquipmentId()));
+
+		Integer num = 0;
+		String type = "";
+		String description = "";
+		Integer sort = 0;
+		if (timezoneInfo.getTimeZoneType().equals("1")) {
+			num = dictService.findMaxValueByType("time_zone_num_staff");
+			type = "time_zone_num_staff";
+			description = "人员时区号";
+			sort = dictService.findMaxSortByType("time_zone_num_staff");
+		} else {
+			num = dictService.findMaxValueByType("time_zone_num_drvice");
+			type = "time_zone_num_drvice";
+			description = "设备时区号";
+			sort = dictService.findMaxSortByType("time_zone_num_drvice");
+		}
+		try {
+			Dict dict = new Dict();
+			dict.setValue(String.valueOf(num + 1));
+			dict.setLabel(timezoneName);
+			dict.setType(type);
+			dict.setDescription(description);
+			dict.setSort(sort + 10);
+
+			Integer count=dictService.findCountByTypeAndLabel(type,timezoneName);
+			Integer count2=dictService.findCountByTypeAndLabel(type,null);
+			if(count==0 && count2<10){
+				dictService.save(dict);
+				TimezoneInfo timezoneInfo2 = new TimezoneInfo();
+				timezoneInfo2.setEquipment(equipment);
+				timezoneInfo2.setEquipmentId(equipment.getId());
+				timezoneInfo2.setAccessParaInfo(accessParaInfo);
+				timezoneInfo2.setDoorPos(accessParaInfo.getDoorPos());
+				timezoneInfo2.setTimeZoneType(timezoneInfo.getTimeZoneType());
+				timezoneInfo2.setTimeZoneNum(dict.getValue());
+				timezoneInfo2.setMon("00:00-00:00;00:00-00:00;00:00-00:00;00:00-00:00;");
+				timezoneInfo2.setTue("00:00-00:00;00:00-00:00;00:00-00:00;00:00-00:00;");
+				timezoneInfo2.setWed("00:00-00:00;00:00-00:00;00:00-00:00;00:00-00:00;");
+				timezoneInfo2.setThu("00:00-00:00;00:00-00:00;00:00-00:00;00:00-00:00;");
+				timezoneInfo2.setFri("00:00-00:00;00:00-00:00;00:00-00:00;00:00-00:00;");
+				timezoneInfo2.setSat("00:00-00:00;00:00-00:00;00:00-00:00;00:00-00:00;");
+				timezoneInfo2.setSun("00:00-00:00;00:00-00:00;00:00-00:00;00:00-00:00;");
+				timezoneInfoService.save(timezoneInfo2);
+
+				addMessage(redirectAttributes, "保存时区信息成功");
+				map.put("status","ok");
+				map.put("msg","保存时区信息成功！");
+			}else if(count2>=10){
+				map.put("status","max");
+				map.put("msg","此类型中的时区数量已达到上限！");
+			}else if(count!=0){
+				map.put("status","exist");
+				map.put("msg","该时区名在此类型中已存在！");
+			}
+		} catch (Exception e) {
+			map.put("status","exception");
+			map.put("msg","保存时区信息失败！异常信息："+e.getMessage());
+		}
+		return map;
+	}
 	/**
 	 * 查看编辑表单，修改时进入
 	 */

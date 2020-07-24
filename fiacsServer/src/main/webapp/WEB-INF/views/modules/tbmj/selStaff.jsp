@@ -44,7 +44,7 @@
             <label class="layui-form-label">时区号:</label>
             <div class="layui-input-inline">
                 <select name="timezoneInfoNum" id="timezoneInfoNum" lay-verify="required">
-                    <c:forEach items="${fns:getDictList('time_zone_num')}" var="dict" varStatus="status">
+                    <c:forEach items="${fns:getDictList('time_zone_num_staff')}" var="dict" varStatus="status">
                         <option value="${dict.value}">${dict.label}</option>
                     </c:forEach>
                 </select>

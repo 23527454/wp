@@ -104,5 +104,25 @@
 			del_flag = #{DEL_FLAG_DELETE}
 		WHERE id = #{id}
 	</update>
-	
+
+	<select id="findMaxValueByType" resultType="Integer">
+		select max(value)
+		from sys_dict
+		where type=#{type }
+	</select>
+
+	<select id="findMaxSortByType" resultType="Integer">
+		select max(sort)
+		from sys_dict
+		where type=#{type }
+	</select>
+
+	<select id="findCountByTypeAndLabel" resultType="Integer">
+		select count(1)
+		from sys_dict
+		where type=#{type }
+		<if test="label!=null and label!=''">
+			and label=#{label}
+		</if>
+	</select>
 </mapper>

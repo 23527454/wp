@@ -25,6 +25,16 @@ public class DictService extends CrudService<DictDao, Dict> {
 	@Autowired
 	private DictDao dictDao;
 
+	public Integer findMaxValueByType(String type){
+		return dictDao.findMaxValueByType(type);
+	}
+
+	public Integer findMaxSortByType(String type){
+		return dictDao.findMaxSortByType(type);
+	}
+
+	public Integer findCountByTypeAndLabel(String type, String label){ return dictDao.findCountByTypeAndLabel(type,label);}
+
 	public List<Dict> findListByType(String type){
 		return dictDao.findListByType(type);
 	}

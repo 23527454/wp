@@ -480,8 +480,8 @@ public class EquipmentController extends BaseController {
 					timezoneInfo2.setEquipmentId(equipment.getId());
 					timezoneInfo2.setAccessParaInfo(accessParaInfo);
 					timezoneInfo2.setDoorPos(accessParaInfo.getDoorPos());
-					timezoneInfo2.setTimeZoneType("1");
-					timezoneInfo2.setTimeZoneNum("2");
+					timezoneInfo2.setTimeZoneType("2");
+					timezoneInfo2.setTimeZoneNum("1");
 					timezoneInfo2.setMon("00:00-23:59;00:00-00:00;00:00-00:00;00:00-00:00;");
 					timezoneInfo2.setTue("00:00-23:59;00:00-00:00;00:00-00:00;00:00-00:00;");
 					timezoneInfo2.setWed("00:00-23:59;00:00-00:00;00:00-00:00;00:00-00:00;");

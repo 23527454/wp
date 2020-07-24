@@ -110,7 +110,7 @@
         <label class="control-label col-xs-2"><font class="red">*</font>时区号:</label>
         <div class="col-xs-2">
             <form:select path="timezoneInfoNum" cssClass="form-control input-sm">
-                <form:options items="${fns:getDictList('time_zone_num')}"
+                <form:options items="${fns:getDictList('time_zone_num_staff')}"
                               itemLabel="label" itemValue="value" htmlEscape="false"/>
             </form:select>
         </div>

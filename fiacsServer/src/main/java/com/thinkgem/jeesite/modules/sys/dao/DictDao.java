@@ -23,5 +23,11 @@ public interface DictDao extends CrudDao<Dict> {
 	public List<Dict> findListByType(String type);
 
 	public List<Dict> findListByType2(@Param("type1") String type1, @Param("type2")String type2);
+
+	public Integer findMaxValueByType(@Param("type") String type);
+
+	public Integer findMaxSortByType(@Param("type") String type);
+
+	public Integer findCountByTypeAndLabel(@Param("type") String type,@Param("label") String label);
 	
 }

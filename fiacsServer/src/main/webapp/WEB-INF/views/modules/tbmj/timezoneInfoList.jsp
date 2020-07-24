@@ -5,6 +5,8 @@
 	<title>门禁时区管理</title>
 	<meta name="decorator" content="default"/>
 	<script src="${ctxStatic}/jquery-session/jquery-session.js"></script>
+	<link rel="stylesheet" href="${ctxStatic}/layui/css/layui.css"  media="all">
+	<script type="text/javascript" src="${ctxStatic}/layui/layui.all.js"></script>
 	<script type="text/javascript">
 		$(document).ready(function() {
 			$("#btnExport").click(
@@ -45,6 +47,34 @@
 						}
 
 					});
+
+			$("#timeZoneType").on("change",function(){
+				$("#timeZoneNum").val("1");
+				$("#searchForm").submit();
+			});
+
+			$("#btnAdd").click(function(){
+				var accessParaInfoId=$("#accessParaInfoId").val();
+				if(accessParaInfoId!=""){
+					var type=$("#timeZoneType").text();
+					var accessParaInfoId=$("#accessParaInfoId").val();
+					var timeZoneType=$("#timeZoneType").val();
+					layer.open({
+						type: 2,
+						title: '添加时区号',
+						shadeClose: true,           //弹出框之外的地方是否可以点击
+						offset: 'auto',
+						area: ['28%', '28%'],
+						content: '${ctx}/tbmj/timezoneInfo/toAddPage?accessParaInfoId='+accessParaInfoId+'&timeZoneType='+timeZoneType
+					});
+				}else{
+					alert("请先选择一扇门!");
+				}
+
+				/*$("#searchForm").attr("action","${ctx}/tbmj/timezoneInfo/addTimezoneNum");
+				$("#searchForm").submit();
+				$("#searchForm").attr("action","${ctx}/tbmj/timezoneInfo/list");*/
+			});
 		});
 		function page(n,s){
 			$("#pageNo").val(n);
@@ -52,14 +82,6 @@
 			$("#searchForm").submit();
         	return false;
         }
-
-        /*function toAdd() {
-			var id=$("#aId").val();
-			var timeZoneNum=$("#timeZoneNum").val();
-			alert(timeZoneNum);
-			alert(id);
-			window.location.href="${ctx}/tbmj/timezoneInfo/form3?accessParaInfoId="+id;
-		}*/
 	</script>
 </head>
 <body>
@@ -80,12 +102,19 @@
 		</li>
 		<li><label>时区号：</label>
 			<form:select path="timeZoneNum" cssClass="form-control input-sm">
-				<form:options items="${fns:getDictList('time_zone_num')}"
-							  itemLabel="label" itemValue="value" htmlEscape="false" />
+                <c:if test="${timeZoneType=='1'}">
+                    <form:options items="${fns:getDictList('time_zone_num_staff')}"
+                                  itemLabel="label" itemValue="value" htmlEscape="false" />
+                </c:if>
+                <c:if test="${timeZoneType=='2'}">
+                    <form:options items="${fns:getDictList('time_zone_num_drvice')}"
+                                  itemLabel="label" itemValue="value" htmlEscape="false" />
+                </c:if>
 			</form:select>
 		</li>
-			<li class="btns"><input id="btnSubmit" class="btn btn-primary" type="submit" value="查询"/></li>
+			<li class="btns"><input id="btnSubmit" class="btn btn-primary" type="submit" value="查询" style="margin-left: 30px"/></li>
 			<li class="btns"><input id="btnDownload" class="btn btn-primary" type="button" value="同步" /></li>
+			<li class="btns"><input id="btnAdd" class="btn btn-primary" type="button" value="新建时区" /></li>
 	</ul>
 	</form:form>
 	<sys:message content="${message}"/>
