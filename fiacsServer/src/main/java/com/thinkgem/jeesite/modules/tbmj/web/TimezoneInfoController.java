@@ -474,13 +474,68 @@ public class TimezoneInfoController extends BaseController {
 		return "modules/tbmj/timezoneInfoForm";
 	}
 
+	/**
+	 * 粘贴数据
+	 */
+	@RequiresPermissions("tbmj:timezoneInfo:edit")
+	@PostMapping(value = "paste")
+	//@ResponseBody
+	public String paste(TimezoneInfo timezoneInfo, HttpServletRequest request, HttpServletResponse response, Model model, RedirectAttributes redirectAttributes) {
+		HttpSession session=request.getSession();
+		TimezoneInfo copy_timezoneInfo=(TimezoneInfo)session.getAttribute("copy_timezoneInfo");
+		if(copy_timezoneInfo!=null){
+			timezoneInfo.setTime2(copy_timezoneInfo.getTime2());
+			timezoneInfo.setRemarks(copy_timezoneInfo.getRemarks());
+
+			String[] sd=timezoneInfo.getTime2().split(";");
+			for(int i=0;i<sd.length;i++){
+				//根据-拆分为每个时段的开始和结束时间
+				String[] time=sd[i].split("-");
+				model.addAttribute("timeStart"+(i+1),time[0]);
+				model.addAttribute("timeEnd"+(i+1),time[1]);
+			}
+			addMessage(model,"粘贴成功!");
+		}else{
+			addMessage(model,"暂未复制内容!");
+		}
+		model.addAttribute("timezoneInfo", timezoneInfo);
+		return "modules/tbmj/timezoneInfoForm";
+	}
+
+
+	/**
+	 * 复制数据
+	 */
 	@RequiresPermissions("tbmj:timezoneInfo:edit")
 	@PostMapping(value = "copy")
-	public String copy(TimezoneInfo timezoneInfo, HttpServletRequest request, BindingResult result, Model model, RedirectAttributes redirectAttributes) {
+	//@ResponseBody
+	public String copy(TimezoneInfo timezoneInfo,HttpServletRequest request,HttpServletResponse response,Model model, RedirectAttributes redirectAttributes) {
 		HttpSession session=request.getSession();
-		session.setAttribute("timezoneInfo",timezoneInfo);
-		addMessage(redirectAttributes, "复制时区信息成功");
-		return "redirect:" + Global.getAdminPath() + "/tbmj/timezoneInfo/";
+		String start1=request.getParameter("timeStart1");
+		String start2=request.getParameter("timeStart2");
+		String start3=request.getParameter("timeStart3");
+		String start4=request.getParameter("timeStart4");
+		String end1=request.getParameter("timeEnd1");
+		String end2=request.getParameter("timeEnd2");
+		String end3=request.getParameter("timeEnd3");
+		String end4=request.getParameter("timeEnd4");
+		String str=start1+"-"+end1+";"+start2+"-"+end2+";"+start3+"-"+end3+";"+start4+"-"+end4+";";
+		String[] sd=str.split(";");
+		for(int i=0;i<sd.length;i++){
+			//根据-拆分为每个时段的开始和结束时间
+			String[] time=sd[i].split("-");
+			model.addAttribute("timeStart"+(i+1),time[0]);
+			model.addAttribute("timeEnd"+(i+1),time[1]);
+		}
+		TimezoneInfo copy_timezoneInfo=new TimezoneInfo();
+		copy_timezoneInfo.setTime2(str);
+		copy_timezoneInfo.setRemarks(timezoneInfo.getRemarks());
+		session.setAttribute("copy_timezoneInfo",copy_timezoneInfo);
+
+		addMessage(model,"复制成功!");
+		model.addAttribute("timezoneInfo",timezoneInfo);
+		return "modules/tbmj/timezoneInfoForm";
+		//return true;
 	}
 
 	/**

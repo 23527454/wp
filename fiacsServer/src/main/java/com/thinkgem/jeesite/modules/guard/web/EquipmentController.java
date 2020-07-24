@@ -212,13 +212,13 @@ public class EquipmentController extends BaseController {
 			equipment.setUploadEventSrvIp(copy_equipment.getUploadEventSrvIp());
 			equipment.setUploadEventSrvPort(copy_equipment.getUploadEventSrvPort());
 			equipment.setRemarks(copy_equipment.getRemarks());
-			addMessage(redirectAttributes,"粘贴成功!");
+			addMessage(model,"粘贴成功!");
 		}else{
-			addMessage(redirectAttributes,"暂未复制内容!");
+			addMessage(model,"暂未复制内容!");
 		}
 		model.addAttribute("equipment", equipment);
 
-		return backForm(equipment, model);
+		return "modules/guard/equipmentForm";
 	}
 
 
@@ -226,12 +226,15 @@ public class EquipmentController extends BaseController {
 	 * 复制数据
 	 */
 	@RequiresPermissions("guard:equipment:edit")
-	@PostMapping(value = "copy")
-	@ResponseBody
-	public boolean copy(Equipment equipment, HttpServletRequest request, HttpServletResponse response, Model model) {
+	@GetMapping(value = "copy")
+	//@ResponseBody
+	public String copy(Equipment equipment, HttpServletRequest request, HttpServletResponse response, Model model) {
 		HttpSession session=request.getSession();
 		session.setAttribute("copy_equipment",equipment);
-		return true;
+
+		addMessage(model,"复制成功!");
+		model.addAttribute("equipment",equipment);
+		return "modules/guard/equipmentForm";
 	}
 
 	@RequiresPermissions("guard:equipment:view")

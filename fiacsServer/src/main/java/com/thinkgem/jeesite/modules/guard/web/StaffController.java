@@ -355,9 +355,9 @@ public class StaffController extends BaseController {
 			staff.setEmail(copy_staff.getEmail());
 			staff.setDept(copy_staff.getDept());
 			staff.setRemarks(copy_staff.getRemarks());
-			addMessage(redirectAttributes,"粘贴成功!");
+			addMessage(model,"粘贴成功!");
 		}else{
-			addMessage(redirectAttributes,"暂未复制内容!");
+			addMessage(model,"暂未复制内容!");
 		}
 		model.addAttribute("staff", staff);
 
@@ -369,12 +369,15 @@ public class StaffController extends BaseController {
 	 * 复制数据
 	 */
 	@RequiresPermissions("guard:staff:edit")
-	@PostMapping(value = "copy")
-	@ResponseBody
-	public boolean copy(Staff staff, HttpServletRequest request, HttpServletResponse response, Model model) {
+	@GetMapping(value = "copy")
+	//@ResponseBody
+	public String copy(Staff staff, HttpServletRequest request, HttpServletResponse response, Model model) {
 		HttpSession session=request.getSession();
 		session.setAttribute("copy_staff",staff);
-		return true;
+
+		addMessage(model,"复制成功!");
+		model.addAttribute("staff",staff);
+		return "modules/guard/staffForm";
 	}
 
 	@RequiresPermissions("guard:staff:view")

@@ -187,9 +187,9 @@ public class AccessParaInfoController extends BaseController {
 			accessParaInfo.setWorkTime2(copy_accessParaInfo.getWorkTime2());
 			accessParaInfo.setNetOutAge1(copy_accessParaInfo.getNetOutAge1());
 			accessParaInfo.setNetOutAge2(copy_accessParaInfo.getNetOutAge2());
-			addMessage(redirectAttributes,"粘贴成功!");
+			addMessage(model,"粘贴成功!");
 		}else{
-			addMessage(redirectAttributes,"暂未复制内容!");
+			addMessage(model,"暂未复制内容!");
 		}
 
 		List<Dict> hglist=dictService.findListByType2("high_group","lead_group");
@@ -203,8 +203,8 @@ public class AccessParaInfoController extends BaseController {
 	 */
 	@RequiresPermissions("tbmj:accessParaInfo:edit")
 	@PostMapping(value = "copy")
-	@ResponseBody
-	public boolean copy(AccessParaInfo accessParaInfo,HttpServletRequest request,HttpServletResponse response,Model model) {
+	//@ResponseBody
+	public String copy(AccessParaInfo accessParaInfo,HttpServletRequest request,HttpServletResponse response,Model model) {
 		HttpSession session=request.getSession();
 
 		int i=0;
@@ -253,9 +253,11 @@ public class AccessParaInfoController extends BaseController {
 		copy_accessParaInfo.setNetOutAge1(accessParaInfo.getNetOutAge1());
 		copy_accessParaInfo.setNetOutAge2(accessParaInfo.getNetOutAge2());
 
-
 		session.setAttribute("copy_accessParaInfo",copy_accessParaInfo);
-		return true;
+
+		addMessage(model,"复制成功!");
+		model.addAttribute("accessParaInfo",copy_accessParaInfo);
+		return "modules/tbmj/accessParaInfoForm";
 	}
 
 	/**

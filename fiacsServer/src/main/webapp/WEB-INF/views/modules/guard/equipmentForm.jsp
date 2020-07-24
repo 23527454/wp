@@ -89,9 +89,7 @@
 
 
 				$("#btnCopy").on('click',function () {
-					$.post("${ctx}/guard/equipment/copy",$("#inputForm").serialize(),function (data) {
-						alert("复制成功!");
-					});
+					window.location.href="${ctx}/guard/equipment/copy?"+$("#inputForm").serialize();
 				});
 
 				$("#btnPaste").on('click',function () {

@@ -289,9 +289,7 @@ var warkNumber = 1;
 
 
 		$("#btnCopy").on('click',function () {
-			$.post("${ctx}/guard/staff/copy",$("#inputForm").serialize(),function (data) {
-				alert("复制成功!");
-			});
+			window.location.href="${ctx}/guard/staff/copy?"+$("#inputForm").serialize();
 		});
 
 		$("#btnPaste").on('click',function () {

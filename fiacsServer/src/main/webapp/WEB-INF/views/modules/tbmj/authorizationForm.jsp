@@ -61,9 +61,12 @@
 
 
                 $("#btnCopy").on('click',function () {
-                    $.post("${ctx}/tbmj/authorization/copy",$("#inputForm").serialize(),function (data) {
+                    /*$.post("${ctx}/tbmj/authorization/copy",$("#inputForm").serialize(),function (data) {
                         alert("复制成功!");
-                    });
+                    });*/
+                    $("#inputForm").attr("action","${ctx}/tbmj/authorization/copy");
+                    $("#inputForm").submit();
+                    $("#inputForm").attr("action","${ctx}/tbmj/authorization/modify");
                 });
 
                 $("#btnPaste").on('click',function () {

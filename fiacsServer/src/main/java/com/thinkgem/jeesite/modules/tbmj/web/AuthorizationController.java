@@ -238,9 +238,9 @@ public class AuthorizationController extends BaseController {
 			authorization.setPermissionGroup(copy_authorization.getPermissionGroup());
 			authorization.setCheckPom(copy_authorization.getCheckPom());
 			authorization.setRemarks(copy_authorization.getRemarks());
-			addMessage(redirectAttributes,"粘贴成功!");
+			addMessage(model,"粘贴成功!");
 		}else{
-			addMessage(redirectAttributes,"暂未复制内容!");
+			addMessage(model,"暂未复制内容!");
 		}
 		model.addAttribute("authorization", authorization);
 		return "modules/tbmj/authorizationForm";
@@ -252,8 +252,8 @@ public class AuthorizationController extends BaseController {
 	 */
 	@RequiresPermissions("tbmj:authorization:edit")
 	@PostMapping(value = "copy")
-	@ResponseBody
-	public boolean copy(Authorization authorization,HttpServletRequest request,HttpServletResponse response,Model model) {
+	//@ResponseBody
+	public String copy(Authorization authorization,HttpServletRequest request,HttpServletResponse response,Model model) {
 		HttpSession session=request.getSession();
 		Authorization copy_authorization=new Authorization();
 		copy_authorization.setTimezoneInfoNum(authorization.getTimezoneInfoNum());
@@ -262,7 +262,10 @@ public class AuthorizationController extends BaseController {
 		copy_authorization.setCheckPom(authorization.getCheckPom());
 		copy_authorization.setRemarks(authorization.getRemarks());
 		session.setAttribute("copy_authorization",copy_authorization);
-		return true;
+
+		addMessage(model,"复制成功!");
+		model.addAttribute("authorization",authorization);
+		return "modules/tbmj/authorizationForm";
 	}
 
 	/**
@@ -307,7 +310,7 @@ public class AuthorizationController extends BaseController {
 				authorization.setEquipment(equipment);
 				authorization.setDoorPos(accessParaInfo.getDoorPos());
 				if (authorizationService.getCountBySId(authorization.getStaffId(), String.valueOf(authorization.getEquipmentId()),authorization.getDoorPos()) >= 1) {
-					addMessage(redirectAttributes, "该用户已经存在");
+					//addMessage(redirectAttributes, "该用户已经存在");
 					return "3";
 				}
 				authorizationService.save(authorization);
@@ -332,10 +335,10 @@ public class AuthorizationController extends BaseController {
 				timezoneInfo.setSun("00:00-23:59;00:00-00:00;00:00-00:00;00:00-00:00;");
 				timezoneInfoService.save(timezoneInfo);
 
-				addMessage(redirectAttributes, "保存授权信息成功，请修改默认时区信息！");
+				//addMessage(redirectAttributes, "保存授权信息成功，请修改默认时区信息！");
 				return "2";
 			}else{
-				addMessage(redirectAttributes, "保存授权信息成功");
+				//addMessage(redirectAttributes, "保存授权信息成功");
 				return "1";
 			}
 		} catch (Exception e) {
@@ -392,10 +395,10 @@ public class AuthorizationController extends BaseController {
 				timezoneInfo.setSun("00:00-23:59;00:00-00:00;00:00-00:00;00:00-00:00;");
 				timezoneInfoService.save(timezoneInfo);
 
-				addMessage(redirectAttributes, "修改授权信息成功，请修改默认时区信息！");
+				//addMessage(redirectAttributes, "修改授权信息成功，请修改默认时区信息！");
 				return "2";
 			}else{
-				addMessage(redirectAttributes, "修改授权信息成功");
+				//addMessage(redirectAttributes, "修改授权信息成功");
 				return "1";
 			}
 		} catch (Exception e) {

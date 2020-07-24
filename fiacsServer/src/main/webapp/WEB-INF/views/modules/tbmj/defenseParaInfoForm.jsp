@@ -29,9 +29,13 @@
 
 
 					$("#btnCopy").on('click',function () {
-						$.post("${ctx}/tbmj/defenseParaInfo/copy",$("#inputForm").serialize(),function (data) {
+						/*$.post("${ctx}/tbmj/defenseParaInfo/copy",$("#inputForm").serialize(),function (data) {
 							alert("复制成功!");
-						});
+						});*/
+
+						$("#inputForm").attr("action","${ctx}/tbmj/defenseParaInfo/copy");
+						$("#inputForm").submit();
+						$("#inputForm").attr("action","${ctx}/tbmj/defenseParaInfo/save");
 					});
 
 					$("#btnPaste").on('click',function () {

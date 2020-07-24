@@ -34,6 +34,24 @@
 											form.submit();
 										}
 									});
+
+
+					$("#btnCopy").on('click',function () {
+						/*$.post("${ctx}/tbmj/timezoneInfo/copy",$("#inputForm").serialize(),function (data) {
+							if(data){
+								alert("复制成功!");
+							}
+						});*/
+						$("#inputForm").attr("action","${ctx}/tbmj/timezoneInfo/copy");
+						$("#inputForm").submit();
+						$("#inputForm").attr("action","${ctx}/tbmj/timezoneInfo/save");
+					});
+
+					$("#btnPaste").on('click',function () {
+						$("#inputForm").attr("action","${ctx}/tbmj/timezoneInfo/paste");
+						$("#inputForm").submit();
+						$("#inputForm").attr("action","${ctx}/tbmj/timezoneInfo/save");
+					});
 				});
 		//数字:数字
 		jQuery.validator.addMethod("numfh", function(value, element) {
@@ -55,13 +73,18 @@
 				<shiro:hasPermission name="tbmj:timezoneInfo:edit">
 					<input id="btnSubmit" class="btn btn-primary" type="submit"
 						   value="保 存"/>
-					<input id="btnCopy" class="btn btn-primary" type="button"
-						   value="复 制" />&nbsp;
 				</shiro:hasPermission>
 				<input id="btnCancel" class="btn" type="button" value="返 回"
 					   onclick="history.go(-1)" />
+				<shiro:hasPermission name="tbmj:timezoneInfo:edit">
+					<input id="btnCopy" class="btn btn-primary" type="button" style="margin-left: 5%"
+						   value="复 制"/>&nbsp;
+					<input id="btnPaste" class="btn btn-primary" type="button"
+						   value="粘 贴"/>&nbsp;
+				</shiro:hasPermission>
 			</div>
 		</div>
+		<br/>
 		<br>
 		<%--type="hidden" name="id" value="${id}" id="id"--%>
 		<input:hidden path="id" />

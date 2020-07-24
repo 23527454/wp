@@ -182,9 +182,9 @@ public class SecurityParaInfoController extends BaseController {
 			securityParaInfo.setAllowPowerAlarm(copy_securityParaInfo.getAllowPowerAlarm());
 			securityParaInfo.setAllowBatteryAlarm(copy_securityParaInfo.getAllowBatteryAlarm());
 			securityParaInfo.setRemarks(copy_securityParaInfo.getRemarks());
-			addMessage(redirectAttributes,"粘贴成功!");
+			addMessage(model,"粘贴成功!");
 		}else{
-			addMessage(redirectAttributes,"暂未复制内容!");
+			addMessage(model,"暂未复制内容!");
 		}
 		model.addAttribute("accessAntitheft", securityParaInfo);
 		return "modules/tbmj/securityParaInfoForm";
@@ -196,8 +196,8 @@ public class SecurityParaInfoController extends BaseController {
 	 */
 	@RequiresPermissions("tbmj:securityParaInfo:edit")
 	@PostMapping(value = "copy")
-	@ResponseBody
-	public boolean copy(SecurityParaInfo securityParaInfo, HttpServletRequest request, HttpServletResponse response, Model model) {
+	//@ResponseBody
+	public String copy(SecurityParaInfo securityParaInfo, HttpServletRequest request, HttpServletResponse response, Model model) {
 		HttpSession session=request.getSession();
 
 		/*SecurityParaInfo copy_securityParaInfo=new SecurityParaInfo();
@@ -209,7 +209,10 @@ public class SecurityParaInfoController extends BaseController {
 		copy_securityParaInfo.setTimeframe(securityParaInfo.getTimeframe());
 		copy_securityParaInfo.setRemarks(securityParaInfo.getRemarks());*/
 		session.setAttribute("copy_securityParaInfo",securityParaInfo);
-		return true;
+		addMessage(model,"复制成功!");
+		model.addAttribute("securityParaInfo",securityParaInfo);
+		return "modules/tbmj/securityParaInfoForm";
+		//return true;
 	}
 
 	/**

@@ -41,9 +41,12 @@
                 }
 
                 $("#btnCopy").on('click',function () {
-                    $.post("${ctx}/tbmj/accessParaInfo/copy",$("#inputForm").serialize(),function (data) {
+                    /*$.post("${ctx}/tbmj/accessParaInfo/copy",$("#inputForm").serialize(),function (data) {
                         alert("复制成功!");
-                    });
+                    });*/
+                    $("#inputForm").attr("action","${ctx}/tbmj/accessParaInfo/copy");
+                    $("#inputForm").submit();
+                    $("#inputForm").attr("action","${ctx}/tbmj/accessParaInfo/save");
                 });
 
                 $("#btnPaste").on('click',function () {

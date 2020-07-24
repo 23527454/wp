@@ -51,9 +51,12 @@
 
 
                 $("#btnCopy").on('click',function () {
-                    $.post("${ctx}/tbmj/securityParaInfo/copy",$("#inputForm").serialize(),function (data) {
+                    /*$.post("${ctx}/tbmj/securityParaInfo/copy",$("#inputForm").serialize(),function (data) {
                         alert("复制成功!");
-                    });
+                    });*/
+                    $("#inputForm").attr("action","${ctx}/tbmj/securityParaInfo/copy");
+                    $("#inputForm").submit();
+                    $("#inputForm").attr("action","${ctx}/tbmj/securityParaInfo/save");
                 });
 
                 $("#btnPaste").on('click',function () {

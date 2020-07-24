@@ -38,6 +38,15 @@ public class TimezoneInfo extends DataEntity<TimezoneInfo> {
 	private List<Map<String,String>> times;
 
 	private String weekNum;
+	private String time2;
+
+	public String getTime2() {
+		return time2;
+	}
+
+	public void setTime2(String time2) {
+		this.time2 = time2;
+	}
 
 	public String getWeekNum() {
 		return weekNum;

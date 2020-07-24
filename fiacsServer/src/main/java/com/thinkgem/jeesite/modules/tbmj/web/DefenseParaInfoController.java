@@ -169,9 +169,9 @@ public class DefenseParaInfoController extends BaseController {
 				model.addAttribute("timeStart"+(i+1),time[0]);
 				model.addAttribute("timeEnd"+(i+1),time[1]);
 			}
-			addMessage(redirectAttributes,"粘贴成功!");
+			addMessage(model,"粘贴成功!");
 		}else{
-			addMessage(redirectAttributes,"暂未复制内容!");
+			addMessage(model,"暂未复制内容!");
 		}
 		model.addAttribute("accessDefenseInfo", defenseParaInfo);
 		return "modules/tbmj/defenseParaInfoForm";
@@ -183,8 +183,8 @@ public class DefenseParaInfoController extends BaseController {
 	 */
 	@RequiresPermissions("tbmj:defenseParaInfo:edit")
 	@PostMapping(value = "copy")
-	@ResponseBody
-	public boolean copy(DefenseParaInfo defenseParaInfo,HttpServletRequest request,HttpServletResponse response,Model model) {
+	//@ResponseBody
+	public String copy(DefenseParaInfo defenseParaInfo,HttpServletRequest request,HttpServletResponse response,Model model) {
 		HttpSession session=request.getSession();
 
 		String start1=request.getParameter("timeStart1");
@@ -196,6 +196,13 @@ public class DefenseParaInfoController extends BaseController {
 		String end3=request.getParameter("timeEnd3");
 		String end4=request.getParameter("timeEnd4");
 		String str=start1+"-"+end1+";"+start2+"-"+end2+";"+start3+"-"+end3+";"+start4+"-"+end4+";";
+		String[] sd=str.split(";");
+		for(int i=0;i<sd.length;i++){
+			//根据-拆分为每个时段的开始和结束时间
+			String[] time=sd[i].split("-");
+			model.addAttribute("timeStart"+(i+1),time[0]);
+			model.addAttribute("timeEnd"+(i+1),time[1]);
+		}
 
 		defenseParaInfo.setTimeframe(str);
 
@@ -209,7 +216,11 @@ public class DefenseParaInfoController extends BaseController {
 		copy_defenseParaInfo.setTimeframe(defenseParaInfo.getTimeframe());
 		copy_defenseParaInfo.setRemarks(defenseParaInfo.getRemarks());
 		session.setAttribute("copy_defenseParaInfo",copy_defenseParaInfo);
-		return true;
+
+		addMessage(model,"复制成功!");
+		model.addAttribute("defenseParaInfo",defenseParaInfo);
+		return "modules/tbmj/defenseParaInfoForm";
+		//return true;
 	}
 
 
