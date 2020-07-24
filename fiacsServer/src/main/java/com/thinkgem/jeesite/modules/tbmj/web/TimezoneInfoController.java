@@ -275,7 +275,7 @@ public class TimezoneInfoController extends BaseController {
 		if (timezoneInfo.getId() != null && !timezoneInfo.getId().equals("")) {
 			String weekNum=timezoneInfo.getWeekNum();
 			timezoneInfo = timezoneInfoService.get(timezoneInfo.getId());
-			if(timezoneInfo.equals("1")){
+			if(weekNum.equals("1")){
 				String week=timezoneInfo.getMon();
 				//根据;拆分为4个时段
 				String[] sd=week.split(";");
@@ -286,8 +286,8 @@ public class TimezoneInfoController extends BaseController {
 					model.addAttribute("timeEnd"+(j+1),time[1]);
 					model.addAttribute("weekNum","1");
 				}
-			}else if(timezoneInfo.equals("2")){
-				String week=timezoneInfo.getMon();
+			}else if(weekNum.equals("2")){
+				String week=timezoneInfo.getTue();
 				//根据;拆分为4个时段
 				String[] sd=week.split(";");
 				for(int j=0;j<sd.length;j++){
@@ -297,8 +297,8 @@ public class TimezoneInfoController extends BaseController {
 					model.addAttribute("timeEnd"+(j+1),time[1]);
 					model.addAttribute("weekNum","2");
 				}
-			}else if(timezoneInfo.equals("3")){
-				String week=timezoneInfo.getMon();
+			}else if(weekNum.equals("3")){
+				String week=timezoneInfo.getWed();
 				//根据;拆分为4个时段
 				String[] sd=week.split(";");
 				for(int j=0;j<sd.length;j++){
@@ -308,8 +308,8 @@ public class TimezoneInfoController extends BaseController {
 					model.addAttribute("timeEnd"+(j+1),time[1]);
 					model.addAttribute("weekNum","3");
 				}
-			}else if(timezoneInfo.equals("4")){
-				String week=timezoneInfo.getMon();
+			}else if(weekNum.equals("4")){
+				String week=timezoneInfo.getThu();
 				//根据;拆分为4个时段
 				String[] sd=week.split(";");
 				for(int j=0;j<sd.length;j++){
@@ -319,8 +319,8 @@ public class TimezoneInfoController extends BaseController {
 					model.addAttribute("timeEnd"+(j+1),time[1]);
 					model.addAttribute("weekNum","4");
 				}
-			}else if(timezoneInfo.equals("5")){
-				String week=timezoneInfo.getMon();
+			}else if(weekNum.equals("5")){
+				String week=timezoneInfo.getFri();
 				//根据;拆分为4个时段
 				String[] sd=week.split(";");
 				for(int j=0;j<sd.length;j++){
@@ -330,8 +330,8 @@ public class TimezoneInfoController extends BaseController {
 					model.addAttribute("timeEnd"+(j+1),time[1]);
 					model.addAttribute("weekNum","5");
 				}
-			}else if(timezoneInfo.equals("6")){
-				String week=timezoneInfo.getMon();
+			}else if(weekNum.equals("6")){
+				String week=timezoneInfo.getSat();
 				//根据;拆分为4个时段
 				String[] sd=week.split(";");
 				for(int j=0;j<sd.length;j++){
@@ -341,8 +341,8 @@ public class TimezoneInfoController extends BaseController {
 					model.addAttribute("timeEnd"+(j+1),time[1]);
 					model.addAttribute("weekNum","6");
 				}
-			}else if(timezoneInfo.equals("7")){
-				String week=timezoneInfo.getMon();
+			}else if(weekNum.equals("7")){
+				String week=timezoneInfo.getSun();
 				//根据;拆分为4个时段
 				String[] sd=week.split(";");
 				for(int j=0;j<sd.length;j++){
@@ -371,110 +371,6 @@ public class TimezoneInfoController extends BaseController {
 	}
 
 	/**
-	 * 查看编辑表单2,更换了星期进入
-	 */
-	@RequiresPermissions("tbmj:timezoneInfo:view")
-	@RequestMapping(value = "form2")
-	public String form2(TimezoneInfo timezoneInfo, Model model) {
-		if (timezoneInfo.getId() != null && !timezoneInfo.getId().equals("")) {
-			String weekNum=timezoneInfo.getWeekNum();
-			timezoneInfo = timezoneInfoService.get(timezoneInfo.getId());
-			if(timezoneInfo.equals("1")){
-				String week=timezoneInfo.getMon();
-				//根据;拆分为4个时段
-				String[] sd=week.split(";");
-				for(int j=0;j<sd.length;j++){
-					//根据-拆分为每个时段的开始和结束时间
-					String[] time=sd[j].split("-");
-					model.addAttribute("timeStart"+(j+1),time[0]);
-					model.addAttribute("timeEnd"+(j+1),time[1]);
-					model.addAttribute("weekNum","1");
-				}
-			}else if(timezoneInfo.equals("2")){
-				String week=timezoneInfo.getMon();
-				//根据;拆分为4个时段
-				String[] sd=week.split(";");
-				for(int j=0;j<sd.length;j++){
-					//根据-拆分为每个时段的开始和结束时间
-					String[] time=sd[j].split("-");
-					model.addAttribute("timeStart"+(j+1),time[0]);
-					model.addAttribute("timeEnd"+(j+1),time[1]);
-					model.addAttribute("weekNum","2");
-				}
-			}else if(timezoneInfo.equals("3")){
-				String week=timezoneInfo.getMon();
-				//根据;拆分为4个时段
-				String[] sd=week.split(";");
-				for(int j=0;j<sd.length;j++){
-					//根据-拆分为每个时段的开始和结束时间
-					String[] time=sd[j].split("-");
-					model.addAttribute("timeStart"+(j+1),time[0]);
-					model.addAttribute("timeEnd"+(j+1),time[1]);
-					model.addAttribute("weekNum","3");
-				}
-			}else if(timezoneInfo.equals("4")){
-				String week=timezoneInfo.getMon();
-				//根据;拆分为4个时段
-				String[] sd=week.split(";");
-				for(int j=0;j<sd.length;j++){
-					//根据-拆分为每个时段的开始和结束时间
-					String[] time=sd[j].split("-");
-					model.addAttribute("timeStart"+(j+1),time[0]);
-					model.addAttribute("timeEnd"+(j+1),time[1]);
-					model.addAttribute("weekNum","4");
-				}
-			}else if(timezoneInfo.equals("5")){
-				String week=timezoneInfo.getMon();
-				//根据;拆分为4个时段
-				String[] sd=week.split(";");
-				for(int j=0;j<sd.length;j++){
-					//根据-拆分为每个时段的开始和结束时间
-					String[] time=sd[j].split("-");
-					model.addAttribute("timeStart"+(j+1),time[0]);
-					model.addAttribute("timeEnd"+(j+1),time[1]);
-					model.addAttribute("weekNum","5");
-				}
-			}else if(timezoneInfo.equals("6")){
-				String week=timezoneInfo.getMon();
-				//根据;拆分为4个时段
-				String[] sd=week.split(";");
-				for(int j=0;j<sd.length;j++){
-					//根据-拆分为每个时段的开始和结束时间
-					String[] time=sd[j].split("-");
-					model.addAttribute("timeStart"+(j+1),time[0]);
-					model.addAttribute("timeEnd"+(j+1),time[1]);
-					model.addAttribute("weekNum","6");
-				}
-			}else if(timezoneInfo.equals("7")){
-				String week=timezoneInfo.getMon();
-				//根据;拆分为4个时段
-				String[] sd=week.split(";");
-				for(int j=0;j<sd.length;j++){
-					//根据-拆分为每个时段的开始和结束时间
-					String[] time=sd[j].split("-");
-					model.addAttribute("timeStart"+(j+1),time[0]);
-					model.addAttribute("timeEnd"+(j+1),time[1]);
-					model.addAttribute("weekNum","7");
-				}
-			}else{
-				String week=timezoneInfo.getMon();
-				//根据;拆分为4个时段
-				String[] sd=week.split(";");
-				for(int j=0;j<sd.length;j++){
-					//根据-拆分为每个时段的开始和结束时间
-					String[] time=sd[j].split("-");
-					model.addAttribute("timeStart"+(j+1),time[0]);
-					model.addAttribute("timeEnd"+(j+1),time[1]);
-					model.addAttribute("weekNum","1");
-				}
-			}
-		}
-		model.addAttribute("id", timezoneInfo.getId());
-
-		return "modules/tbmj/timezoneInfoForm";
-	}
-
-	/**
 	 * 粘贴数据
 	 */
 	@RequiresPermissions("tbmj:timezoneInfo:edit")
@@ -484,6 +380,22 @@ public class TimezoneInfoController extends BaseController {
 		HttpSession session=request.getSession();
 		TimezoneInfo copy_timezoneInfo=(TimezoneInfo)session.getAttribute("copy_timezoneInfo");
 		if(copy_timezoneInfo!=null){
+			String weekNum=timezoneInfo.getWeekNum();
+			if(weekNum.equals("1")){
+				timezoneInfo.setMon(copy_timezoneInfo.getTime2());
+			}else if(weekNum.equals("2")){
+				timezoneInfo.setTue(copy_timezoneInfo.getTime2());
+			}else if(weekNum.equals("3")){
+				timezoneInfo.setWed(copy_timezoneInfo.getTime2());
+			}else if(weekNum.equals("4")){
+				timezoneInfo.setThu(copy_timezoneInfo.getTime2());
+			}else if(weekNum.equals("5")){
+				timezoneInfo.setFri(copy_timezoneInfo.getTime2());
+			}else if(weekNum.equals("6")){
+				timezoneInfo.setSat(copy_timezoneInfo.getTime2());
+			}else if(weekNum.equals("7")){
+				timezoneInfo.setSun(copy_timezoneInfo.getTime2());
+			}
 			timezoneInfo.setTime2(copy_timezoneInfo.getTime2());
 			timezoneInfo.setRemarks(copy_timezoneInfo.getRemarks());
 
@@ -495,6 +407,7 @@ public class TimezoneInfoController extends BaseController {
 				model.addAttribute("timeEnd"+(i+1),time[1]);
 			}
 			addMessage(model,"粘贴成功!");
+			model.addAttribute("weekNum",weekNum);
 		}else{
 			addMessage(model,"暂未复制内容!");
 		}

@@ -9,10 +9,10 @@
 
 		$(document).ready(
 				function() {
-					$("#weekNumber").change(function () {
+					$("#weekNum").change(function () {
 						var wd=$(this).val();
 						var id=$("#id").val();
-						window.location.href = "${ctx}/tbmj/timezoneInfo/form2?weekNum="+wd+"&id="+id;
+						window.location.href = "${ctx}/tbmj/timezoneInfo/form?id="+id+"&weekNum="+wd;
 						//$.post("${ctx}/tbmj/timezoneInfo/form2?weekNumber="+wd+"&id="+id);
 					})
 
