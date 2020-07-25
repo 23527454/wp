@@ -18,10 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -294,7 +291,7 @@ public class WorkdayParaInfoController extends BaseController {
 				if(dayStatus.equals("0")){
 					sb.append("<td class=\"restDay enableSel\">"+(i+1)+"</td>");
 				}else{
-					sb.append("<td class=\"enableSel\">"+(i+1)+"</td>");
+					sb.append("<td class=\"workDay enableSel\">"+(i+1)+"</td>");
 				}
 				if(i+1==days.length() || week_index2==7){
 					if(i+1==days.length()){
@@ -447,6 +444,39 @@ public class WorkdayParaInfoController extends BaseController {
 		//return "redirect:" + Global.getAdminPath() + "/tbmj/workdayParaInfo/?repage";
 	}
 
+	/**
+	 * 保存数据
+	 */
+	@RequiresPermissions("tbmj:workdayParaInfo:edit")
+	@GetMapping(value = "save2")
+	@Transactional
+	public String save2(String id, String mon,String nums,Model model, RedirectAttributes redirectAttributes) throws ParseException {
+		DateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+		Calendar c = Calendar.getInstance();
+		String year = String.valueOf(c.get(Calendar.YEAR));
+		WorkdayParaInfo workdayParaInfo=workdayParaInfoService.get(id);
+		String eId=workdayParaInfo.getEquipmentId();
+		try{
+			String[] arr=nums.split(",");
+			for(int i=0;i<arr.length;i++){
+				String str=year+"-"+mon+"-"+arr[i];
+				Integer index=Integer.parseInt(arr[i]);
+
+				String days=getWorkParaInfoDays(mon,workdayParaInfo);
+				StringBuilder sb=new StringBuilder(days);
+				sb.replace(index-1,index,"0");
+				setWorkParaInfoDays(mon,sb.toString(),workdayParaInfo);
+
+				workdayParaInfoService.modifyRestDayById(workdayParaInfo);
+			}
+			addMessage(redirectAttributes, "添加假期成功！");
+			return "redirect:" + Global.getAdminPath() + "/tbmj/workdayParaInfo?eId="+eId+"&mon="+mon+"&repage";
+		}catch (Exception e){
+			e.printStackTrace();
+			addMessage(redirectAttributes, "添加假期失败！");
+			return "redirect:" + Global.getAdminPath() + "/tbmj/workdayParaInfo?&repage";
+		}
+	}
 	
 	/**
 	 * 删除数据

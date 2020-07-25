@@ -13,6 +13,9 @@
 		.selDel{
 			background-color: crimson;
 		}
+		.sel{
+			background-color: lightskyblue;
+		}
 	</style>
 	<script src="${ctxStatic}/jquery-session/jquery-session.js"></script>
 	<script type="text/javascript" src="${ctxStatic}/layui/layui.all.js"></script>
@@ -131,7 +134,8 @@
 		<%--<li class="btns"><input id="btnExport" class="btn btn-primary" type="button" value="导出" /></li>--%>
 		<shiro:hasPermission name="tbmj:workdayParaInfo:edit">
             <input id="btnAdd" class="btn btn-primary" type="button" value="假期添加" />
-            <input id="delSel" class="btn btn-primary" type="button" value="删除选中" />
+			<input id="delSel" class="btn btn-primary" type="button" value="删除选中" />
+			<input id="addSel" class="btn btn-primary" type="button" value="添加选中" />
 		</shiro:hasPermission>
 	</ul>
 </form:form>
@@ -168,21 +172,27 @@
 		var selDays="";
 
         $(".enableSel").on('click',function () {
-			if($(this).is('.selDel')){
+			if($(this).is('.sel')){
+				$(this).removeClass("sel");
+				return;
+			}
+			$(this).addClass("sel");
+			/*if($(this).is('.selDel')){
 				$(this).removeClass("selDel");
 				return;
 			}
 			if($(this).is('.restDay')){
 				$(this).addClass("selDel");
-			}else{
-				alert("该日期是工作日，无法删除！");
-			}
+			}else if($(this).is('.workDay')){
+				$(this).addClass("selAdd");
+				//alert("该日期是工作日，无法删除！");
+			}*/
 		});
 
 		$("#delSel").on('click',function() {
-			$(".selDel").each(function(){
+			$(".sel").each(function(){
 				selDays+=$(this).text()+",";
-				$(this).removeClass("selDel");
+				$(this).removeClass("sel");
 			});
 			if(selDays==""){
 				alert("请先选择数据！");
@@ -190,7 +200,19 @@
 				window.location.href="${ctx}/tbmj/workdayParaInfo/delete?nums="+selDays+"&mon=${mon}&id=${id}";
 			}
 			selDays="";
+		});
 
+		$("#addSel").on('click',function() {
+			$(".sel").each(function(){
+				selDays+=$(this).text()+",";
+				$(this).removeClass("sel");
+			});
+			if(selDays==""){
+				alert("请先选择数据！");
+			}else{
+				window.location.href="${ctx}/tbmj/workdayParaInfo/save2?nums="+selDays+"&mon=${mon}&id=${id}";
+			}
+			selDays="";
 		});
     });
 </script>
