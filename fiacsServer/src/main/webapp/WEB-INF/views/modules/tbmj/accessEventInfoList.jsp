@@ -96,7 +96,6 @@
 		class="table table-striped table-bordered table-condensed">
 		<thead>
 			<tr>
-<!-- 				<th style="width: 30px;">序号</th> -->
 				<th>网点</th>
 				<th>人员</th>
 				<th>指纹号</th>
