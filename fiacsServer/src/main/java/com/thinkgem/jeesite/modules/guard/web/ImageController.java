@@ -3,20 +3,25 @@
  */
 package com.thinkgem.jeesite.modules.guard.web;
 
-import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
-import javax.imageio.ImageIO;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
+import com.thinkgem.jeesite.common.config.Global;
+import com.thinkgem.jeesite.common.mapper.JsonMapper;
+import com.thinkgem.jeesite.common.persistence.Page;
+import com.thinkgem.jeesite.common.utils.JsonDateValueProcessor;
+import com.thinkgem.jeesite.common.utils.Reflections;
+import com.thinkgem.jeesite.common.utils.StringUtils;
+import com.thinkgem.jeesite.common.web.BaseController;
+import com.thinkgem.jeesite.modules.guard.dao.CompanyExDao;
+import com.thinkgem.jeesite.modules.guard.dao.StaffImageDao;
+import com.thinkgem.jeesite.modules.guard.entity.*;
+import com.thinkgem.jeesite.modules.guard.service.CarImageService;
+import com.thinkgem.jeesite.modules.guard.service.CarService;
+import com.thinkgem.jeesite.modules.guard.service.EventDetailService;
+import com.thinkgem.jeesite.modules.sys.dao.UserDao;
+import com.thinkgem.jeesite.modules.sys.entity.User;
+import com.thinkgem.jeesite.modules.sys.utils.UserUtils;
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
+import net.sf.json.JsonConfig;
 import org.apache.commons.io.FileUtils;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,32 +34,18 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import com.thinkgem.jeesite.common.config.Global;
-import com.thinkgem.jeesite.common.mapper.JsonMapper;
-import com.thinkgem.jeesite.common.persistence.Page;
-import com.thinkgem.jeesite.common.utils.JsonDateValueProcessor;
-import com.thinkgem.jeesite.common.utils.Reflections;
-import com.thinkgem.jeesite.common.utils.StringUtils;
-import com.thinkgem.jeesite.common.web.BaseController;
-import com.thinkgem.jeesite.modules.guard.dao.CompanyDao;
-import com.thinkgem.jeesite.modules.guard.dao.CompanyExDao;
-import com.thinkgem.jeesite.modules.guard.dao.StaffImageDao;
-import com.thinkgem.jeesite.modules.guard.entity.Car;
-import com.thinkgem.jeesite.modules.guard.entity.CarImage;
-import com.thinkgem.jeesite.modules.guard.entity.CompanyEx;
-import com.thinkgem.jeesite.modules.guard.entity.EventDetail;
-import com.thinkgem.jeesite.modules.guard.entity.Staff;
-import com.thinkgem.jeesite.modules.guard.entity.StaffImage;
-import com.thinkgem.jeesite.modules.guard.service.CarImageService;
-import com.thinkgem.jeesite.modules.guard.service.CarService;
-import com.thinkgem.jeesite.modules.guard.service.EventDetailService;
-import com.thinkgem.jeesite.modules.sys.dao.UserDao;
-import com.thinkgem.jeesite.modules.sys.entity.User;
-import com.thinkgem.jeesite.modules.sys.utils.UserUtils;
-
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
-import net.sf.json.JsonConfig;
+import javax.imageio.ImageIO;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 /**
  * 事件详情Controller
@@ -101,7 +92,7 @@ public class ImageController extends BaseController {
 
 	@RequestMapping(value = "")
 	public void image(EventDetail eventDetail, HttpServletRequest request, HttpServletResponse response, Model model) throws IOException{
-		System.out.println(eventDetail.getBigDataFlag());
+		System.out.println("image-----eventDetail.getBigDataFlag()++++++++++++++++++++++++++++++++++++++"+eventDetail.getBigDataFlag());
 		if(StringUtils.isNotBlank(eventDetail.getId())){
 			EventDetail r = get(eventDetail.getId());
 			if(r!=null && r.getImageData()!=null && r.getImageData().length > 0){

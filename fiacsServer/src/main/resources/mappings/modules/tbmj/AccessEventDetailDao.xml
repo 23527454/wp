@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.tbmj.dao.AccessEventDetailDao">
+    
+	<sql id="accessEventDetailColumns">
+		a.id AS "id",
+		a.finger_id AS "fingerId",
+		a.person_id AS "personId",
+		a.equipment_id AS "equipmentId",
+		a.record_id AS "recordId",
+		a.image_data AS "imageData",
+		a.image_size AS "imageSize",
+		a.time AS "time",
+		c.area_id as areaId,
+		a.author_type as authorType
+	</sql>
+	
+	<sql id="accessEventDetailJoins">
+		left join guard_equipment b on a.equipment_id = b.id 
+		left join sys_office c on c.id = b.office_id
+	</sql>
+    
+	<select id="get" resultType="AccessEventDetail">
+		SELECT 
+			<include refid="accessEventDetailColumns"/>
+		FROM tbmj_event_detail a
+		<include refid="accessEventDetailJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="AccessEventDetail">
+		SELECT
+			<include refid="accessEventDetailColumns"/>
+		FROM tbmj_event_detail a
+		<include refid="accessEventDetailJoins"/>
+		<where>
+			1=1 AND a.del_flag=0
+			<if test="id != null and id != ''">
+				AND a.id LIKE
+					<if test="dbName == 'oracle'">'%'||#{id}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{id}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{id},'%')</if>
+			</if>
+			<if test="fingerId != null and fingerId != ''">
+				AND a.finger_id LIKE
+					<if test="dbName == 'oracle'">'%'||#{fingerId}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{fingerId}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{fingerId},'%')</if>
+			</if>
+			<if test="recordId != null and recordId != ''">
+				AND a.record_id = #{recordId}
+			</if>
+			<if test="equipmentId != null and equipmentId != ''">
+				AND a.equipment_id =  #{equipmentId}
+			</if>
+			<if test="eventType != null and eventType != ''">
+				AND a.event_type = #{eventType}
+			</if>
+			<if test="time != null and time!= ''" >
+				and a.time = #{time}
+			</if>
+			<if test="date != null and date!= ''" >
+				and SUBSTRING(a.time, 1, 10) = #{date}
+			</if>
+			<if test="afterEqDate != null and afterEqDate != ''" >
+				<![CDATA[and a.time >= #{afterEqDate}]]>
+			</if>
+			<if test="beforeEqDate != null and beforeEqDate!= ''" >
+				<![CDATA[and a.time <= #{beforeEqDate}]]>
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			ORDER BY a.time desc
+			</otherwise>
+		</choose>
+	</select>
+
+	<select id="findAllList" resultType="AccessEventDetail">
+		SELECT
+			<include refid="accessEventDetailColumns"/>
+		FROM tbmj_event_detail a
+		<include refid="accessEventDetailJoins"/>
+		<where>
+
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			ORDER BY a.time desc
+			</otherwise>
+		</choose>
+	</select>
+
+	<insert id="insert" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO tbmj_event_detail(
+			person_id,
+			finger_id,
+			equipment_id,
+			record_id,
+			image_data,
+			image_size,
+			time,
+			event_type
+		) VALUES (
+			#{personId},
+			#{fingerId},
+			#{equipmentId},
+			#{recordId},
+			#{imageData},
+			#{imageSize},
+			#{time},
+			#{eventType}
+		)
+	</insert>
+
+	<update id="update">
+		UPDATE tbmj_event_detail SET
+			record_id = #{recordId}
+		WHERE id = #{id}
+	</update>
+	<update id="delflag">
+		UPDATE tbmj_event_detail SET
+			del_flag=1
+		WHERE 1=1
+			<if test="id != null and id!= ''" >
+				and id = #{id}
+			</if>
+	</update>
+	<update id="delete">
+		DELETE FROM tbmj_event_detail
+		WHERE id = #{id}
+	</update>
+	
+</mapper>

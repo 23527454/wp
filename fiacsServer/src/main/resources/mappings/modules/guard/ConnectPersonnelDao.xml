@@ -29,7 +29,7 @@
 		"fingerInfo.fingerNum",
 		a5.image_path
 		AS "staffImage.imagePath",
-		a6.image_data AS "eventDetail.imageData"
+		a6.image_data AS "accessEventDetail.imageData"
 	</sql>
 
 	<sql id="connectPersonnelJoins">

@@ -3,6 +3,8 @@
  */
 package com.thinkgem.jeesite.modules.tbmj.web;
 
+import com.fasterxml.jackson.core.JsonGenerationException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.thinkgem.jeesite.common.persistence.Page;
 import com.thinkgem.jeesite.common.web.BaseController;
 import com.thinkgem.jeesite.modules.tbmj.entity.AccessEventInfo;
@@ -13,9 +15,13 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.List;
 
 /**
  * tbmj_access_event_infoController
@@ -41,6 +47,16 @@ public class AccessEventInfoController extends BaseController {
 	@RequestMapping(value = { "index" })
 	public String index(AccessEventInfo accessEventInfo, Model model) {
 		return "modules/tbmj/accessEventInfoIndex";
+	}
+
+
+	@RequestMapping(value = "listByLatestId")
+	@ResponseBody
+	public List<AccessEventInfo> listByLatestId(@RequestParam("latestId")String latestId,
+											   @RequestParam("nodes")String nodes)
+			throws JsonGenerationException, JsonMappingException, IOException {
+		List<AccessEventInfo> list = accessEventInfoService.getFeeds(latestId, nodes);
+		return list;
 	}
 
 	/**

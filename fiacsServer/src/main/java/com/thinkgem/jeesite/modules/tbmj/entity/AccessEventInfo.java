@@ -31,6 +31,7 @@ public class AccessEventInfo extends DataEntity<AccessEventInfo> {
 	private String handleTime;        //处理时间
 	private String handleUserNameId;    //处理人ID
 	private Integer handleMode;        //处理方法
+	private String eventDetailId;
 
 	private Equipment equipment;        //设备
 	private Staff staff;        //员工
@@ -39,6 +40,14 @@ public class AccessEventInfo extends DataEntity<AccessEventInfo> {
 
 	private String officeName;		//网点名
 	private String nodes;			//选择的节点
+
+	public String getEventDetailId() {
+		return eventDetailId;
+	}
+
+	public void setEventDetailId(String eventDetailId) {
+		this.eventDetailId = eventDetailId;
+	}
 
 	public AccessEventInfo() {
 		super();

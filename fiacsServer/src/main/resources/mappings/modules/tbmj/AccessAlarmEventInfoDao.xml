@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.tbmj.dao.AccessAlarmEventInfoDao">
+
+	<sql id="accessAlarmEventInfoColumns">
+		a.id AS "id",
+		a.record_id AS "recordId",
+		a.equipment_id AS "equipmentId",
+		a.equip_sn AS "equipSn",
+		a.door_pos AS "doorPos",
+		a.event_date AS "eventDate",
+		a.event_type as eventType,
+		a.alarm_status as "alarmStatus",
+		a.handle_status as handleStatus,
+		a.handle_time as "handleTime",
+		a.handle_user_name_id as "handleUserNameId",
+		suser.name AS "handleUser.name",
+		a.handle_mode as "handleMode",
+		b.name as "officeName",
+		a.remark as "remarks"
+	</sql>
+
+	<sql id="accessAlarmEventInfoJoins">
+	    LEFT JOIN guard_equipment teq on teq.id = a.equipment_id
+		LEFT JOIN sys_office b ON b.id = teq.office_id
+		LEFT JOIN sys_user suser on suser.id = a.handle_user_name_id
+	</sql>
+
+	<select id="get" resultType="AccessAlarmEventInfo">
+		SELECT
+		<include refid="accessAlarmEventInfoColumns"/>
+		FROM tbmj_access_alarm_event_info a
+		<include refid="accessAlarmEventInfoJoins"/>
+		WHERE a.id = #{id}
+	</select>
+
+	<select id="findList" resultType="AccessAlarmEventInfo">
+		SELECT
+		<include refid="accessAlarmEventInfoColumns"/>
+		FROM tbmj_access_alarm_event_info a
+		<include refid="accessAlarmEventInfoJoins"/>
+		<where>
+			1=1
+			<if test="eventDate != null and eventDate!= ''" >
+				and a.eventDate = #{eventDate}
+			</if>
+
+			<choose>
+				<when test="nodes != null and nodes != ''">
+					and b.id in(${nodes})
+				</when>
+			</choose>
+			<if test="equipmentId != null and equipmentId != ''">
+				AND a.equipment_id =  #{equipmentId}
+			</if>
+			${sqlMap.dsf}
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.eventDate desc, a.id desc
+			</otherwise>
+		</choose>
+	</select>
+</mapper>

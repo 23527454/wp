@@ -13,7 +13,8 @@
 		a.finger_id AS "fingerInfoId",
 		finger.finger_num AS "fingerInfo.fingerNum",
 		a.event_date AS "eventDate",
-		a.author_type as "authorType",
+		ed.author_type as "authorType",
+		ed.id as "eventDetailId",
 		a.access_status AS "accessStatus",
 		a.event_type as eventType,
 		a.handle_status as handleStatus,
@@ -31,6 +32,7 @@
 		LEFT JOIN guard_staff staff on staff.id=a.staff_id
 		LEFT JOIN guard_finger_info finger on finger.staff_id=staff.id
 		LEFT JOIN sys_user suser on suser.id = a.handle_user_name_id
+		LEFT JOIN tbmj_event_detail ed on ed.record_id=a.record_id and ed.equipment_id=a.equipment_id and ed.person_id=a.staff_id
 	</sql>
 
 	<select id="get" resultType="AccessEventInfo">
@@ -70,5 +72,27 @@
 				ORDER BY a.eventDate desc, a.id desc
 			</otherwise>
 		</choose>
+	</select>
+
+	<select id="getFeeds" resultType="AccessEventInfo">
+		SELECT
+		<include refid="accessEventInfoColumns"/>,sd.label as "authorType"
+		FROM tbmj_access_event_info a
+		<include refid="accessEventInfoJoins"/>
+		LEFT JOIN sys_dict sd on ed.author_type = sd.value
+		<where>
+			<choose>
+				<when test="nodes != null and nodes != ''">
+					and b.id in(${nodes})
+				</when>
+			</choose>
+			<if test="id != null and id != ''">
+				AND a.id > #{id}
+			</if>
+			<if test="eventDate != null and eventDate != ''">
+				AND a.event_date > #{eventDate}
+			</if>
+		</where>
+		ORDER BY a.event_date desc,a.id desc
 	</select>
 </mapper>

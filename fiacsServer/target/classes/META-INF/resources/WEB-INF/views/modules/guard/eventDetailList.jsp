@@ -18,10 +18,10 @@
 </head>
 <body>
 	<ul class="nav nav-tabs">
-		<li class="active"><a href="${ctx}/guard/eventDetail/">事件详情列表</a></li>
-		<shiro:hasPermission name="guard:eventDetail:edit"><li><a href="${ctx}/guard/eventDetail/form">事件详情添加</a></li></shiro:hasPermission>
+		<li class="active"><a href="${ctx}/guard/accessEventDetail/">事件详情列表</a></li>
+		<shiro:hasPermission name="guard:accessEventDetail:edit"><li><a href="${ctx}/guard/accessEventDetail/form">事件详情添加</a></li></shiro:hasPermission>
 	</ul>
-	<form:form id="searchForm" modelAttribute="eventDetail" action="${ctx}/guard/eventDetail/" method="post" class="breadcrumb form-inline">
+	<form:form id="searchForm" modelAttribute="accessEventDetail" action="${ctx}/guard/accessEventDetail/" method="post" class="breadcrumb form-inline">
 		<input id="pageNo" name="pageNo" type="hidden" value="${page.pageNo}"/>
 		<input id="pageSize" name="pageSize" type="hidden" value="${page.pageSize}"/>
 
@@ -52,36 +52,36 @@
 				<th>抓拍图片数据</th>
 				<th>抓拍图片数据长度</th>
 				<th>记录时间</th>
-				<shiro:hasPermission name="guard:eventDetail:edit"><th>操作</th></shiro:hasPermission>
+				<shiro:hasPermission name="guard:accessEventDetail:edit"><th>操作</th></shiro:hasPermission>
 			</tr>
 		</thead>
 		<tbody>
-		<c:forEach items="${page.list}" var="eventDetail">
+		<c:forEach items="${page.list}" var="accessEventDetail">
 			<tr>
-				<td><a href="${ctx}/guard/eventDetail/form?id=${eventDetail.id}">
-					${eventDetail.id}
+				<td><a href="${ctx}/guard/accessEventDetail/form?id=${accessEventDetail.id}">
+					${accessEventDetail.id}
 				</a></td>
 				<td>
-					${eventDetail.fingerId}
+					${accessEventDetail.fingerId}
 				</td>
 				<td>
-					${eventDetail.equipmentId}
+					${accessEventDetail.equipmentId}
 				</td>
 				<td>
-					${eventDetail.recordId}
+					${accessEventDetail.recordId}
 				</td>
 				<td>
-					${eventDetail.imageData}
+					${accessEventDetail.imageData}
 				</td>
 				<td>
-					${eventDetail.imageSize}
+					${accessEventDetail.imageSize}
 				</td>
 				<td>
-					${eventDetail.time}
+					${accessEventDetail.time}
 				</td>
-				<shiro:hasPermission name="guard:eventDetail:edit"><td>
-    				<a href="${ctx}/guard/eventDetail/form?id=${eventDetail.id}">修改</a>
-					<a href="${ctx}/guard/eventDetail/delete?id=${eventDetail.id}" onclick="return confirmx('确认要删除该事件详情吗？', this.href)">删除</a>
+				<shiro:hasPermission name="guard:accessEventDetail:edit"><td>
+    				<a href="${ctx}/guard/accessEventDetail/form?id=${accessEventDetail.id}">修改</a>
+					<a href="${ctx}/guard/accessEventDetail/delete?id=${accessEventDetail.id}" onclick="return confirmx('确认要删除该事件详情吗？', this.href)">删除</a>
 				</td></shiro:hasPermission>
 			</tr>
 		</c:forEach>

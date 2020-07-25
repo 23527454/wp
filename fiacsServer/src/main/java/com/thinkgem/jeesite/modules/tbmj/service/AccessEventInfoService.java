@@ -11,6 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 /**
  * tbmj_access_event_infoService
  * @author demo
@@ -22,6 +24,15 @@ public class AccessEventInfoService extends CrudService<AccessEventInfoDao, Acce
 
 	@Autowired
 	private AccessEventInfoDao accessEventInfoDao;
+
+
+
+	public List<AccessEventInfo> getFeeds(String latestId, String nodes){
+		AccessEventInfo accessEventInfo = new AccessEventInfo();
+		accessEventInfo.setId(latestId);
+		accessEventInfo.setNodes(nodes);
+		return super.dao.getFeeds(accessEventInfo);
+	}
 
 	/**
 	 * 获取单条数据
