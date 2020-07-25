@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.tbmj.dao.AccessEventInfoDao">
+
+	<sql id="accessEventInfoColumns">
+		a.id AS "id",
+		a.record_id AS "recordId",
+		a.equipment_id AS "equipmentId",
+		a.equip_sn AS "equipSn",
+		a.door_pos AS "doorPos",
+		a.staff_id AS "staffId",
+		staff.name AS "staff.name",
+		a.finger_id AS "fingerInfoId",
+		finger.finger_num AS "fingerInfo.fingerNum",
+		a.event_date AS "eventDate",
+		a.author_type as "authorType",
+		a.access_status AS "accessStatus",
+		a.event_type as eventType,
+		a.handle_status as handleStatus,
+		a.handle_time as "handleTime",
+		a.handle_user_name_id as "handleUserNameId",
+		suser.name AS "handleUser.name",
+		a.handle_mode as "handleMode",
+		b.name as "officeName",
+		a.remark as "remarks"
+	</sql>
+
+	<sql id="accessEventInfoJoins">
+	    LEFT JOIN guard_equipment teq on teq.id = a.equipment_id
+		LEFT JOIN sys_office b ON b.id = teq.office_id
+		LEFT JOIN guard_staff staff on staff.id=a.staff_id
+		LEFT JOIN guard_finger_info finger on finger.staff_id=staff.id
+		LEFT JOIN sys_user suser on suser.id = a.handle_user_name_id
+	</sql>
+
+	<select id="get" resultType="AccessEventInfo">
+		SELECT
+		<include refid="accessEventInfoColumns"/>
+		FROM tbmj_access_event_info a
+		<include refid="accessEventInfoJoins"/>
+		WHERE a.id = #{id}
+	</select>
+
+	<select id="findList" resultType="AccessEventInfo">
+		SELECT
+		<include refid="accessEventInfoColumns"/>
+		FROM tbmj_access_event_info a
+		<include refid="accessEventInfoJoins"/>
+		<where>
+			1=1
+			<if test="eventDate != null and eventDate!= ''" >
+				and a.eventDate = #{eventDate}
+			</if>
+
+			<choose>
+				<when test="nodes != null and nodes != ''">
+					and b.id in(${nodes})
+				</when>
+			</choose>
+			<if test="equipmentId != null and equipmentId != ''">
+				AND a.equipment_id =  #{equipmentId}
+			</if>
+			${sqlMap.dsf}
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.eventDate desc, a.id desc
+			</otherwise>
+		</choose>
+	</select>
+</mapper>

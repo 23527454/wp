@@ -3,25 +3,7 @@
  */
 package com.thinkgem.jeesite.modules.guard.web;
 
-import java.io.IOException;
-import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import com.alibaba.fastjson.JSON;
-import org.apache.shiro.authz.annotation.RequiresPermissions;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
-
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.thinkgem.jeesite.common.mapper.JsonMapper;
@@ -36,10 +18,25 @@ import com.thinkgem.jeesite.modules.sys.entity.TtsSetting;
 import com.thinkgem.jeesite.modules.sys.entity.User;
 import com.thinkgem.jeesite.modules.sys.service.TtsSettingService;
 import com.thinkgem.jeesite.modules.sys.utils.UserUtils;
-
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import net.sf.json.JsonConfig;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 /**
  * 车辆事件Controller
@@ -80,22 +77,7 @@ public class DoorInOutEventController extends BaseController {
 		Page<DoorInOutEvent> p = new Page<DoorInOutEvent>(request, response);
 		p.setOrderBy("a.id desc");
 		p.setPageSize(1000);
-		Page<DoorInOutEvent> page = doorInOutEventService.findPage(p, doorInOutEvent); 
-//		if (!"".equals(doorInOutEvent.getType()) && doorInOutEvent.getType() != null) {
-//			List<doorInOutEvent> list = page.getList();
-//			List<doorInOutEvent> LL = new ArrayList<doorInOutEvent>();
-//			String[] tempArr = doorInOutEvent.getNodes().split(",");
-//			for (int i = 0; i < list.size(); i++) {
-//				for (int n = 0; n < tempArr.length; n++) {
-//					String eID = list.get(i).getEquipmentId();
-//					String tID = tempArr[n];
-//					if (eID.equals(tID)) {
-//						LL.add(list.get(i));
-//					}
-//				}
-//			}
-//			page.setList(LL);
-//		}
+		Page<DoorInOutEvent> page = doorInOutEventService.findPage(p, doorInOutEvent);
 		
 		model.addAttribute("page", page);
 		model.addAttribute("nodes", doorInOutEvent.getNodes());
