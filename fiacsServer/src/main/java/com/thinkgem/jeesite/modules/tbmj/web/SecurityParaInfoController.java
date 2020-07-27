@@ -103,12 +103,17 @@ public class SecurityParaInfoController extends BaseController {
 	 */
 	@RequiresPermissions("tbmj:securityParaInfo:view")
 	@RequestMapping(value = {"list", ""})
-	public String list(SecurityParaInfo securityParaInfo, Model model) {
-		if(securityParaInfo.getEquipment()!=null && securityParaInfo.getEquipment().getId()!=null && !securityParaInfo.getEquipment().getId().equals("")){
-			List<SecurityParaInfo> list= securityParaInfoService.getByEId(securityParaInfo.getEquipment().getId());
+	public String list(String oId, Model model,RedirectAttributes redirectAttributes) {
+		if(oId!=null && !oId.equals("")){
+			Equipment equipment=equipmentService.getByOfficeId(oId);
+			if(equipment!=null){
+				List<SecurityParaInfo> list= securityParaInfoService.getByEId(equipment.getId());
 
-			model.addAttribute("list", list);
-			model.addAttribute("eid",securityParaInfo.getEquipment().getId());
+				model.addAttribute("list", list);
+				model.addAttribute("oid",oId);
+			}else{
+				addMessage(model,"该机构下暂未添加设备信息！");
+			}
 		}
 		return "modules/tbmj/securityParaInfoList";
 	}
@@ -128,7 +133,9 @@ public class SecurityParaInfoController extends BaseController {
 	@RequiresPermissions("tbmj:securityParaInfo:edit")
 	@RequestMapping(value = "download")
 	@Transactional
-	public String download(String eid, HttpServletRequest request, Model model, RedirectAttributes redirectAttributes) {
+	public String download(String oId, HttpServletRequest request, Model model, RedirectAttributes redirectAttributes) {
+		Equipment equipment=equipmentService.getByOfficeId(oId);
+		String eid=equipment.getId();
 		SecurityParaInfo securityParaInfo =new SecurityParaInfo();
 		securityParaInfo.setEquipment(equipmentService.get(eid));
 		List<SecurityParaInfo> list= securityParaInfoService.getByEId(eid);
@@ -145,13 +152,13 @@ public class SecurityParaInfoController extends BaseController {
 			}
 		}
 		addMessage(redirectAttributes, "防盗参数同步成功");
-		return backListPage(eid, model);
+		return backListPage(oId, model);
 	}
 
-	private String backListPage(String eid,Model model) {
-		model.addAttribute("eid",eid);
-		if(eid!=null && !eid.equals("")){
-			return "redirect:" + Global.getAdminPath() + "/tbmj/securityParaInfo/list?eid="+eid+"&repage";
+	private String backListPage(String oId,Model model) {
+		model.addAttribute("oId",oId);
+		if(oId!=null && !oId.equals("")){
+			return "redirect:" + Global.getAdminPath() + "/tbmj/securityParaInfo/list?oId="+oId+"&repage";
 		}
 		return "redirect:" + Global.getAdminPath() + "/tbmj/securityParaInfo/?repage";
 	}

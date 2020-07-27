@@ -27,7 +27,7 @@
     var setting = {data:{simpleData:{enable:true,idKey:"id",pIdKey:"pId",rootPId:'0'}},
         callback:{onClick:function(event, treeId, treeNode){
                 var id = treeNode.id == '0' ? '' :treeNode.id;
-                $('#officeContent').attr("src","${ctx}/tbmj/defenseParaInfo/list?eid="+id.substring(1));
+                $('#officeContent').attr("src","${ctx}/tbmj/defenseParaInfo/list?oId="+id);
                 <%--$('#officeContent').attr("src","${ctx}/tbmj/defenseParaInfo/list?equipment.id="+id.substring(1));--%>
             }
         }

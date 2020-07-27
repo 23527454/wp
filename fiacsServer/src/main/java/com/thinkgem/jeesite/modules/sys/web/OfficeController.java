@@ -432,7 +432,7 @@ public class OfficeController extends BaseController {
 
 		List<Map<String, Object>> newNodes=Lists.newArrayList();
 		for (Map<String, Object> node : nodes.values()) {
-			Equipment equipment = equipmentService.getByOfficeId(node.get("id").toString());
+			/*Equipment equipment = equipmentService.getByOfficeId(node.get("id").toString());
 			Map<String, Object> newNode = null;
 			if(equipment!=null && equipment.getId()!=null) {
 				List<Dict> dicts=dictService.findListByType("site_type");
@@ -449,7 +449,7 @@ public class OfficeController extends BaseController {
 						newNodes.add(newNode);
 					}
 				}
-			}
+			}*/
 			mapList.add(node);
 		}
 		for(Map<String, Object> node:newNodes){

@@ -66,7 +66,7 @@
 			<td>{{= handleUserName}}</td>
 			<td>{{= handleModeName}}</td>
 			<td>{{= handleTime}}</td>
-			<td>{{= remark}}</td>
+			<td>{{= remarks}}</td>
 		</tr>
         </script>
 </head>

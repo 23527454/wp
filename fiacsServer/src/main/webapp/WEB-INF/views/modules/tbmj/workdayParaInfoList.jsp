@@ -140,31 +140,34 @@
 	</ul>
 </form:form>
 <sys:message content="${message}"/>
-<table class="layui-table" style="width:70%;height: 60%;margin: 0px auto;text-align: center;" >
-	<colgroup>
-		<col width="10%">
-		<col width="10%">
-		<col width="10%">
-		<col width="10%">
-		<col width="10%">
-		<col width="10%">
-		<col width="10%">
-	</colgroup>
-	<thead>
-	<tr>
-		<th style="text-align: center">一</th>
-		<th style="text-align: center">二</th>
-		<th style="text-align: center">三</th>
-		<th style="text-align: center">四</th>
-		<th style="text-align: center">五</th>
-		<th style="text-align: center">六</th>
-		<th style="text-align: center">日</th>
-	</tr>
-	</thead>
-	<tbody id="rl">
+<c:if test="${mrl!=null}">
+	<table class="layui-table" style="width:70%;height: 60%;margin: 0px auto;text-align: center;" >
+		<colgroup>
+			<col width="10%">
+			<col width="10%">
+			<col width="10%">
+			<col width="10%">
+			<col width="10%">
+			<col width="10%">
+			<col width="10%">
+		</colgroup>
+		<thead>
+		<tr>
+			<th style="text-align: center">一</th>
+			<th style="text-align: center">二</th>
+			<th style="text-align: center">三</th>
+			<th style="text-align: center">四</th>
+			<th style="text-align: center">五</th>
+			<th style="text-align: center">六</th>
+			<th style="text-align: center">日</th>
+		</tr>
+		</thead>
+		<tbody id="rl">
 
-	</tbody>
-</table>
+		</tbody>
+	</table>
+</c:if>
+
 
 <script>
     $(function () {

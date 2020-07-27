@@ -207,7 +207,7 @@ public class WorkdayParaInfoController extends BaseController {
 	 */
 	@RequiresPermissions("tbmj:workdayParaInfo:view")
 	@RequestMapping(value = {"list", ""})
-	public String list(String eId, String mon,HttpServletRequest request, HttpServletResponse response, Model model) throws ParseException {
+	public String list(String oId, String mon,HttpServletRequest request, HttpServletResponse response, Model model, RedirectAttributes redirectAttributes) throws ParseException {
 		Calendar date = Calendar.getInstance();
 		//如果没选择月份那就用当前月
 		mon=mon==null||mon.equals("")?String.valueOf(date.get(Calendar.MONTH)+1):mon;
@@ -216,97 +216,104 @@ public class WorkdayParaInfoController extends BaseController {
 
 		WorkdayParaInfo workdayParaInfo=new WorkdayParaInfo();
 		workdayParaInfo.setYear(year);
-		Equipment equipment=equipmentService.get(eId);
-		workdayParaInfo.setEquipment(equipment);
-		workdayParaInfo=workdayParaInfoService.findAllByEIdAndYear(workdayParaInfo);
-		if(workdayParaInfo!=null){
-			switch (Integer.parseInt(mon)){
-				case 1:
-					days=workdayParaInfo.getJan();
-					break;
-				case 2:
-					days=workdayParaInfo.getFeb();
-					break;
-				case 3:
-					days=workdayParaInfo.getMar();
-					break;
-				case 4:
-					days=workdayParaInfo.getApr();
-					break;
-				case 5:
-					days=workdayParaInfo.getMay();
-					break;
-				case 6:
-					days=workdayParaInfo.getJun();
-					break;
-				case 7:
-					days=workdayParaInfo.getJul();
-					break;
-				case 8:
-					days=workdayParaInfo.getAug();
-					break;
-				case 9:
-					days=workdayParaInfo.getSep();
-					break;
-				case 10:
-					days=workdayParaInfo.getOct();
-					break;
-				case 11:
-					days=workdayParaInfo.getNov();
-					break;
-				case 12:
-					days=workdayParaInfo.getDec();
-					break;
-				default:
-					days=workdayParaInfo.getJan();
-					break;
-			}
-			StringBuffer sb=new StringBuffer("");
-			DateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-			Date d = new Date();
-			Calendar c = Calendar.getInstance();
-			boolean isFirst=true;
-			for(int i=0;i<days.length();i++){
-				String dayStatus=days.substring(i,i+1);
-				String str=year+"-"+mon+"-"+(i+1);
-				d=format.parse(str);
-				c.setTime(d);
+		Equipment equipment=equipmentService.getByOfficeId(oId);
+		if(equipment!=null){
+			String eId=equipment.getId();
+			workdayParaInfo.setEquipment(equipment);
+			workdayParaInfo=workdayParaInfoService.findAllByEIdAndYear(workdayParaInfo);
+			if(workdayParaInfo!=null){
+				switch (Integer.parseInt(mon)){
+					case 1:
+						days=workdayParaInfo.getJan();
+						break;
+					case 2:
+						days=workdayParaInfo.getFeb();
+						break;
+					case 3:
+						days=workdayParaInfo.getMar();
+						break;
+					case 4:
+						days=workdayParaInfo.getApr();
+						break;
+					case 5:
+						days=workdayParaInfo.getMay();
+						break;
+					case 6:
+						days=workdayParaInfo.getJun();
+						break;
+					case 7:
+						days=workdayParaInfo.getJul();
+						break;
+					case 8:
+						days=workdayParaInfo.getAug();
+						break;
+					case 9:
+						days=workdayParaInfo.getSep();
+						break;
+					case 10:
+						days=workdayParaInfo.getOct();
+						break;
+					case 11:
+						days=workdayParaInfo.getNov();
+						break;
+					case 12:
+						days=workdayParaInfo.getDec();
+						break;
+					default:
+						days=workdayParaInfo.getJan();
+						break;
+				}
+				StringBuffer sb=new StringBuffer("");
+				DateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+				Date d = new Date();
+				Calendar c = Calendar.getInstance();
+				boolean isFirst=true;
+				for(int i=0;i<days.length();i++){
+					String dayStatus=days.substring(i,i+1);
+					String str=year+"-"+mon+"-"+(i+1);
+					d=format.parse(str);
+					c.setTime(d);
 
-				int week_index2 = c.get(Calendar.DAY_OF_WEEK) - 1;
-				if(week_index2<=0){
-					week_index2 = 7;
-				}
-				if(isFirst){
-					isFirst=false;
-					sb.append("<tr>");
-					for(int l=1;l<week_index2;l++){
-						//这个月第一天前面要空出多少格
-						sb.append("<td></td>");
+					int week_index2 = c.get(Calendar.DAY_OF_WEEK) - 1;
+					if(week_index2<=0){
+						week_index2 = 7;
 					}
-				}
-				if(week_index2==1 && !isFirst){
-					sb.append("<tr>");
-				}
-				//这个月的日
-				if(dayStatus.equals("0")){
-					sb.append("<td class=\"restDay enableSel\">"+(i+1)+"</td>");
-				}else{
-					sb.append("<td class=\"workDay enableSel\">"+(i+1)+"</td>");
-				}
-				if(i+1==days.length() || week_index2==7){
-					if(i+1==days.length()){
-						for (;week_index2<7;week_index2++){
+					if(isFirst){
+						isFirst=false;
+						sb.append("<tr>");
+						for(int l=1;l<week_index2;l++){
+							//这个月第一天前面要空出多少格
 							sb.append("<td></td>");
 						}
 					}
-					sb.append("</tr>");
+					if(week_index2==1 && !isFirst){
+						sb.append("<tr>");
+					}
+					//这个月的日
+					if(dayStatus.equals("0")){
+						sb.append("<td class=\"restDay enableSel\">"+(i+1)+"</td>");
+					}else{
+						sb.append("<td class=\"workDay enableSel\">"+(i+1)+"</td>");
+					}
+					if(i+1==days.length() || week_index2==7){
+						if(i+1==days.length()){
+							for (;week_index2<7;week_index2++){
+								sb.append("<td></td>");
+							}
+						}
+						sb.append("</tr>");
+					}
 				}
+				model.addAttribute("mrl",sb.toString());
+				model.addAttribute("id",workdayParaInfo.getId());
+			}else{
+				addMessage(model,"该设备下暂未添加假日信息！");
 			}
 
-			model.addAttribute("mrl",sb.toString());
-			model.addAttribute("id",workdayParaInfo.getId());
+			model.addAttribute("eId", eId);
+		}else{
+			addMessage(model,"该机构下暂未添加设备信息！");
 		}
-		model.addAttribute("eId", eId);
 		model.addAttribute("mon", mon);
 		return "modules/tbmj/workdayParaInfoList";
 	}

@@ -91,7 +91,9 @@ public class DefenseParaInfoController extends BaseController {
 	@RequiresPermissions("tbmj:defenseParaInfo:edit")
 	@RequestMapping(value = "download")
 	@Transactional
-	public String download(String eid, HttpServletRequest request, Model model, RedirectAttributes redirectAttributes) {
+	public String download(String oId, HttpServletRequest request, Model model, RedirectAttributes redirectAttributes) {
+		Equipment equipment=equipmentService.getByOfficeId(oId);
+		String eid=equipment.getId();
 		DefenseParaInfo defenseParaInfo =new DefenseParaInfo();
 		defenseParaInfo.setEquipment(equipmentService.get(eid));
 		List<DefenseParaInfo> list= defenseParaInfoService.getByEId(eid);
@@ -108,13 +110,13 @@ public class DefenseParaInfoController extends BaseController {
 			}
 		}
 		addMessage(redirectAttributes, "防区参数同步成功");
-		return backListPage(eid, model);
+		return backListPage(oId, model);
 	}
 
-	private String backListPage(String eid,Model model) {
-		model.addAttribute("eid",eid);
-		if(eid!=null && !eid.equals("")){
-			return "redirect:" + Global.getAdminPath() + "/tbmj/defenseParaInfo/list?eid="+eid+"&repage";
+	private String backListPage(String oId,Model model) {
+		model.addAttribute("oId",oId);
+		if(oId!=null && !oId.equals("")){
+			return "redirect:" + Global.getAdminPath() + "/tbmj/defenseParaInfo/list?oId="+oId+"&repage";
 		}
 		return "redirect:" + Global.getAdminPath() + "/tbmj/defenseParaInfo/?repage";
 	}
@@ -124,12 +126,20 @@ public class DefenseParaInfoController extends BaseController {
 	 */
 	@RequiresPermissions("tbmj:defenseParaInfo:view")
 	@RequestMapping(value = {"list", ""})
-	public String list(String eid, Model model) {
-		if(eid!=null && !eid.equals("")){
-			List<DefenseParaInfo> list= defenseParaInfoService.getByEId(eid);
-			model.addAttribute("list", list);
+	public String list(String oId, Model model) {
+		if(oId!=null && !oId.equals("")){
+			Equipment equipment=equipmentService.getByOfficeId(oId);
+			if(equipment!=null){
+				String eid=equipment.getId();
+				if(eid!=null && !eid.equals("")){
+					List<DefenseParaInfo> list= defenseParaInfoService.getByEId(eid);
+					model.addAttribute("list", list);
+				}
+			}else{
+				addMessage(model,"该机构下暂未添加设备信息！");
+			}
+			model.addAttribute("oId",oId);
 		}
-		model.addAttribute("eid",eid);
 		return "modules/tbmj/defenseParaInfoList";
 	}
 	

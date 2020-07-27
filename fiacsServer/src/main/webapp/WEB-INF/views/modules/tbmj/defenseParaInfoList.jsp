@@ -26,8 +26,8 @@
 
 			$("#btnDownload").click(
 					function() {
-						var eid=$("#eid").val();
-						if(eid==null || eid==""){
+						var oId=$("#oId").val();
+						if(oId==null || oId==""){
 							alert("请先选择一个设备!");
 						}else{
 							top.$.jBox.confirm("确认要同步该设备的防区数据吗？", "系统提示", function(
@@ -65,7 +65,7 @@
 </div>--%>
 <sys:message content="${message}"/>
 <form:form id="searchForm" action="${ctx}/tbmj/defenseParaInfo/" method="post" class="breadcrumb form-search">
-	<input type="hidden" name="eid" id="eid" value="${eid}" />
+	<input type="hidden" name="oId" id="oId" value="${oId}" />
 </form:form>
 <table id="contentTable" class="table table-striped table-bordered table-condensed">
 	<thead>

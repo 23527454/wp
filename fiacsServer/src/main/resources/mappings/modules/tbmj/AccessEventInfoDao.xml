@@ -23,7 +23,7 @@
 		suser.name AS "handleUser.name",
 		a.handle_mode as "handleMode",
 		b.name as "officeName",
-		a.remark as "remarks"
+		a.remarks as "remarks"
 	</sql>
 
 	<sql id="accessEventInfoJoins">
